@@ -1,0 +1,205 @@
+/**
+ * Main bootstrap
+ */
+document.addEventListener("DOMContentLoaded", () => {
+  I18n.init();
+  Effects.init();
+  SkillTree.init();
+  Craft.init();
+  /* Narrative MUST init after Craft + SkillTree are mounted so the
+     scroll handler has #knowledge ready to measure. It's deliberately
+     last in the visual stack because its only job is to translate
+     scroll position into CSS variables — every other module owns its
+     own visuals. */
+  Narrative.init();
+  Crystals.init();
+  Portal.init();
+  Merlin.init();
+  Codex.init();
+  initAudio();
+  initTheme();
+  initSmoothAnchors();
+});
+
+/* ------------------------------------------------------------------
+ *  AMBIENT SOUNDTRACK
+ * ------------------------------------------------------------------
+ *  Plays "In Search of the Philosopher's Stone" as a looped, low-volume
+ *  background score. The <audio id="ambient-track"> element in index.html
+ *  carries two <source> tags: .ogg primary + .mp3 fallback.
+ *
+ *  Behaviour:
+ *    · Default volume is intentionally LOW (0.18) so the music sits
+ *      beneath the narration without competing for attention.
+ *    · On first visit we try to autoplay (modern browsers usually
+ *      block this for audible media — we handle that gracefully by
+ *      arming a one-shot listener that retries on the first user
+ *      gesture: click, keydown, touchstart, scroll).
+ *    · A user preference is persisted in localStorage under
+ *      "cv-audio". Allowed values:
+ *        - "playing" → keep playing on next visit
+ *        - "muted"   → user explicitly silenced; never auto-start again
+ *      First-time visitors get the implicit "playing" intent.
+ *    · The existing #audio-toggle button toggles between the two
+ *      states with a soft fade.
+ * ----------------------------------------------------------------- */
+function initAudio() {
+  const btn   = document.getElementById("audio-toggle");
+  const audio = document.getElementById("ambient-track");
+  if (!btn || !audio) return;
+
+  const STORAGE_KEY  = "cv-audio";
+  const TARGET_VOL   = 0.18;             // low, atmospheric
+  const FADE_MS      = 1200;             // fade-in / fade-out duration
+  const FADE_STEP_MS = 60;
+
+  audio.loop   = true;
+  audio.volume = 0;                      // start silent → fade in
+
+  /** Persisted intent — null on first visit. */
+  let intent;
+  try { intent = localStorage.getItem(STORAGE_KEY); } catch { intent = null; }
+  // First-time visitors default to "playing".
+  if (intent !== "muted" && intent !== "playing") intent = "playing";
+
+  let fadeTimer = null;
+  function clearFade() {
+    if (fadeTimer) { clearInterval(fadeTimer); fadeTimer = null; }
+  }
+  function fadeTo(target, onDone) {
+    clearFade();
+    const startVol = audio.volume;
+    const steps    = Math.max(1, Math.round(FADE_MS / FADE_STEP_MS));
+    let i = 0;
+    fadeTimer = setInterval(() => {
+      i++;
+      const t = i / steps;
+      audio.volume = Math.max(0, Math.min(1, startVol + (target - startVol) * t));
+      if (i >= steps) {
+        clearFade();
+        if (onDone) onDone();
+      }
+    }, FADE_STEP_MS);
+  }
+
+  function syncButton(isPlaying) {
+    btn.setAttribute("aria-pressed", isPlaying ? "true" : "false");
+    btn.classList.toggle("is-playing", isPlaying);
+    btn.setAttribute(
+      "aria-label",
+      isPlaying ? "Silenciar música ambiente" : "Ativar música ambiente"
+    );
+  }
+
+  /** Start playback with a soft fade-in. Returns the play() promise. */
+  function startPlayback() {
+    const p = audio.play();
+    if (p && typeof p.then === "function") {
+      return p
+        .then(() => { fadeTo(TARGET_VOL); syncButton(true); })
+        .catch((err) => { syncButton(false); throw err; });
+    }
+    fadeTo(TARGET_VOL);
+    syncButton(true);
+    return Promise.resolve();
+  }
+
+  /** Fade out → pause. */
+  function stopPlayback() {
+    fadeTo(0, () => { try { audio.pause(); } catch { /* ignore */ } });
+    syncButton(false);
+  }
+
+  /** Arm a one-shot listener that retries playback on the first user
+   *  gesture. Used when the browser blocks our initial autoplay. */
+  function armFirstGestureRetry() {
+    const events = ["pointerdown", "keydown", "touchstart", "wheel", "scroll"];
+    const retry = () => {
+      events.forEach((ev) => window.removeEventListener(ev, retry, true));
+      // Only retry if the user hasn't explicitly muted in between.
+      let current;
+      try { current = localStorage.getItem(STORAGE_KEY); } catch { current = null; }
+      if (current === "muted") return;
+      startPlayback().catch(() => { /* still blocked; stay silent */ });
+    };
+    events.forEach((ev) =>
+      window.addEventListener(ev, retry, { once: true, capture: true, passive: true })
+    );
+  }
+
+  /* ── Button toggle ─────────────────────────────────────────────── */
+  btn.addEventListener("click", () => {
+    const isPlaying = !audio.paused && audio.volume > 0.001;
+    if (isPlaying) {
+      stopPlayback();
+      try { localStorage.setItem(STORAGE_KEY, "muted"); } catch { /* ignore */ }
+    } else {
+      startPlayback()
+        .then(() => {
+          try { localStorage.setItem(STORAGE_KEY, "playing"); } catch { /* ignore */ }
+        })
+        .catch(() => { /* ignore play() rejection (rare on user gesture) */ });
+    }
+  });
+
+  /* ── Initial state ─────────────────────────────────────────────── */
+  syncButton(false);
+
+  if (intent === "muted") {
+    // Visitor previously silenced the track — respect that, do nothing.
+    return;
+  }
+
+  /* Try to autoplay. Modern browsers usually reject audible autoplay,
+     so we fall back to playing on the first user gesture.            */
+  startPlayback().catch(() => armFirstGestureRetry());
+}
+
+/* ------------------------------------------------------------------
+ *  THEME TOGGLE · Vesper (dark) ↔ Solis (light)
+ * ------------------------------------------------------------------ */
+function initTheme() {
+  const btn = document.getElementById("theme-toggle");
+  if (!btn) return;
+  const root = document.documentElement;
+  const STORAGE_KEY = "cv-theme";
+
+  const saved = localStorage.getItem(STORAGE_KEY);
+  if (saved === "light" || saved === "dark") {
+    root.dataset.theme = saved;
+  }
+  syncButton();
+
+  btn.addEventListener("click", () => {
+    const next = root.dataset.theme === "light" ? "dark" : "light";
+    root.dataset.theme = next;
+    try { localStorage.setItem(STORAGE_KEY, next); } catch { /* ignore */ }
+    syncButton();
+  });
+
+  function syncButton() {
+    const theme = root.dataset.theme || "dark";
+    const isLight = theme === "light";
+    btn.setAttribute("aria-pressed", isLight ? "true" : "false");
+    btn.dataset.theme = theme;
+    btn.setAttribute(
+      "aria-label",
+      isLight
+        ? "Mudar para Vesper (modo escuro)"
+        : "Mudar para Solis (modo claro)"
+    );
+  }
+}
+
+function initSmoothAnchors() {
+  document.querySelectorAll('a[href^="#"]').forEach((link) => {
+    link.addEventListener("click", (e) => {
+      const id = link.getAttribute("href");
+      if (!id || id === "#") return;
+      const target = document.querySelector(id);
+      if (!target) return;
+      e.preventDefault();
+      target.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+  });
+}

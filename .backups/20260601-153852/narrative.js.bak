@@ -1,0 +1,155 @@
+/**
+ * Narrative · Three-Act scroll progression
+ * ─────────────────────────────────────────────────────────────────
+ * The portfolio is staged as a three-act journey instead of dumping
+ * every layer on the visitor at once. This controller's only job is
+ * to translate the user's scroll position through the page into a
+ * handful of CSS variables and one data attribute on <html>. All
+ * the actual VISUAL choices live in style.css — that way the
+ * Skill Tree canvas (the user's favourite piece) is never touched.
+ *
+ *  Acts
+ *  ────
+ *    Act I  · O UNIVERSO        — Hero is the focus, the body-wide
+ *                                 skill-tree wallpaper roars behind
+ *                                 it. The Craft Constellation has
+ *                                 not yet materialized.
+ *    Act II · A CONVERGÊNCIA    — The user has begun to descend.
+ *                                 The constellation slowly fades in;
+ *                                 the wallpaper stays alive but
+ *                                 yields a touch of brightness.
+ *    Act III· OS PILARES        — Constellation is fully present,
+ *                                 wallpaper softly recedes, the
+ *                                 Skill Tree HUD takes its place.
+ *
+ *  Anchor
+ *  ──────
+ *    Progress is computed against the #knowledge section because
+ *    that's where Acts II and III play out. Act I is implicit:
+ *    progress === 0 means the user is still in the hero zone.
+ *
+ *  CSS handshake (root variables set on the <html> element)
+ *  ────────────────────────────────────────────────────────
+ *    --narrative-progress   : 0..1    scroll position through #knowledge
+ *    --craft-reveal         : 0..1    materialization curve for .craft
+ *                                     (ramps from 0 at progress 0.08
+ *                                      to 1 at progress 0.42)
+ *    --tree-wall-dim        : 0..1    how much the wallpaper retreats
+ *                                     (0 in Act I, ramps to ~0.55 by
+ *                                      Act III; lets the constellation
+ *                                      sit forward without ever
+ *                                      hiding the universe behind it)
+ *  Discrete state
+ *  ──────────────
+ *    data-narrative-act     : "1" | "2" | "3"   used by CSS to
+ *                                                trigger the slow
+ *                                                cross-fades on the
+ *                                                act caption strip
+ *
+ *  All updates are throttled through requestAnimationFrame so the
+ *  scroll handler stays cheap even during fast wheel drags.
+ */
+window.Narrative = (() => {
+  /* Progress thresholds for discrete state transitions. Tuned to
+     match the visual ramps in style.css:
+       · Act II begins as the user enters #knowledge.
+       · Act III takes over once the constellation is fully revealed
+         and the tree HUD is centred-ish in the viewport. */
+  const ACT2_START = 0.18;
+  const ACT3_START = 0.58;
+
+  let root, knowledge;
+  let rafId = null;
+  let lastProgress = -1;
+  let lastAct = null;
+
+  function init() {
+    root      = document.documentElement;
+    knowledge = document.getElementById("knowledge");
+    if (!knowledge) return;
+
+    /* Seed defaults so the very first paint already has values to
+       interpolate from, even before the first scroll event. */
+    root.style.setProperty("--narrative-progress", "0");
+    root.style.setProperty("--craft-reveal",       "0");
+    root.style.setProperty("--tree-wall-dim",      "0");
+    setAct("1");
+
+    measure();
+    window.addEventListener("scroll", requestUpdate, { passive: true });
+    window.addEventListener("resize", requestUpdate, { passive: true });
+    /* When the page restores from bfcache (back/forward navigation),
+       the scroll position may already be deep inside #knowledge. We
+       force one extra paint so the act doesn't lag the layout. */
+    window.addEventListener("pageshow", requestUpdate);
+  }
+
+  function requestUpdate() {
+    if (rafId !== null) return;
+    rafId = requestAnimationFrame(() => {
+      rafId = null;
+      measure();
+    });
+  }
+
+  /* Core scroll → variables conversion. We treat the journey as the
+     #knowledge section traversing the viewport: 0 when its top first
+     touches the bottom of the viewport, 1 when its bottom leaves the
+     top. That gives a single, predictable progress value across any
+     section height or viewport size. */
+  function measure() {
+    const rect = knowledge.getBoundingClientRect();
+    const vh   = window.innerHeight || document.documentElement.clientHeight || 1;
+    const total = rect.height + vh;
+    const traveled = vh - rect.top;
+    const progress = clamp01(traveled / total);
+
+    /* Skip work if we haven't moved enough to matter — saves us a
+       style write on every micro scroll event. */
+    if (Math.abs(progress - lastProgress) < 0.0015) return;
+    lastProgress = progress;
+
+    root.style.setProperty("--narrative-progress", progress.toFixed(4));
+
+    /* CRAFT REVEAL · constellation materialization.
+       Starts emerging shortly after the user begins scrolling into
+       #knowledge (0.08) and is fully present by the time the
+       section is roughly half-traversed (0.42). The eased remap
+       guarantees the fade is graceful at the boundaries. */
+    const reveal = clamp01(remap(progress, 0.08, 0.42, 0, 1));
+    root.style.setProperty("--craft-reveal", easeOutCubic(reveal).toFixed(4));
+
+    /* TREE WALL DIM · how much the live wallpaper retreats.
+       Important: this never hits 1 — we cap at 0.55 so the universe
+       behind the constellation is always visible and alive. */
+    const rawDim = clamp01(remap(progress, 0.15, 0.65, 0, 1));
+    const dim    = easeInOutCubic(rawDim) * 0.55;
+    root.style.setProperty("--tree-wall-dim", dim.toFixed(4));
+
+    /* DISCRETE ACT · drives the caption strip cross-fade. */
+    const act = progress < ACT2_START
+      ? "1"
+      : progress < ACT3_START ? "2" : "3";
+    if (act !== lastAct) {
+      lastAct = act;
+      setAct(act);
+    }
+  }
+
+  function setAct(act) {
+    root.dataset.narrativeAct = act;
+  }
+
+  /* ── tiny math helpers ────────────────────────────────────────── */
+  function clamp01(v) { return v < 0 ? 0 : v > 1 ? 1 : v; }
+  function remap(v, inMin, inMax, outMin, outMax) {
+    if (inMax === inMin) return outMin;
+    return outMin + ((v - inMin) / (inMax - inMin)) * (outMax - outMin);
+  }
+  function easeOutCubic(t)  { return 1 - Math.pow(1 - t, 3); }
+  function easeInOutCubic(t) {
+    return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+  }
+
+  return { init };
+})();

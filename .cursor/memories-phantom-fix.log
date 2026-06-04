@@ -1,0 +1,2 @@
+{"phase":"mid-bigbang","probe":{"overflow":"visible","overflowX":"visible","overflowY":"visible","border":"0px none rgb(214, 231, 209)","boxShadow":"none","background":"rgba(0, 0, 0, 0)","isolation":"auto","bigBangClass":true,"afterContent":"\"\"","afterPosition":"fixed","afterDisplay":"block","beforeDisplay":"none","rect":{"w":1366,"h":499}}}
+{"verdict":{"overflowVisible":true,"noSectionBorder":true,"flashUsesFixed":true,"bigBangActive":true}}

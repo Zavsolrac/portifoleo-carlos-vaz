@@ -1,0 +1,3140 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="dark">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description"
+    content="Carlos Vaz. Arquiteto digital e especialista em IA. Portifólio de projetos, metodologia e narrativa visual." />
+  <meta name="author" content="Carlos Vaz" />
+  <meta name="theme-color" content="#091609" />
+
+  <title>Carlos Vaz · The Arcane Architect</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700;800&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600&family=Hanken+Grotesk:wght@300;400;500;600&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Libre+Caslon+Text:ital,wght@0,400;0,700;1,400&display=swap"
+    rel="stylesheet" />
+  <link rel="stylesheet" href="https://fonts.cdnfonts.com/css/tengwar-annatar" />
+
+  <link rel="stylesheet" href="src/css/style.css" />
+  <link rel="icon" type="image/svg+xml"
+    href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='13' fill='none' stroke='%23C2A46B' stroke-width='1.5'/%3E%3Ccircle cx='16' cy='16' r='6' fill='%23C2A46B'/%3E%3C/svg%3E" />
+</head>
+
+<body>
+  <!-- Atmospheric layers -->
+  <div class="bg-vault" aria-hidden="true">
+    <div class="bg-gradient"></div>
+    <div class="bg-godrays"></div>
+    <canvas id="dust-canvas" class="bg-dust"></canvas>
+    <div class="bg-grain"></div>
+  </div>
+
+  <!-- ======================================================
+       SKILL TREE · Body-wide interactive wallpaper
+       Always visible behind every section. Click nodes to invoke.
+  ====================================================== -->
+  <!-- ======================================================
+       UNIFIED WALLPAPER PLANE
+       The skill-tree (2D canvas) AND the Memory Crystals (Three.js)
+       share the SAME fixed full-viewport plane. There is no separate
+       stage for the crystals — they float over the tree wallpaper as
+       siblings, occupying the same depth. The user perceives a single
+       living constellation, not two distinct sections.
+  ====================================================== -->
+  <div class="tree-wall" id="tree-wall" aria-hidden="true">
+    <canvas id="tree-canvas-bg" class="tree-wall__canvas tree-wall__canvas--bg"></canvas>
+    <canvas id="tree-canvas-fg" class="tree-wall__canvas tree-wall__canvas--fg"></canvas>
+    <canvas id="crystal-canvas" class="tree-wall__crystal-canvas" aria-hidden="true" tabindex="-1"></canvas>
+    <div id="crystal-overlay" class="tree-wall__crystal-overlay" aria-hidden="false"></div>
+  </div>
+
+  <div class="tree-tooltip" id="tree-tooltip" aria-live="polite">
+    <span class="tree-tooltip__title"></span>
+    <span class="tree-tooltip__meta"></span>
+  </div>
+
+  <!-- Top navigation -->
+  <header class="nav" role="banner">
+    <a href="#top" class="nav__brand" aria-label="Carlos Vaz, página inicial">
+      <span class="nav__sigil" aria-hidden="true">
+        <svg viewBox="0 0 32 32" width="22" height="22">
+          <circle cx="16" cy="16" r="13" fill="none" stroke="currentColor" stroke-width="1.2" />
+          <path d="M16 6 L16 26 M6 16 L26 16" stroke="currentColor" stroke-width="0.6" opacity="0.5" />
+          <circle cx="16" cy="16" r="4" fill="currentColor" />
+        </svg>
+      </span>
+      <span class="nav__wordmark">
+        <span class="nav__wordmark-name">Arcane Architect</span>
+        <span class="nav__wordmark-meta" data-i18n="nav.role">Web Developer · AI Specialist</span>
+      </span>
+    </a>
+
+    <nav class="nav__links" aria-label="Navegação primária">
+      <a href="#knowledge" data-i18n="nav.tree">Árvore</a>
+      <a href="#memories" data-i18n="nav.crystals">Cristais</a>
+      <a href="#contracts" data-i18n="nav.contracts">Contratos</a>
+      <a href="#portal" data-i18n="nav.portal">Portal</a>
+    </nav>
+
+    <div class="nav__tools">
+      <button class="tool" id="lang-toggle" aria-haspopup="listbox" aria-expanded="false" aria-label="Alterar idioma">
+        <span id="lang-current">PT</span>
+        <svg viewBox="0 0 12 12" width="10" height="10" aria-hidden="true">
+          <path d="M2 4 L6 8 L10 4" fill="none" stroke="currentColor" stroke-width="1.2" />
+        </svg>
+      </button>
+      <ul class="lang-menu" id="lang-menu" role="listbox" aria-label="Idiomas disponíveis">
+        <li role="option" data-lang="pt" aria-selected="true">Português</li>
+        <li role="option" data-lang="gl" aria-selected="false">Galego</li>
+        <li role="option" data-lang="es" aria-selected="false">Español</li>
+        <li role="option" data-lang="en" aria-selected="false">English</li>
+      </ul>
+
+      <button class="tool" id="audio-toggle" aria-pressed="false" aria-label="Ativar música ambiente">
+        <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true">
+          <path d="M3 6 V10 H5 L9 13 V3 L5 6 Z" fill="currentColor" />
+          <path class="audio-wave" d="M11 5 Q13 8 11 11" fill="none" stroke="currentColor" stroke-width="1"
+            opacity="0.4" />
+          <path class="audio-wave" d="M12.5 3.5 Q15.5 8 12.5 12.5" fill="none" stroke="currentColor" stroke-width="1"
+            opacity="0.4" />
+        </svg>
+      </button>
+
+      <button class="tool" id="theme-toggle" aria-pressed="false" aria-label="Alternar entre Vesper e Solis"
+        title="Vesper · Solis">
+        <svg class="theme-toggle__icon theme-toggle__icon--moon" viewBox="0 0 16 16" width="14" height="14"
+          aria-hidden="true">
+          <path d="M11.5 9.5 A6 6 0 1 1 6.5 4.5 A4.5 4.5 0 0 0 11.5 9.5 Z" fill="currentColor" />
+        </svg>
+        <svg class="theme-toggle__icon theme-toggle__icon--sun" viewBox="0 0 16 16" width="14" height="14"
+          aria-hidden="true">
+          <circle cx="8" cy="8" r="3" fill="currentColor" />
+          <g stroke="currentColor" stroke-width="1.2" stroke-linecap="round">
+            <line x1="8" y1="1.5" x2="8" y2="3" />
+            <line x1="8" y1="13" x2="8" y2="14.5" />
+            <line x1="1.5" y1="8" x2="3" y2="8" />
+            <line x1="13" y1="8" x2="14.5" y2="8" />
+            <line x1="3.2" y1="3.2" x2="4.3" y2="4.3" />
+            <line x1="11.7" y1="11.7" x2="12.8" y2="12.8" />
+            <line x1="3.2" y1="12.8" x2="4.3" y2="11.7" />
+            <line x1="11.7" y1="4.3" x2="12.8" y2="3.2" />
+          </g>
+        </svg>
+      </button>
+    </div>
+  </header>
+
+  <!-- ============================================================
+       NARRATIVE PARTICLES · The single thread of energy
+       ────────────────────────────────────────────────────────────
+       A fullscreen, pointer-events:none canvas painted by
+       src/js/narrative-particles.js. The same particle field
+       travels with the visitor through all five acts and changes
+       behaviour per act:
+           I  · forms the name "CARLOS VAZ" from chaos
+           II · rides a radial wave through the constellation
+           III · orbits the memory crystals area
+           IV · drips as gold ink across the codex
+           V  · converges toward the portal
+       Lives between the body-wide skill-tree wallpaper (z:1)
+       and the main content (z:3). Painted behind the DOM letters
+       so the particles form the name as a glow halo around the
+       glyphs rather than covering them.
+  ============================================================ -->
+  <canvas id="narrative-particles" aria-hidden="true"></canvas>
+
+  <main id="top">
+
+    <!-- ============================================================
+         NARRATIVE CAPTION STRIP · Five-Act spine
+         ────────────────────────────────────────────────────────────
+         A fixed chapter spine anchored to the left edge of the
+         viewport. Each act mirrors a concrete section of the page:
+           I   · Hero          → personal introduction
+           II  · Knowledge     → professional pillars
+           III · Memories      → projects from GitHub
+           IV  · Contracts     → services & pricing
+           V   · Portal        → contact channels
+         The active act is driven by html[data-narrative-act="1..5"],
+         set by src/js/narrative.js via IntersectionObserver. No JS
+         touches this strip — it is a passive visualization.
+    ============================================================ -->
+    <aside class="narrative" aria-hidden="true">
+      <ol class="narrative__list">
+        <li class="narrative__act" data-act="1">
+          <span class="narrative__roman">I</span>
+          <span class="narrative__copy">
+            <span class="narrative__label" data-i18n="narrative.act1.label">O Universo</span>
+            <span class="narrative__hint"  data-i18n="narrative.act1.hint">Apresentação pessoal</span>
+          </span>
+        </li>
+        <li class="narrative__act" data-act="2">
+          <span class="narrative__roman">II</span>
+          <span class="narrative__copy">
+            <span class="narrative__label" data-i18n="narrative.act2.label">A Convergência</span>
+            <span class="narrative__hint"  data-i18n="narrative.act2.hint">Diferencial profissional</span>
+          </span>
+        </li>
+        <li class="narrative__act" data-act="3">
+          <span class="narrative__roman">III</span>
+          <span class="narrative__copy">
+            <span class="narrative__label" data-i18n="narrative.act3.label">Cristais de Memória</span>
+            <span class="narrative__hint"  data-i18n="narrative.act3.hint">Projetos no GitHub</span>
+          </span>
+        </li>
+        <li class="narrative__act" data-act="4">
+          <span class="narrative__roman">IV</span>
+          <span class="narrative__copy">
+            <span class="narrative__label" data-i18n="narrative.act4.label">O Codex dos Ofícios</span>
+            <span class="narrative__hint"  data-i18n="narrative.act4.hint">Serviços, soluções e valores</span>
+          </span>
+        </li>
+        <li class="narrative__act" data-act="5">
+          <span class="narrative__roman">V</span>
+          <span class="narrative__copy">
+            <span class="narrative__label" data-i18n="narrative.act5.label">O Portal</span>
+            <span class="narrative__hint"  data-i18n="narrative.act5.hint">Comunicação e agendamentos</span>
+          </span>
+        </li>
+      </ol>
+    </aside>
+
+    <!-- ======================================================
+         SECTION 1: HERO – The Inner Sanctum
+         The id="hero" is required by narrative.js to observe
+         the act-I entry animation. Removing it would break the
+         five-act controller.
+    ====================================================== -->
+    <section id="hero" class="hero" aria-labelledby="hero-headline">
+      <div class="hero__inner">
+        <figure class="hero__portrait" aria-hidden="false">
+          <div class="hero__portrait-glow" aria-hidden="true"></div>
+          <svg class="hero__rune-ring" viewBox="0 0 360 360" aria-hidden="true">
+            <defs>
+              <path id="ring-path" d="M 180,180 m -160,0 a 160,160 0 1,1 320,0 a 160,160 0 1,1 -320,0" />
+              <linearGradient id="ring-gold" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%" stop-color="#C2A46B" stop-opacity="0.1" />
+                <stop offset="50%" stop-color="#E5BEAE" stop-opacity="0.95" />
+                <stop offset="100%" stop-color="#A13E1E" stop-opacity="0.6" />
+              </linearGradient>
+            </defs>
+            <circle cx="180" cy="180" r="160" fill="none" stroke="url(#ring-gold)" stroke-width="1.4" />
+            <circle cx="180" cy="180" r="152" fill="none" stroke="#C2A46B" stroke-opacity="0.18" stroke-width="0.5" />
+            <text class="hero__rune-text" font-family="Tengwar Annatar, Libre Caslon Text, serif" font-size="9"
+              letter-spacing="3" fill="#C2A46B">
+              <textPath href="#ring-path" startOffset="0">
+                ⌬ ASH NAZG DURBATULÛK · ASH NAZG GIMBATUL · ASH NAZG THRAKATULÛK · AGH BURZUM ISHI KRIMPATUL ASH NAZG
+                DURBATULÛK · ASH NAZG GIMBATUL · ASH NAZG THRAKATULÛK · AGH BURZUM ISHI KRIMPATUL ⌬
+              </textPath>
+            </text>
+          </svg>
+          <div class="hero__rune-fire" aria-hidden="true"></div>
+          <div class="hero__portrait-frame">
+            <img src="src/assets/perfil_carlos.jpg" alt="Retrato de Carlos Vaz" width="280" height="280" />
+          </div>
+        </figure>
+
+        <div class="hero__copy">
+          <p class="hero__eyebrow"><span data-i18n="hero.eyebrow">CHRONICLES OF THE ARCHITECT</span></p>
+          <!--
+            HERO NAME · letter-by-letter scaffolding.
+            ──────────────────────────────────────────────────────
+            The name is split into individual .hero__letter spans
+            so each glyph can materialize on its own beat during
+            Act I — matching the particle field as it converges
+            from chaos to letterforms. The aria-label on the H1
+            keeps the name as a single accessible string for
+            screen readers, while aria-hidden on each letter
+            prevents the visual fragmentation from leaking into
+            assistive output.
+          -->
+          <h1 id="hero-headline" class="hero__name" aria-label="Carlos Vaz">
+            <span class="hero__name-first" aria-hidden="true">
+              <span class="hero__letter" style="--i:0">C</span><span class="hero__letter" style="--i:1">a</span><span class="hero__letter" style="--i:2">r</span><span class="hero__letter" style="--i:3">l</span><span class="hero__letter" style="--i:4">o</span><span class="hero__letter" style="--i:5">s</span>
+            </span>
+            <span class="hero__name-space" aria-hidden="true">&nbsp;</span>
+            <span class="hero__name-last" aria-hidden="true">
+              <span class="hero__letter" style="--i:6">V</span><span class="hero__letter" style="--i:7">a</span><span class="hero__letter" style="--i:8">z</span>
+            </span>
+          </h1>
+          <p class="hero__tagline" data-i18n="hero.tagline">
+            Digital Architect &amp; AI Wizard
+          </p>
+          <!-- HERO LEDE · developer manifesto, forged-metal treatment.
+               (June 2026 refactor — the previous bronze-moss "ancient
+               roots" SVG layer was removed in favour of a pure CSS
+               Tolkien-inspired engraving on the paragraph itself.)
+               Visual goals (see .hero__lede in style.css):
+                 · text reads as inscribed in old metal — dark base,
+                   bronze midtone, aged-gold sheen
+                 · interior forge embers travel slowly across the
+                   letters (no flash, no pulse) on an 11s cycle
+                 · subtle warm halo suggests heat from a distant forge
+                 · stays fully legible at 18px Cinzel
+               No wrapper, no SVG — the paragraph is the artefact. -->
+          <p class="hero__lede" data-i18n="hero.lede">
+            Desenvolvedor Web especializado em interfaces interativas e experiências digitais imersivas
+          </p>
+
+          <!-- HERO ACTIONS · two CTAs that bridge the user into the
+               next act. The labels are short on purpose — they read
+               as ritual invitations ("explore the tree", "see the
+               crystals") rather than UI verbs. Both link to in-page
+               anchors so the existing smooth-anchor handler (in
+               main.js) carries the visitor there. -->
+          <nav class="hero__actions" aria-label="Atalhos da jornada">
+            <a class="hero__cta hero__cta--primary" href="#knowledge" id="hero-explore-tree" data-ktree-open>
+              <span class="hero__cta-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" width="14" height="14">
+                  <path d="M12 3 L12 21 M5 8 L12 3 L19 8 M5 16 L12 21 L19 16"
+                    fill="none" stroke="currentColor" stroke-width="1.5"
+                    stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+              </span>
+              <span class="hero__cta-label" data-i18n="hero.cta.tree">Explorar Árvore</span>
+            </a>
+            <a class="hero__cta hero__cta--ghost" href="#memories" id="hero-cta-crystals">
+              <span class="hero__cta-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" width="14" height="14">
+                  <path d="M12 3 L19 8 L19 16 L12 21 L5 16 L5 8 Z"
+                    fill="none" stroke="currentColor" stroke-width="1.5"
+                    stroke-linejoin="round" />
+                  <path d="M12 8 L15 10 L15 14 L12 16 L9 14 L9 10 Z"
+                    fill="none" stroke="currentColor" stroke-width="1" opacity="0.6" />
+                </svg>
+              </span>
+              <span class="hero__cta-label" data-i18n="hero.cta.crystals">Ver Cristais</span>
+            </a>
+          </nav>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ======================================================
+         SECTION 2: SKILL TREE HUD – The wall is the page itself.
+         This section just hosts the title + HUD + hint anchored
+         over the body-wide tree wallpaper.
+    ====================================================== -->
+    <section id="knowledge" class="tree-vault" aria-labelledby="craft-title">
+      <!-- The original .tree-vault__header (with the "Desenvolvedor Web…"
+           h2 and the differentials lede) used to sit here. It was
+           relocated to .hero__lede above to act as the main developer
+           tagline directly under the H1 "Carlos Vaz". The craft
+           constellation below now owns the section heading via
+           aria-labelledby="craft-title", so the section semantics
+           stay intact. -->
+
+      <!-- ============================================
+           CRAFT CONSTELLATION
+           ----------------------------------------------
+           A six-pointed constellation of crystals orbiting
+           a central "you" core. Each crystal represents one
+           pillar of the architect's craft (direction, narrative,
+           UX, theme, ambience, identity). The connection lines
+           and crystals respond to hover/focus: the matched line
+           lights up, the crystal pulses, and the central plate
+           updates with a poetic description. Pure CSS for the
+           visuals + a small controller in src/js/craft.js for
+           the plate text updates.
+      ============================================ -->
+      <section class="craft" aria-labelledby="craft-title">
+        <header class="craft__head">
+          <p class="craft__eyebrow" data-i18n="craft.eyebrow">CRAFT · NARRATIVE · INTERFACE</p>
+          <h3 class="craft__title" id="craft-title" data-i18n="craft.title">
+            Desenvolvimento Web com foco em experiências digitais memoráveis
+          </h3>
+          <p class="craft__sub" data-i18n="craft.sub">
+            Unindo programação, direção artística e storytelling para criar projetos que vão além da funcionalidade.
+          </p>
+        </header>
+
+        <div class="craft__stage" id="craft-stage">
+          <div class="craft__field" aria-hidden="true"></div>
+
+          <!-- Connection lines · per-key data attribute matches crystals -->
+          <svg class="craft__lines" viewBox="0 0 800 540" preserveAspectRatio="xMidYMid meet"
+            aria-hidden="true">
+            <defs>
+              <linearGradient id="craftLineGrad" gradientUnits="userSpaceOnUse"
+                x1="400" y1="270" x2="400" y2="60">
+                <stop offset="0%"   stop-color="#E5BEAE" stop-opacity="0.75" />
+                <stop offset="55%"  stop-color="#5BC0EB" stop-opacity="0.30" />
+                <stop offset="100%" stop-color="#5BC0EB" stop-opacity="0.05" />
+              </linearGradient>
+            </defs>
+            <g fill="none" stroke="url(#craftLineGrad)" stroke-width="0.9"
+              stroke-linecap="round" stroke-dasharray="2 6">
+              <line class="craft__line" data-key="story"     x1="400" y1="270" x2="400" y2="60" />
+              <line class="craft__line" data-key="ux"        x1="400" y1="270" x2="588" y2="166" />
+              <line class="craft__line" data-key="direction" x1="400" y1="270" x2="588" y2="374" />
+              <line class="craft__line" data-key="theme"     x1="400" y1="270" x2="400" y2="480" />
+              <line class="craft__line" data-key="identity"  x1="400" y1="270" x2="212" y2="374" />
+              <line class="craft__line" data-key="ambience"  x1="400" y1="270" x2="212" y2="166" />
+            </g>
+
+            <!--
+              ENERGY PULSE OVERLAY · Act II
+              ────────────────────────────────────────────────
+              A second set of lines, identical in geometry to
+              the dashed connections above. At rest these are
+              invisible (stroke: transparent). On Act II entry
+              each <line> animates a short bright "bullet" of
+              light traveling FROM the central core TO its
+              crystal via the classic SVG dasharray trick:
+                stroke-dasharray = "<bullet> <huge gap>"
+                stroke-dashoffset animates from length → 0
+              The cumulative six staggered bullets read as
+              energy waking the whole constellation circuit.
+            -->
+            <g class="craft__energies" fill="none"
+              stroke-width="2.2" stroke-linecap="round">
+              <line class="craft__energy" data-key="story"     x1="400" y1="270" x2="400" y2="60" />
+              <line class="craft__energy" data-key="ux"        x1="400" y1="270" x2="588" y2="166" />
+              <line class="craft__energy" data-key="direction" x1="400" y1="270" x2="588" y2="374" />
+              <line class="craft__energy" data-key="theme"     x1="400" y1="270" x2="400" y2="480" />
+              <line class="craft__energy" data-key="identity"  x1="400" y1="270" x2="212" y2="374" />
+              <line class="craft__energy" data-key="ambience"  x1="400" y1="270" x2="212" y2="166" />
+            </g>
+          </svg>
+
+          <!-- Central core: the architect ("you") -->
+          <div class="craft__core">
+            <span class="craft__core-aura" aria-hidden="true"></span>
+            <span class="craft__core-ring" aria-hidden="true"></span>
+            <span class="craft__core-ring craft__core-ring--alt" aria-hidden="true"></span>
+            <div class="craft__core-mark" aria-hidden="true">
+              <svg viewBox="0 0 48 48" width="44" height="44">
+                <path d="M24 4 L40 14 L40 34 L24 44 L8 34 L8 14 Z"
+                  fill="none" stroke="currentColor" stroke-width="1.4" />
+                <path d="M24 12 L34 18 L34 30 L24 36 L14 30 L14 18 Z"
+                  fill="none" stroke="currentColor" stroke-width="0.9" opacity="0.6" />
+                <circle cx="24" cy="24" r="3.2" fill="currentColor" />
+              </svg>
+            </div>
+            <p class="craft__core-label" data-i18n="craft.core.label">VOCÊ</p>
+          </div>
+
+          <!-- 6 satellite crystals (clockwise from 12 o'clock).
+               · data-tier separates the three primary pillars
+                 (storytelling, ux, art direction) — drawn larger and
+                 brighter — from the three secondary pillars (theme,
+                 identity, ambience) — slightly smaller, more diffuse.
+                 The hierarchy is purely visual: every crystal still
+                 surfaces a full description in the plate below. -->
+          <!-- · Storytelling (primary) -->
+          <button type="button" class="craft__node" data-key="story" data-pos="n" data-tier="primary"
+            aria-describedby="craft-plate-body">
+            <span class="craft__node-aura" aria-hidden="true"></span>
+            <span class="craft__node-crystal" aria-hidden="true">
+              <svg viewBox="0 0 48 48" width="34" height="34">
+                <path d="M24 6 L40 14 L40 34 L24 42 L8 34 L8 14 Z"
+                  fill="none" stroke="currentColor" stroke-width="1.2" />
+                <path d="M16 18 L32 18 M16 22 L30 22 M16 26 L32 26 M16 30 L28 30"
+                  stroke="currentColor" stroke-width="1" stroke-linecap="round" opacity="0.85" />
+              </svg>
+            </span>
+            <span class="craft__node-label" data-i18n="craft.story.name">Storytelling</span>
+          </button>
+
+          <!-- · Experiência do Usuário (primary) -->
+          <button type="button" class="craft__node" data-key="ux" data-pos="ne" data-tier="primary"
+            aria-describedby="craft-plate-body">
+            <span class="craft__node-aura" aria-hidden="true"></span>
+            <span class="craft__node-crystal" aria-hidden="true">
+              <svg viewBox="0 0 48 48" width="34" height="34">
+                <path d="M24 6 L40 14 L40 34 L24 42 L8 34 L8 14 Z"
+                  fill="none" stroke="currentColor" stroke-width="1.2" />
+                <path d="M18 18 L22 32 L25 26 L31 24 Z" fill="currentColor" opacity="0.85" />
+                <circle cx="33" cy="33" r="4"  fill="none" stroke="currentColor" stroke-width="0.9" opacity="0.55" />
+                <circle cx="33" cy="33" r="7"  fill="none" stroke="currentColor" stroke-width="0.7" opacity="0.32" />
+              </svg>
+            </span>
+            <span class="craft__node-label" data-i18n="craft.ux.name">Experiência do Usuário</span>
+          </button>
+
+          <!-- · Direção Artística (primary) -->
+          <button type="button" class="craft__node" data-key="direction" data-pos="se" data-tier="primary"
+            aria-describedby="craft-plate-body">
+            <span class="craft__node-aura" aria-hidden="true"></span>
+            <span class="craft__node-crystal" aria-hidden="true">
+              <svg viewBox="0 0 48 48" width="34" height="34">
+                <path d="M24 6 L40 14 L40 34 L24 42 L8 34 L8 14 Z"
+                  fill="none" stroke="currentColor" stroke-width="1.2" />
+                <circle cx="24" cy="24" r="9" fill="none" stroke="currentColor" stroke-width="0.9" opacity="0.7" />
+                <circle cx="18" cy="20" r="2"   fill="currentColor" opacity="0.95" />
+                <circle cx="30" cy="20" r="1.7" fill="currentColor" opacity="0.75" />
+                <circle cx="32" cy="27" r="1.5" fill="currentColor" opacity="0.6" />
+                <circle cx="24" cy="32" r="1.7" fill="currentColor" opacity="0.85" />
+                <circle cx="17" cy="28" r="1.5" fill="currentColor" opacity="0.5" />
+              </svg>
+            </span>
+            <span class="craft__node-label" data-i18n="craft.direction.name">Direção Artística</span>
+          </button>
+
+          <!-- · Tematização (secondary) -->
+          <button type="button" class="craft__node" data-key="theme" data-pos="s" data-tier="secondary"
+            aria-describedby="craft-plate-body">
+            <span class="craft__node-aura" aria-hidden="true"></span>
+            <span class="craft__node-crystal" aria-hidden="true">
+              <svg viewBox="0 0 48 48" width="34" height="34">
+                <path d="M24 6 L40 14 L40 34 L24 42 L8 34 L8 14 Z"
+                  fill="none" stroke="currentColor" stroke-width="1.2" />
+                <path d="M14 32 L19 22 L24 28 L29 18 L34 32 Z"
+                  fill="currentColor" opacity="0.6" stroke="currentColor" stroke-width="0.9" />
+                <circle cx="32" cy="16" r="2.2" fill="currentColor" opacity="0.9" />
+              </svg>
+            </span>
+            <span class="craft__node-label" data-i18n="craft.theme.name">Tematização</span>
+          </button>
+
+          <!-- · Identidade Própria (secondary) -->
+          <button type="button" class="craft__node" data-key="identity" data-pos="sw" data-tier="secondary"
+            aria-describedby="craft-plate-body">
+            <span class="craft__node-aura" aria-hidden="true"></span>
+            <span class="craft__node-crystal" aria-hidden="true">
+              <svg viewBox="0 0 48 48" width="34" height="34">
+                <path d="M24 6 L40 14 L40 34 L24 42 L8 34 L8 14 Z"
+                  fill="none" stroke="currentColor" stroke-width="1.2" />
+                <circle cx="24" cy="24" r="8"  fill="none" stroke="currentColor" stroke-width="0.9" opacity="0.6" />
+                <path d="M24 16 L26 22 L32 22 L27 26 L29 32 L24 28 L19 32 L21 26 L16 22 L22 22 Z"
+                  fill="currentColor" opacity="0.85" />
+              </svg>
+            </span>
+            <span class="craft__node-label" data-i18n="craft.identity.name">Identidade Própria</span>
+          </button>
+
+          <!-- · Ambientação (secondary) -->
+          <button type="button" class="craft__node" data-key="ambience" data-pos="nw" data-tier="secondary"
+            aria-describedby="craft-plate-body">
+            <span class="craft__node-aura" aria-hidden="true"></span>
+            <span class="craft__node-crystal" aria-hidden="true">
+              <svg viewBox="0 0 48 48" width="34" height="34">
+                <path d="M24 6 L40 14 L40 34 L24 42 L8 34 L8 14 Z"
+                  fill="none" stroke="currentColor" stroke-width="1.2" />
+                <circle cx="32" cy="17" r="2.4" fill="currentColor" opacity="0.9" />
+                <path d="M10 32 L18 24 L24 28 L30 22 L38 32 Z"
+                  fill="currentColor" opacity="0.55" />
+                <path d="M10 32 L38 32" stroke="currentColor" stroke-width="0.9" opacity="0.7" />
+              </svg>
+            </span>
+            <span class="craft__node-label" data-i18n="craft.ambience.name">Ambientação</span>
+          </button>
+        </div>
+
+        <!-- Description plate · updated on hover/focus by craft.js.
+             The plate now also hosts a row of "knowledge echo" chips
+             (ul#craft-plate-echo). On hover/focus of a crystal, the
+             chips fade in showing the four allied disciplines that
+             compose the active pillar — e.g. Storytelling →
+             UX Writing · Narrativa · Copywriting · Arquitetura da
+             Informação. When no crystal is active, the row collapses
+             gracefully. The chips are populated by craft.js from the
+             i18n pack (craft.<key>.echo1..echo4). -->
+        <div class="craft__plate" aria-live="polite">
+          <span class="craft__plate-key" id="craft-plate-key" data-i18n="craft.plate.default.key">PASSE SOBRE UM CRISTAL</span>
+          <p class="craft__plate-body" id="craft-plate-body" data-i18n="craft.plate.default.body">
+            Cada cristal guarda um pilar do ofício. Ao tocá-los, a constelação revela a sua essência.
+          </p>
+          <ul class="craft__echo" id="craft-plate-echo" aria-hidden="true">
+            <li class="craft__echo-tag"></li>
+            <li class="craft__echo-tag"></li>
+            <li class="craft__echo-tag"></li>
+            <li class="craft__echo-tag"></li>
+          </ul>
+        </div>
+
+        <p class="craft__epilogue" data-i18n="craft.epilogue">
+          Cada projeto é concebido como um universo próprio — onde design, narrativa e tecnologia
+          trabalham em conjunto para criar experiências únicas.
+        </p>
+      </section>
+
+      <div class="tree-hud" id="tree-hud">
+        <div class="tree-hud__panel">
+          <div class="tree-hud__row">
+            <span class="tree-hud__label" data-i18n="tree.mastered">DOMINADO</span>
+            <span class="tree-hud__count">
+              <strong id="mastered-count">0</strong>
+              <span class="tree-hud__divider">/</span>
+              <span id="mastered-total">0</span>
+            </span>
+          </div>
+          <div class="tree-hud__bar">
+            <div id="mastered-bar"></div>
+          </div>
+          <div class="tree-hud__clusters" id="cluster-legend"></div>
+
+          <div class="tree-hud__actions">
+            <button class="tree-hud__action" id="tree-recenter" aria-label="Centralizar a árvore">
+              <svg viewBox="0 0 16 16" width="11" height="11" aria-hidden="true">
+                <circle cx="8" cy="8" r="2.5" fill="none" stroke="currentColor" stroke-width="1.2" />
+                <path d="M8 1 L8 4 M8 12 L8 15 M1 8 L4 8 M12 8 L15 8" stroke="currentColor" stroke-width="1.2" />
+              </svg>
+              <span>CENTRO</span>
+            </button>
+            <button class="tree-hud__action" id="tree-zoom-in" aria-label="Aproximar">
+              <svg viewBox="0 0 16 16" width="11" height="11" aria-hidden="true">
+                <circle cx="7" cy="7" r="4.5" fill="none" stroke="currentColor" stroke-width="1.2" />
+                <path d="M7 5 L7 9 M5 7 L9 7" stroke="currentColor" stroke-width="1.2" />
+                <path d="M10.3 10.3 L14 14" stroke="currentColor" stroke-width="1.4" />
+              </svg>
+            </button>
+            <button class="tree-hud__action" id="tree-zoom-out" aria-label="Afastar">
+              <svg viewBox="0 0 16 16" width="11" height="11" aria-hidden="true">
+                <circle cx="7" cy="7" r="4.5" fill="none" stroke="currentColor" stroke-width="1.2" />
+                <path d="M5 7 L9 7" stroke="currentColor" stroke-width="1.2" />
+                <path d="M10.3 10.3 L14 14" stroke="currentColor" stroke-width="1.4" />
+              </svg>
+            </button>
+            <button class="tree-hud__action tree-hud__action--reset" id="tree-reset" aria-label="Reiniciar a árvore">
+              <svg viewBox="0 0 16 16" width="11" height="11" aria-hidden="true">
+                <path d="M3 8 A5 5 0 1 1 8 13" fill="none" stroke="currentColor" stroke-width="1.4" />
+                <path d="M1 8 L3 8 L3 6" fill="none" stroke="currentColor" stroke-width="1.4" />
+              </svg>
+              <span>RESET</span>
+            </button>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Ritual overlay -->
+      <div class="ritual" id="ritual" aria-hidden="true">
+        <canvas id="ritual-canvas" class="ritual__canvas"></canvas>
+        <div class="ritual__center">
+          <div class="ritual__rune" id="ritual-rune">
+            <svg viewBox="0 0 200 200" width="200" height="200">
+              <defs>
+                <radialGradient id="rune-glow" cx="50%" cy="50%" r="50%">
+                  <stop offset="0%" stop-color="#E5BEAE" stop-opacity="0.6" />
+                  <stop offset="60%" stop-color="#C2A46B" stop-opacity="0.2" />
+                  <stop offset="100%" stop-color="transparent" />
+                </radialGradient>
+              </defs>
+              <circle cx="100" cy="100" r="90" fill="url(#rune-glow)" />
+              <circle cx="100" cy="100" r="80" fill="none" stroke="#C2A46B" stroke-width="0.6" opacity="0.5" />
+              <circle cx="100" cy="100" r="70" fill="none" stroke="#C2A46B" stroke-width="0.4" opacity="0.35" />
+              <g class="ritual__rune-inner">
+                <path d="M100 35 L100 165 M35 100 L165 100" stroke="#E5BEAE" stroke-width="1" opacity="0.8" />
+                <path d="M55 55 L145 145 M145 55 L55 145" stroke="#E5BEAE" stroke-width="0.8" opacity="0.6" />
+                <polygon points="100,50 130,100 100,150 70,100" fill="none" stroke="#E5BEAE" stroke-width="1.2" />
+                <circle cx="100" cy="100" r="14" fill="none" stroke="#E5BEAE" stroke-width="1.4" />
+                <circle cx="100" cy="100" r="3" fill="#E5BEAE" />
+                <text x="100" y="105" text-anchor="middle" font-family="Libre Caslon Text" font-size="9" fill="#C2A46B"
+                  letter-spacing="2">ARCHITECT</text>
+              </g>
+            </svg>
+          </div>
+          <figure class="ritual__photo" id="ritual-photo" aria-hidden="true">
+            <img src="src/assets/perfil_carlos.jpg" alt="Carlos Vaz, Master of AI" />
+            <span class="ritual__photo-halo"></span>
+          </figure>
+          <p class="ritual__title" id="ritual-title">MASTER OF AI</p>
+          <p class="ritual__subtitle" data-i18n="tree.ritualSub">A jornada está completa. O Arquiteto desperta.</p>
+          <button class="ritual__close" id="ritual-close" aria-label="Fechar ritual">
+            <span data-i18n="tree.ritualClose">CONTINUAR</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ======================================================
+         SECTION 3: MEMORY CRYSTALS – Living relics of the journey.
+         Each repository becomes a faceted memory floating over the
+         skill-tree wallpaper. Clicking opens the Memory Vault.
+    ====================================================== -->
+    <!-- ======================================================
+         SECTION 3: MEMORY CRYSTALS — narrative anchor
+         The 3D crystals themselves live globally inside .tree-wall
+         (siblings of the skill-tree canvases) and float across the
+         entire page. This section is just the textual anchor that
+         explains the concept and lists the rarity legend. There is
+         NO rectangular stage, NO field, NO embedded canvas.
+    ====================================================== -->
+    <section id="memories" class="memories" aria-labelledby="memories-headline">
+      <header class="memories__head">
+        <p class="memories__eyebrow" data-i18n="crystal.eyebrow">RELÍQUIAS DA JORNADA</p>
+        <h2 id="memories-headline" class="memories__title" data-i18n="crystal.title">Cristais de Memória</h2>
+        <p class="memories__lede" data-i18n="crystal.lede">
+          Cada projeto concluído gera um cristal de memória. Toque um deles para acessar a lembrança cristalizada — o
+          conhecimento, a experiência, a conquista.
+        </p>
+
+        <ul class="memories__legend" aria-label="Raridades">
+          <li class="memories__legend-item" data-rarity="common">
+            <span class="memories__legend-dot"></span>
+            <span data-i18n="crystal.rarity.common">Comum</span>
+          </li>
+          <li class="memories__legend-item" data-rarity="rare">
+            <span class="memories__legend-dot"></span>
+            <span data-i18n="crystal.rarity.rare">Raro</span>
+          </li>
+          <li class="memories__legend-item" data-rarity="epic">
+            <span class="memories__legend-dot"></span>
+            <span data-i18n="crystal.rarity.epic">Épico</span>
+          </li>
+          <li class="memories__legend-item" data-rarity="legendary">
+            <span class="memories__legend-dot"></span>
+            <span data-i18n="crystal.rarity.legendary">Lendário</span>
+          </li>
+        </ul>
+      </header>
+
+    </section>
+
+    <!-- Floating loader indicator — appears bottom-right while
+         crystals fetch from GitHub, then dissolves. No stage. -->
+    <div class="crystal-loader" id="crystal-loader" aria-live="polite">
+      <span class="loader-rune" aria-hidden="true"></span>
+      <span data-i18n="crystal.loading">Cristalizando memórias do GitHub...</span>
+    </div>
+
+    <!-- ======================================================
+         SECTION 4: CONTRACTS – Codex dos Contratos Arcanos
+         A second chapter of the same book. Each service is its
+         own open spread (left page = description, right page =
+         pricing & specs), reusing the codex visual language.
+    ====================================================== -->
+    <section id="contracts" class="contracts" aria-labelledby="contracts-title">
+      <header class="contracts__head section-head section-head--center">
+        <p class="contracts__eyebrow" data-i18n="contracts.eyebrow">CAPITVLVM · IV · MMXXVI</p>
+        <h2 class="contracts__title section-head__title" id="contracts-title" data-i18n="contracts.title">Codex dos
+          Contratos Arcanos</h2>
+        <p class="contracts__subtitle section-head__lede" data-i18n="contracts.subtitle">
+          Registro das comissões disponíveis no atelier do Arquiteto. Cada contrato é um pacto vivo, forjado em
+          pergaminho e tinta arcana.
+        </p>
+        <div class="contracts__crown" aria-hidden="true">
+          <svg viewBox="0 0 480 36">
+            <line x1="20" y1="18" x2="180" y2="18" stroke="currentColor" stroke-width="0.7" />
+            <line x1="300" y1="18" x2="460" y2="18" stroke="currentColor" stroke-width="0.7" />
+            <g transform="translate(240 18)">
+              <circle r="11" fill="none" stroke="currentColor" stroke-width="0.9" />
+              <path d="M0 -16 L4 -6 L14 -6 L6 0 L9 10 L0 4 L-9 10 L-6 0 L-14 -6 L-4 -6 Z" fill="currentColor"
+                opacity="0.85" />
+            </g>
+            <circle cx="180" cy="18" r="2" fill="currentColor" />
+            <circle cx="300" cy="18" r="2" fill="currentColor" />
+          </svg>
+        </div>
+      </header>
+
+      <ol class="contracts__list" role="list">
+
+        <!-- ============================================
+             I · LANDING PAGE ARCANA · COMMON
+        ============================================ -->
+        <li class="contract" data-rarity="common">
+          <article class="contract__book" tabindex="0" aria-label="Contrato I — Landing Page Arcana">
+            <span class="contract__corner contract__corner--tl" aria-hidden="true"></span>
+            <span class="contract__corner contract__corner--tr" aria-hidden="true"></span>
+            <span class="contract__corner contract__corner--bl" aria-hidden="true"></span>
+            <span class="contract__corner contract__corner--br" aria-hidden="true"></span>
+
+            <div class="contract__spread">
+              <!-- LEFT PAGE — Description -->
+              <section class="contract__page contract__page--left">
+                <div class="contract__watermark" aria-hidden="true"></div>
+
+                <p class="contract__rarity">
+                  <span class="contract__gem" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" width="14" height="14">
+                      <path d="M12 2 L22 10 L12 22 L2 10 Z" fill="currentColor" opacity="0.9" />
+                      <path d="M2 10 L22 10 L12 22 Z" fill="currentColor" opacity="0.45" />
+                    </svg>
+                  </span>
+                  <span class="contract__rarity-label" data-i18n="contracts.rarity.common">COMUM · I</span>
+                </p>
+
+                <h3 class="contract__name" data-i18n="contracts.s1.name">Landing Page Arcana</h3>
+                <p class="contract__class" data-i18n="contracts.s1.class">Forjada em HTML · CSS · JavaScript</p>
+
+                <div class="contract__divider" aria-hidden="true"><span class="contract__divider-mark">✦</span></div>
+
+                <dl class="contract__meta">
+                  <div>
+                    <dt data-i18n="contracts.purpose">Propósito</dt>
+                    <dd data-i18n="contracts.s1.purpose">Divulgar produtos, serviços, eventos e campanhas com presença
+                      digital impactante.</dd>
+                  </div>
+                  <div>
+                    <dt data-i18n="contracts.tech">Tecnologias</dt>
+                    <dd data-i18n="contracts.s1.tech">HTML · CSS · JavaScript · Animações</dd>
+                  </div>
+                  <div>
+                    <dt data-i18n="contracts.delivery">Prazo Estimado</dt>
+                    <dd data-i18n="contracts.s1.delivery">VII a XV dias · ☾</dd>
+                  </div>
+                </dl>
+
+                <aside class="contract__relic" aria-label="Artefato Exemplar — Allariz">
+                  <p class="contract__relic-label">
+                    <span data-i18n="contracts.relic.label">Artefato Exemplar</span>
+                  </p>
+                  <figure class="contract__relic-figure">
+                    <a class="contract__relic-thumb"
+                       href="https://zavsolrac.github.io/projeto-allariz/"
+                       target="_blank" rel="noopener noreferrer"
+                       tabindex="-1" aria-label="Examinar Artefato — Allariz">
+                      <img src="src/assets/contracts/relic-allariz.webp"
+                           alt="Allariz · iluminura representando uma vila histórica galega"
+                           loading="lazy" decoding="async" width="240" height="160">
+                    </a>
+                  </figure>
+                  <div class="contract__relic-body">
+                    <h4 class="contract__relic-name" data-i18n="contracts.s1.relic.name">Allariz</h4>
+                    <p class="contract__relic-desc" data-i18n="contracts.s1.relic.desc">Landing page desenvolvida para apresentar uma localidade histórica através de narrativa visual, identidade temática e experiência responsiva.</p>
+                    <a class="contract__relic-link"
+                       href="https://zavsolrac.github.io/projeto-allariz/"
+                       target="_blank" rel="noopener noreferrer"
+                       data-i18n="contracts.relic.examine">Examinar Artefato</a>
+                  </div>
+                </aside>
+
+                <p class="contract__page-num">— I —</p>
+              </section>
+
+              <span class="contract__spine" aria-hidden="true"></span>
+
+              <!-- RIGHT PAGE — Pricing & specs -->
+              <section class="contract__page contract__page--right">
+                <div class="contract__watermark contract__watermark--alt" aria-hidden="true"></div>
+
+                <section class="contract__specs">
+                  <h4 data-i18n="contracts.specs.title">Especificações do Contrato</h4>
+                  <ul>
+                    <li>
+                      <span class="contract__spec-name" data-i18n="contracts.spec.rarity">Raridade</span>
+                      <span class="contract__spec-val" data-i18n="contracts.rarity.common.short">COMUM</span>
+                    </li>
+                    <li class="contract__spec--invest">
+                      <span class="contract__spec-name" data-i18n="contracts.spec.invest">Investimento</span>
+                      <span class="contract__spec-val contract__price">
+                        <strong>€490</strong>
+                        <em>R$ 2.490</em>
+                      </span>
+                    </li>
+                    <li>
+                      <span class="contract__spec-name" data-i18n="contracts.spec.diff">Dificuldade</span>
+                      <span class="contract__spec-val contract__stars" aria-label="2 de 5">★★<span
+                          class="off">★★★</span></span>
+                    </li>
+                    <li>
+                      <span class="contract__spec-name" data-i18n="contracts.spec.power">Poder</span>
+                      <span class="contract__power-bar"><span class="contract__power-fill"
+                          style="--w:42%"></span></span>
+                    </li>
+                  </ul>
+                </section>
+
+                <div class="contract__divider" aria-hidden="true"><span class="contract__divider-mark">✦</span></div>
+
+                <section class="contract__perks">
+                  <h4 data-i18n="contracts.perks.title">Benefícios Inclusos</h4>
+                  <ul>
+                    <li><span class="contract__perk-rune" aria-hidden="true">✓</span><span
+                        data-i18n="contracts.s1.perk1">Layout Responsivo</span></li>
+                    <li><span class="contract__perk-rune" aria-hidden="true">✓</span><span
+                        data-i18n="contracts.s1.perk2">SEO Básico</span></li>
+                    <li><span class="contract__perk-rune" aria-hidden="true">✓</span><span
+                        data-i18n="contracts.s1.perk3">Formulário de Contato</span></li>
+                    <li><span class="contract__perk-rune" aria-hidden="true">✓</span><span
+                        data-i18n="contracts.s1.perk4">Deploy Inicial</span></li>
+                  </ul>
+                </section>
+
+                <a class="contract__cta" href="#portal">
+                  <span data-i18n="contracts.cta">Selar Contrato</span>
+                  <svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true">
+                    <path d="M3 8 H13 M9 4 L13 8 L9 12" fill="none" stroke="currentColor" stroke-width="1.4"
+                      stroke-linecap="round" />
+                  </svg>
+                </a>
+
+                <p class="contract__page-num">— II —</p>
+              </section>
+            </div>
+          </article>
+        </li>
+
+        <!-- ============================================
+             II · SITE INSTITUCIONAL · UNCOMMON
+        ============================================ -->
+        <li class="contract" data-rarity="uncommon">
+          <article class="contract__book" tabindex="0" aria-label="Contrato II — Site Institucional">
+            <span class="contract__corner contract__corner--tl" aria-hidden="true"></span>
+            <span class="contract__corner contract__corner--tr" aria-hidden="true"></span>
+            <span class="contract__corner contract__corner--bl" aria-hidden="true"></span>
+            <span class="contract__corner contract__corner--br" aria-hidden="true"></span>
+
+            <div class="contract__spread">
+              <section class="contract__page contract__page--left">
+                <div class="contract__watermark" aria-hidden="true"></div>
+
+                <p class="contract__rarity">
+                  <span class="contract__gem" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" width="14" height="14">
+                      <path d="M12 2 L22 10 L12 22 L2 10 Z" fill="currentColor" opacity="0.9" />
+                      <path d="M2 10 L22 10 L12 22 Z" fill="currentColor" opacity="0.45" />
+                    </svg>
+                  </span>
+                  <span class="contract__rarity-label" data-i18n="contracts.rarity.uncommon">INCOMUM · II</span>
+                </p>
+
+                <h3 class="contract__name" data-i18n="contracts.s2.name">Site Institucional</h3>
+                <p class="contract__class" data-i18n="contracts.s2.class">Presença digital duradoura para empresas e
+                  marcas</p>
+
+                <div class="contract__divider" aria-hidden="true"><span class="contract__divider-mark">✦</span></div>
+
+                <dl class="contract__meta">
+                  <div>
+                    <dt data-i18n="contracts.purpose">Propósito</dt>
+                    <dd data-i18n="contracts.s2.purpose">Estabelecer autoridade e confiança digital para empresas,
+                      marcas e organizações de qualquer porte.</dd>
+                  </div>
+                  <div>
+                    <dt data-i18n="contracts.tech">Tecnologias</dt>
+                    <dd data-i18n="contracts.s2.tech">HTML · CSS · JS · CMS Leve · SEO</dd>
+                  </div>
+                  <div>
+                    <dt data-i18n="contracts.delivery">Prazo Estimado</dt>
+                    <dd data-i18n="contracts.s2.delivery">XV a XXX dias · ☾☾</dd>
+                  </div>
+                </dl>
+
+                <aside class="contract__relic" aria-label="Artefato Exemplar — Arracada">
+                  <p class="contract__relic-label">
+                    <span data-i18n="contracts.relic.label">Artefato Exemplar</span>
+                  </p>
+                  <figure class="contract__relic-figure">
+                    <a class="contract__relic-thumb"
+                       href="https://www.arracadavds.org"
+                       target="_blank" rel="noopener noreferrer"
+                       tabindex="-1" aria-label="Examinar Artefato — Arracada">
+                      <img src="src/assets/contracts/relic-arracada.webp"
+                           alt="Arracada · iluminura de tear, linho e ornamentos celtas galegos"
+                           loading="lazy" decoding="async" width="240" height="160">
+                    </a>
+                  </figure>
+                  <div class="contract__relic-body">
+                    <h4 class="contract__relic-name" data-i18n="contracts.s2.relic.name">Arracada</h4>
+                    <p class="contract__relic-desc" data-i18n="contracts.s2.relic.desc">Portal institucional para associação cultural galega dedicada à preservação do linho e das tradições rurais.</p>
+                    <a class="contract__relic-link"
+                       href="https://www.arracadavds.org"
+                       target="_blank" rel="noopener noreferrer"
+                       data-i18n="contracts.relic.examine">Examinar Artefato</a>
+                  </div>
+                </aside>
+
+                <p class="contract__page-num">— I —</p>
+              </section>
+
+              <span class="contract__spine" aria-hidden="true"></span>
+
+              <section class="contract__page contract__page--right">
+                <div class="contract__watermark contract__watermark--alt" aria-hidden="true"></div>
+
+                <section class="contract__specs">
+                  <h4 data-i18n="contracts.specs.title">Especificações do Contrato</h4>
+                  <ul>
+                    <li>
+                      <span class="contract__spec-name" data-i18n="contracts.spec.rarity">Raridade</span>
+                      <span class="contract__spec-val" data-i18n="contracts.rarity.uncommon.short">INCOMUM</span>
+                    </li>
+                    <li class="contract__spec--invest">
+                      <span class="contract__spec-name" data-i18n="contracts.spec.invest">Investimento</span>
+                      <span class="contract__spec-val contract__price">
+                        <strong>€990</strong>
+                        <em>R$ 4.990</em>
+                      </span>
+                    </li>
+                    <li>
+                      <span class="contract__spec-name" data-i18n="contracts.spec.diff">Dificuldade</span>
+                      <span class="contract__spec-val contract__stars" aria-label="3 de 5">★★★<span
+                          class="off">★★</span></span>
+                    </li>
+                    <li>
+                      <span class="contract__spec-name" data-i18n="contracts.spec.power">Poder</span>
+                      <span class="contract__power-bar"><span class="contract__power-fill"
+                          style="--w:60%"></span></span>
+                    </li>
+                  </ul>
+                </section>
+
+                <div class="contract__divider" aria-hidden="true"><span class="contract__divider-mark">✦</span></div>
+
+                <section class="contract__perks">
+                  <h4 data-i18n="contracts.perks.title">Benefícios Inclusos</h4>
+                  <ul>
+                    <li><span class="contract__perk-rune" aria-hidden="true">✓</span><span
+                        data-i18n="contracts.s2.perk1">Até V Páginas</span></li>
+                    <li><span class="contract__perk-rune" aria-hidden="true">✓</span><span
+                        data-i18n="contracts.s2.perk2">Painel Administrativo</span></li>
+                    <li><span class="contract__perk-rune" aria-hidden="true">✓</span><span
+                        data-i18n="contracts.s2.perk3">SEO Avançado</span></li>
+                    <li><span class="contract__perk-rune" aria-hidden="true">✓</span><span
+                        data-i18n="contracts.s2.perk4">Multi-idioma Básico</span></li>
+                    <li><span class="contract__perk-rune" aria-hidden="true">✓</span><span
+                        data-i18n="contracts.s2.perk5">Hospedagem Assistida</span></li>
+                    <li><span class="contract__perk-rune" aria-hidden="true">✓</span><span
+                        data-i18n="contracts.s2.perk6">Suporte Inicial</span></li>
+                  </ul>
+                </section>
+
+                <a class="contract__cta" href="#portal">
+                  <span data-i18n="contracts.cta">Selar Contrato</span>
+                  <svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true">
+                    <path d="M3 8 H13 M9 4 L13 8 L9 12" fill="none" stroke="currentColor" stroke-width="1.4"
+                      stroke-linecap="round" />
+                  </svg>
+                </a>
+
+                <p class="contract__page-num">— II —</p>
+              </section>
+            </div>
+          </article>
+        </li>
+
+        <!-- ============================================
+             III · PORTFÓLIO PROFISSIONAL · RARE
+        ============================================ -->
+        <li class="contract" data-rarity="rare">
+          <article class="contract__book" tabindex="0" aria-label="Contrato III — Portfólio Profissional">
+            <span class="contract__corner contract__corner--tl" aria-hidden="true"></span>
+            <span class="contract__corner contract__corner--tr" aria-hidden="true"></span>
+            <span class="contract__corner contract__corner--bl" aria-hidden="true"></span>
+            <span class="contract__corner contract__corner--br" aria-hidden="true"></span>
+
+            <div class="contract__spread">
+              <section class="contract__page contract__page--left">
+                <div class="contract__watermark" aria-hidden="true"></div>
+
+                <p class="contract__rarity">
+                  <span class="contract__gem" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" width="14" height="14">
+                      <path d="M12 2 L22 10 L12 22 L2 10 Z" fill="currentColor" opacity="0.9" />
+                      <path d="M2 10 L22 10 L12 22 Z" fill="currentColor" opacity="0.45" />
+                    </svg>
+                  </span>
+                  <span class="contract__rarity-label" data-i18n="contracts.rarity.rare">RARO · III</span>
+                </p>
+
+                <h3 class="contract__name" data-i18n="contracts.s3.name">Portfólio Profissional</h3>
+                <p class="contract__class" data-i18n="contracts.s3.class">Trajetória cristalizada em narrativa visual
+                </p>
+
+                <div class="contract__divider" aria-hidden="true"><span class="contract__divider-mark">✦</span></div>
+
+                <dl class="contract__meta">
+                  <div>
+                    <dt data-i18n="contracts.purpose">Propósito</dt>
+                    <dd data-i18n="contracts.s3.purpose">Apresentar trajetória, projetos e conquistas com narrativa
+                      cinemática que diferencia entre pares.</dd>
+                  </div>
+                  <div>
+                    <dt data-i18n="contracts.tech">Tecnologias</dt>
+                    <dd data-i18n="contracts.s3.tech">HTML · CSS · JS · GSAP · Three.js (opcional)</dd>
+                  </div>
+                  <div>
+                    <dt data-i18n="contracts.delivery">Prazo Estimado</dt>
+                    <dd data-i18n="contracts.s3.delivery">X a XX dias · ☾</dd>
+                  </div>
+                </dl>
+
+                <aside class="contract__relic" aria-label="Artefato Exemplar — Portfolio Developer">
+                  <p class="contract__relic-label">
+                    <span data-i18n="contracts.relic.label">Artefato Exemplar</span>
+                  </p>
+                  <figure class="contract__relic-figure">
+                    <a class="contract__relic-thumb"
+                       href="https://zavsolrac.github.io/exemplo-porfifoleo/"
+                       target="_blank" rel="noopener noreferrer"
+                       tabindex="-1" aria-label="Examinar Artefato — Portfolio Developer">
+                      <img src="src/assets/contracts/relic-portfolio.webp"
+                           alt="Portfolio Developer · iluminura de pergaminho com runas de código e pena de escriba"
+                           loading="lazy" decoding="async" width="240" height="160">
+                    </a>
+                  </figure>
+                  <div class="contract__relic-body">
+                    <h4 class="contract__relic-name" data-i18n="contracts.s3.relic.name">Portfolio Developer</h4>
+                    <p class="contract__relic-desc" data-i18n="contracts.s3.relic.desc">Portfólio profissional focado na apresentação de competências, projetos e trajetória profissional.</p>
+                    <a class="contract__relic-link"
+                       href="https://zavsolrac.github.io/exemplo-porfifoleo/"
+                       target="_blank" rel="noopener noreferrer"
+                       data-i18n="contracts.relic.examine">Examinar Artefato</a>
+                  </div>
+                </aside>
+
+                <p class="contract__page-num">— I —</p>
+              </section>
+
+              <span class="contract__spine" aria-hidden="true"></span>
+
+              <section class="contract__page contract__page--right">
+                <div class="contract__watermark contract__watermark--alt" aria-hidden="true"></div>
+
+                <section class="contract__specs">
+                  <h4 data-i18n="contracts.specs.title">Especificações do Contrato</h4>
+                  <ul>
+                    <li>
+                      <span class="contract__spec-name" data-i18n="contracts.spec.rarity">Raridade</span>
+                      <span class="contract__spec-val" data-i18n="contracts.rarity.rare.short">RARO</span>
+                    </li>
+                    <li class="contract__spec--invest">
+                      <span class="contract__spec-name" data-i18n="contracts.spec.invest">Investimento</span>
+                      <span class="contract__spec-val contract__price">
+                        <strong>€1.790</strong>
+                        <em>R$ 8.900</em>
+                      </span>
+                    </li>
+                    <li>
+                      <span class="contract__spec-name" data-i18n="contracts.spec.diff">Dificuldade</span>
+                      <span class="contract__spec-val contract__stars" aria-label="3 de 5">★★★<span
+                          class="off">★★</span></span>
+                    </li>
+                    <li>
+                      <span class="contract__spec-name" data-i18n="contracts.spec.power">Poder</span>
+                      <span class="contract__power-bar"><span class="contract__power-fill"
+                          style="--w:72%"></span></span>
+                    </li>
+                  </ul>
+                </section>
+
+                <div class="contract__divider" aria-hidden="true"><span class="contract__divider-mark">✦</span></div>
+
+                <section class="contract__perks">
+                  <h4 data-i18n="contracts.perks.title">Benefícios Inclusos</h4>
+                  <ul>
+                    <li><span class="contract__perk-rune" aria-hidden="true">✓</span><span
+                        data-i18n="contracts.s3.perk1">Animações Cinemáticas</span></li>
+                    <li><span class="contract__perk-rune" aria-hidden="true">✓</span><span
+                        data-i18n="contracts.s3.perk2">Galeria de Projetos</span></li>
+                    <li><span class="contract__perk-rune" aria-hidden="true">✓</span><span
+                        data-i18n="contracts.s3.perk3">Storytelling Visual</span></li>
+                    <li><span class="contract__perk-rune" aria-hidden="true">✓</span><span
+                        data-i18n="contracts.s3.perk4">Integração GitHub</span></li>
+                    <li><span class="contract__perk-rune" aria-hidden="true">✓</span><span
+                        data-i18n="contracts.s3.perk5">Modo Claro/Escuro</span></li>
+                    <li><span class="contract__perk-rune" aria-hidden="true">✓</span><span
+                        data-i18n="contracts.s3.perk6">Suporte Inicial</span></li>
+                  </ul>
+                </section>
+
+                <a class="contract__cta" href="#portal">
+                  <span data-i18n="contracts.cta">Selar Contrato</span>
+                  <svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true">
+                    <path d="M3 8 H13 M9 4 L13 8 L9 12" fill="none" stroke="currentColor" stroke-width="1.4"
+                      stroke-linecap="round" />
+                  </svg>
+                </a>
+
+                <p class="contract__page-num">— II —</p>
+              </section>
+            </div>
+          </article>
+        </li>
+
+        <!-- ============================================
+             IV · AUTOMAÇÃO ARCANA E IA · EPIC
+        ============================================ -->
+        <li class="contract" data-rarity="epic">
+          <article class="contract__book" tabindex="0" aria-label="Contrato IV — Automação Arcana e IA">
+            <span class="contract__corner contract__corner--tl" aria-hidden="true"></span>
+            <span class="contract__corner contract__corner--tr" aria-hidden="true"></span>
+            <span class="contract__corner contract__corner--bl" aria-hidden="true"></span>
+            <span class="contract__corner contract__corner--br" aria-hidden="true"></span>
+
+            <div class="contract__spread">
+              <section class="contract__page contract__page--left">
+                <div class="contract__watermark" aria-hidden="true"></div>
+
+                <p class="contract__rarity">
+                  <span class="contract__gem" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" width="14" height="14">
+                      <path d="M12 2 L22 10 L12 22 L2 10 Z" fill="currentColor" opacity="0.9" />
+                      <path d="M2 10 L22 10 L12 22 Z" fill="currentColor" opacity="0.45" />
+                    </svg>
+                  </span>
+                  <span class="contract__rarity-label" data-i18n="contracts.rarity.epic">ÉPICO · IV</span>
+                </p>
+
+                <h3 class="contract__name" data-i18n="contracts.s4.name">Automação Arcana e IA</h3>
+                <p class="contract__class" data-i18n="contracts.s4.class">Sistemas que pensam, agem e multiplicam</p>
+
+                <div class="contract__divider" aria-hidden="true"><span class="contract__divider-mark">✦</span></div>
+
+                <dl class="contract__meta">
+                  <div>
+                    <dt data-i18n="contracts.purpose">Propósito</dt>
+                    <dd data-i18n="contracts.s4.purpose">Conectar sistemas, automatizar processos e integrar IA para
+                      multiplicar produtividade humana.</dd>
+                  </div>
+                  <div>
+                    <dt data-i18n="contracts.tech">Tecnologias</dt>
+                    <dd data-i18n="contracts.s4.tech">Node.js · Python · n8n · LLMs · APIs</dd>
+                  </div>
+                  <div>
+                    <dt data-i18n="contracts.delivery">Prazo Estimado</dt>
+                    <dd data-i18n="contracts.s4.delivery">VII a XX dias · ☾</dd>
+                  </div>
+                </dl>
+
+                <aside class="contract__relic" aria-label="Artefato Exemplar — Arracada IA">
+                  <p class="contract__relic-label">
+                    <span data-i18n="contracts.relic.label">Artefato Exemplar</span>
+                  </p>
+                  <figure class="contract__relic-figure">
+                    <a class="contract__relic-thumb"
+                       href="https://zavsolrac.github.io/novo-arracadavds/"
+                       target="_blank" rel="noopener noreferrer"
+                       tabindex="-1" aria-label="Examinar Artefato — Arracada IA">
+                      <img src="src/assets/contracts/relic-arracada-ia.webp"
+                           alt="Arracada IA · iluminura de cristal alquímico com circuitos rúnicos"
+                           loading="lazy" decoding="async" width="240" height="160">
+                    </a>
+                  </figure>
+                  <div class="contract__relic-body">
+                    <h4 class="contract__relic-name" data-i18n="contracts.s4.relic.name">Arracada IA</h4>
+                    <p class="contract__relic-desc" data-i18n="contracts.s4.relic.desc">Experimento de integração entre inteligência artificial, conteúdo dinâmico, ferramentas acadêmicas e experiência digital temática.</p>
+                    <a class="contract__relic-link"
+                       href="https://zavsolrac.github.io/novo-arracadavds/"
+                       target="_blank" rel="noopener noreferrer"
+                       data-i18n="contracts.relic.examine">Examinar Artefato</a>
+                  </div>
+                </aside>
+
+                <p class="contract__page-num">— I —</p>
+              </section>
+
+              <span class="contract__spine" aria-hidden="true"></span>
+
+              <section class="contract__page contract__page--right">
+                <div class="contract__watermark contract__watermark--alt" aria-hidden="true"></div>
+
+                <section class="contract__specs">
+                  <h4 data-i18n="contracts.specs.title">Especificações do Contrato</h4>
+                  <ul>
+                    <li>
+                      <span class="contract__spec-name" data-i18n="contracts.spec.rarity">Raridade</span>
+                      <span class="contract__spec-val" data-i18n="contracts.rarity.epic.short">ÉPICO</span>
+                    </li>
+                    <li class="contract__spec--invest">
+                      <span class="contract__spec-name" data-i18n="contracts.spec.invest">Investimento</span>
+                      <span class="contract__spec-val contract__price">
+                        <strong>€2.990</strong>
+                        <em>R$ 14.900</em>
+                      </span>
+                    </li>
+                    <li>
+                      <span class="contract__spec-name" data-i18n="contracts.spec.diff">Dificuldade</span>
+                      <span class="contract__spec-val contract__stars" aria-label="4 de 5">★★★★<span
+                          class="off">★</span></span>
+                    </li>
+                    <li>
+                      <span class="contract__spec-name" data-i18n="contracts.spec.power">Poder</span>
+                      <span class="contract__power-bar"><span class="contract__power-fill"
+                          style="--w:88%"></span></span>
+                    </li>
+                  </ul>
+                </section>
+
+                <div class="contract__divider" aria-hidden="true"><span class="contract__divider-mark">✦</span></div>
+
+                <section class="contract__perks">
+                  <h4 data-i18n="contracts.perks.title">Benefícios Inclusos</h4>
+                  <ul>
+                    <li><span class="contract__perk-rune" aria-hidden="true">✓</span><span
+                        data-i18n="contracts.s4.perk1">Integrações Personalizadas</span></li>
+                    <li><span class="contract__perk-rune" aria-hidden="true">✓</span><span
+                        data-i18n="contracts.s4.perk2">Agentes Inteligentes (LLM)</span></li>
+                    <li><span class="contract__perk-rune" aria-hidden="true">✓</span><span
+                        data-i18n="contracts.s4.perk3">Webhooks &amp; APIs</span></li>
+                    <li><span class="contract__perk-rune" aria-hidden="true">✓</span><span
+                        data-i18n="contracts.s4.perk4">Dashboards Operacionais</span></li>
+                    <li><span class="contract__perk-rune" aria-hidden="true">✓</span><span
+                        data-i18n="contracts.s4.perk5">Documentação Técnica</span></li>
+                    <li><span class="contract__perk-rune" aria-hidden="true">✓</span><span
+                        data-i18n="contracts.s4.perk6">Manutenção Mensal Opcional</span></li>
+                  </ul>
+                </section>
+
+                <a class="contract__cta" href="#portal">
+                  <span data-i18n="contracts.cta">Selar Contrato</span>
+                  <svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true">
+                    <path d="M3 8 H13 M9 4 L13 8 L9 12" fill="none" stroke="currentColor" stroke-width="1.4"
+                      stroke-linecap="round" />
+                  </svg>
+                </a>
+
+                <p class="contract__page-num">— II —</p>
+              </section>
+            </div>
+          </article>
+        </li>
+
+        <!-- ============================================
+             V · PROJETO SOB MEDIDA · LEGENDARY
+        ============================================ -->
+        <li class="contract" data-rarity="legendary">
+          <article class="contract__book" tabindex="0" aria-label="Contrato V — Projeto Sob Medida">
+            <span class="contract__corner contract__corner--tl" aria-hidden="true"></span>
+            <span class="contract__corner contract__corner--tr" aria-hidden="true"></span>
+            <span class="contract__corner contract__corner--bl" aria-hidden="true"></span>
+            <span class="contract__corner contract__corner--br" aria-hidden="true"></span>
+
+            <div class="contract__spread">
+              <section class="contract__page contract__page--left">
+                <div class="contract__watermark" aria-hidden="true"></div>
+
+                <p class="contract__rarity">
+                  <span class="contract__gem" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" width="14" height="14">
+                      <path d="M12 2 L22 10 L12 22 L2 10 Z" fill="currentColor" opacity="0.9" />
+                      <path d="M2 10 L22 10 L12 22 Z" fill="currentColor" opacity="0.45" />
+                    </svg>
+                  </span>
+                  <span class="contract__rarity-label" data-i18n="contracts.rarity.legendary">LENDÁRIO · V</span>
+                </p>
+
+                <h3 class="contract__name" data-i18n="contracts.s5.name">Projeto Sob Medida</h3>
+                <p class="contract__class" data-i18n="contracts.s5.class">Visão única, materializada sem moldes</p>
+
+                <div class="contract__divider" aria-hidden="true"><span class="contract__divider-mark">✦</span></div>
+
+                <dl class="contract__meta">
+                  <div>
+                    <dt data-i18n="contracts.purpose">Propósito</dt>
+                    <dd data-i18n="contracts.s5.purpose">Materialização completa de visões digitais únicas — sem moldes,
+                      sem limites, sob co-criação ritualística.</dd>
+                  </div>
+                  <div>
+                    <dt data-i18n="contracts.tech">Tecnologias</dt>
+                    <dd data-i18n="contracts.s5.tech">Stack escolhida sob medida para o desafio</dd>
+                  </div>
+                  <div>
+                    <dt data-i18n="contracts.delivery">Prazo Estimado</dt>
+                    <dd data-i18n="contracts.s5.delivery">A combinar · ☾☾☾</dd>
+                  </div>
+                </dl>
+
+                <aside class="contract__relic" aria-label="Artefato Exemplar — Arracada IA">
+                  <p class="contract__relic-label">
+                    <span data-i18n="contracts.relic.label">Artefato Exemplar</span>
+                  </p>
+                  <figure class="contract__relic-figure">
+                    <a class="contract__relic-thumb"
+                       href="https://zavsolrac.github.io/novo-arracadavds/"
+                       target="_blank" rel="noopener noreferrer"
+                       tabindex="-1" aria-label="Examinar Artefato — Arracada IA">
+                      <img src="src/assets/contracts/relic-arracada-ia.webp"
+                           alt="Arracada IA · iluminura de cristal alquímico com circuitos rúnicos"
+                           loading="lazy" decoding="async" width="240" height="160">
+                    </a>
+                  </figure>
+                  <div class="contract__relic-body">
+                    <h4 class="contract__relic-name" data-i18n="contracts.s5.relic.name">Arracada IA</h4>
+                    <p class="contract__relic-desc" data-i18n="contracts.s5.relic.desc">Projeto personalizado desenvolvido a partir de requisitos específicos e narrativa visual exclusiva.</p>
+                    <a class="contract__relic-link"
+                       href="https://zavsolrac.github.io/novo-arracadavds/"
+                       target="_blank" rel="noopener noreferrer"
+                       data-i18n="contracts.relic.examine">Examinar Artefato</a>
+                  </div>
+                </aside>
+
+                <p class="contract__page-num">— I —</p>
+              </section>
+
+              <span class="contract__spine" aria-hidden="true"></span>
+
+              <section class="contract__page contract__page--right">
+                <div class="contract__watermark contract__watermark--alt" aria-hidden="true"></div>
+
+                <section class="contract__specs">
+                  <h4 data-i18n="contracts.specs.title">Especificações do Contrato</h4>
+                  <ul>
+                    <li>
+                      <span class="contract__spec-name" data-i18n="contracts.spec.rarity">Raridade</span>
+                      <span class="contract__spec-val" data-i18n="contracts.rarity.legendary.short">LENDÁRIO</span>
+                    </li>
+                    <li class="contract__spec--invest">
+                      <span class="contract__spec-name" data-i18n="contracts.spec.invest">Investimento</span>
+                      <span class="contract__spec-val contract__price">
+                        <strong>€1.390+</strong>
+                        <em>R$ 6.900+</em>
+                      </span>
+                    </li>
+                    <li>
+                      <span class="contract__spec-name" data-i18n="contracts.spec.diff">Dificuldade</span>
+                      <span class="contract__spec-val contract__stars" aria-label="5 de 5">★★★★★</span>
+                    </li>
+                    <li>
+                      <span class="contract__spec-name" data-i18n="contracts.spec.power">Poder</span>
+                      <span class="contract__power-bar"><span class="contract__power-fill"
+                          style="--w:100%"></span></span>
+                    </li>
+                  </ul>
+                </section>
+
+                <div class="contract__divider" aria-hidden="true"><span class="contract__divider-mark">✦</span></div>
+
+                <section class="contract__perks">
+                  <h4 data-i18n="contracts.perks.title">Benefícios Inclusos</h4>
+                  <ul>
+                    <li><span class="contract__perk-rune" aria-hidden="true">✓</span><span
+                        data-i18n="contracts.s5.perk1">Discovery Completo</span></li>
+                    <li><span class="contract__perk-rune" aria-hidden="true">✓</span><span
+                        data-i18n="contracts.s5.perk2">Arquitetura Sob Medida</span></li>
+                    <li><span class="contract__perk-rune" aria-hidden="true">✓</span><span
+                        data-i18n="contracts.s5.perk3">Acompanhamento Dedicado</span></li>
+                    <li><span class="contract__perk-rune" aria-hidden="true">✓</span><span
+                        data-i18n="contracts.s5.perk4">Iterações Ilimitadas (escopo)</span></li>
+                    <li><span class="contract__perk-rune" aria-hidden="true">✓</span><span
+                        data-i18n="contracts.s5.perk5">Garantia Estendida</span></li>
+                    <li><span class="contract__perk-rune" aria-hidden="true">✓</span><span
+                        data-i18n="contracts.s5.perk6">Mentoria Pós-Entrega</span></li>
+                  </ul>
+                </section>
+
+                <a class="contract__cta" href="#portal">
+                  <span data-i18n="contracts.cta">Selar Contrato</span>
+                  <svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true">
+                    <path d="M3 8 H13 M9 4 L13 8 L9 12" fill="none" stroke="currentColor" stroke-width="1.4"
+                      stroke-linecap="round" />
+                  </svg>
+                </a>
+
+                <p class="contract__page-num">— II —</p>
+              </section>
+            </div>
+          </article>
+        </li>
+
+        <!-- ============================================
+             VI · NARRATIVA VISUAL · MYTHIC
+        ============================================ -->
+        <li class="contract" data-rarity="mythic">
+          <article class="contract__book" tabindex="0" aria-label="Contrato VI — Narrativa Visual">
+            <span class="contract__corner contract__corner--tl" aria-hidden="true"></span>
+            <span class="contract__corner contract__corner--tr" aria-hidden="true"></span>
+            <span class="contract__corner contract__corner--bl" aria-hidden="true"></span>
+            <span class="contract__corner contract__corner--br" aria-hidden="true"></span>
+
+            <div class="contract__spread">
+              <section class="contract__page contract__page--left">
+                <div class="contract__watermark" aria-hidden="true"></div>
+
+                <p class="contract__rarity">
+                  <span class="contract__gem" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" width="14" height="14">
+                      <path d="M12 2 L22 10 L12 22 L2 10 Z" fill="currentColor" opacity="0.9" />
+                      <path d="M2 10 L22 10 L12 22 Z" fill="currentColor" opacity="0.45" />
+                    </svg>
+                  </span>
+                  <span class="contract__rarity-label" data-i18n="contracts.rarity.mythic">MÍTICO · VI</span>
+                </p>
+
+                <h3 class="contract__name" data-i18n="contracts.s6.name">Narrativa Visual</h3>
+                <p class="contract__class" data-i18n="contracts.s6.class">Storytelling Digital · trajetória cristalizada em narrativa cinemática</p>
+
+                <div class="contract__divider" aria-hidden="true"><span class="contract__divider-mark">✦</span></div>
+
+                <dl class="contract__meta">
+                  <div>
+                    <dt data-i18n="contracts.purpose">Propósito</dt>
+                    <dd data-i18n="contracts.s6.purpose">Apresentar trajetória, projetos e conquistas em narrativa visual envolvente que diferencia entre pares.</dd>
+                  </div>
+                  <div>
+                    <dt data-i18n="contracts.tech">Tecnologias</dt>
+                    <dd data-i18n="contracts.s6.tech">HTML · CSS · JS · GSAP · Three.js (opcional)</dd>
+                  </div>
+                  <div>
+                    <dt data-i18n="contracts.delivery">Prazo Estimado</dt>
+                    <dd data-i18n="contracts.s6.delivery">X a XV dias · ☾</dd>
+                  </div>
+                </dl>
+
+                <aside class="contract__relic" aria-label="Artefato Exemplar — O Arquivo Arcano">
+                  <p class="contract__relic-label">
+                    <span data-i18n="contracts.relic.label">Artefato Exemplar</span>
+                  </p>
+                  <figure class="contract__relic-figure">
+                    <a class="contract__relic-thumb"
+                       href="./"
+                       target="_blank" rel="noopener noreferrer"
+                       tabindex="-1" aria-label="Explorar Narrativa — O Arquivo Arcano">
+                      <img src="src/assets/contracts/relic-arquivo.webp"
+                           alt="O Arquivo Arcano · iluminura da árvore do conhecimento sobre biblioteca antiga"
+                           loading="lazy" decoding="async" width="240" height="160">
+                    </a>
+                  </figure>
+                  <div class="contract__relic-body">
+                    <h4 class="contract__relic-name" data-i18n="contracts.s6.relic.name">O Arquivo Arcano</h4>
+                    <p class="contract__relic-desc" data-i18n="contracts.s6.relic.desc">Uma experiência digital interativa construída como uma narrativa explorável, unindo storytelling, programação, ambientação e design imersivo.</p>
+                    <a class="contract__relic-link"
+                       href="./"
+                       target="_blank" rel="noopener noreferrer"
+                       data-i18n="contracts.s6.relic.cta">Explorar Narrativa</a>
+                  </div>
+                </aside>
+
+                <p class="contract__page-num">— I —</p>
+              </section>
+
+              <span class="contract__spine" aria-hidden="true"></span>
+
+              <section class="contract__page contract__page--right">
+                <div class="contract__watermark contract__watermark--alt" aria-hidden="true"></div>
+
+                <section class="contract__specs">
+                  <h4 data-i18n="contracts.specs.title">Especificações do Contrato</h4>
+                  <ul>
+                    <li>
+                      <span class="contract__spec-name" data-i18n="contracts.spec.rarity">Raridade</span>
+                      <span class="contract__spec-val" data-i18n="contracts.rarity.mythic.short">MÍTICO</span>
+                    </li>
+                    <li class="contract__spec--invest">
+                      <span class="contract__spec-name" data-i18n="contracts.spec.invest">Investimento</span>
+                      <span class="contract__spec-val contract__price">
+                        <strong>€690</strong>
+                        <em>R$ 3.490</em>
+                      </span>
+                    </li>
+                    <li>
+                      <span class="contract__spec-name" data-i18n="contracts.spec.diff">Dificuldade</span>
+                      <span class="contract__spec-val contract__stars" aria-label="3 de 5">★★★<span
+                          class="off">★★</span></span>
+                    </li>
+                    <li>
+                      <span class="contract__spec-name" data-i18n="contracts.spec.power">Poder</span>
+                      <span class="contract__power-bar"><span class="contract__power-fill"
+                          style="--w:68%"></span></span>
+                    </li>
+                  </ul>
+                </section>
+
+                <div class="contract__divider" aria-hidden="true"><span class="contract__divider-mark">✦</span></div>
+
+                <section class="contract__perks">
+                  <h4 data-i18n="contracts.perks.title">Benefícios Inclusos</h4>
+                  <ul>
+                    <li><span class="contract__perk-rune" aria-hidden="true">✓</span><span
+                        data-i18n="contracts.s6.perk1">Animações Cinemáticas</span></li>
+                    <li><span class="contract__perk-rune" aria-hidden="true">✓</span><span
+                        data-i18n="contracts.s6.perk2">Galeria de Projetos</span></li>
+                    <li><span class="contract__perk-rune" aria-hidden="true">✓</span><span
+                        data-i18n="contracts.s6.perk3">Storytelling Visual</span></li>
+                    <li><span class="contract__perk-rune" aria-hidden="true">✓</span><span
+                        data-i18n="contracts.s6.perk4">Integração GitHub</span></li>
+                    <li><span class="contract__perk-rune" aria-hidden="true">✓</span><span
+                        data-i18n="contracts.s6.perk5">Modo Claro/Escuro</span></li>
+                    <li><span class="contract__perk-rune" aria-hidden="true">✓</span><span
+                        data-i18n="contracts.s6.perk6">Suporte Inicial</span></li>
+                  </ul>
+                </section>
+
+                <a class="contract__cta" href="#portal">
+                  <span data-i18n="contracts.cta">Selar Contrato</span>
+                  <svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true">
+                    <path d="M3 8 H13 M9 4 L13 8 L9 12" fill="none" stroke="currentColor" stroke-width="1.4"
+                      stroke-linecap="round" />
+                  </svg>
+                </a>
+
+                <p class="contract__page-num">— II —</p>
+              </section>
+            </div>
+          </article>
+        </li>
+
+      </ol>
+
+      <!-- ============================================
+           DISCLAIMER · variable deadlines
+      ============================================ -->
+      <p class="contracts__disclaimer" data-i18n="contracts.disclaimer">
+        Os prazos indicados são estimativas referenciais e podem variar conforme a disponibilidade do cliente,
+        a complexidade do escopo e as iterações de refinamento acordadas ao longo do contrato.
+      </p>
+
+      <footer class="contracts__seal">
+        <span class="contracts__seal-line" aria-hidden="true"></span>
+        <span class="contracts__seal-mark" aria-hidden="true">
+          <svg viewBox="0 0 36 36" width="30" height="30">
+            <circle cx="18" cy="18" r="15" fill="none" stroke="currentColor" stroke-width="1" />
+            <circle cx="18" cy="18" r="9" fill="none" stroke="currentColor" stroke-width="0.6" />
+            <path d="M18 5 L20 12 L27 12 L21 16 L24 23 L18 19 L12 23 L15 16 L9 12 L16 12 Z" fill="currentColor"
+              opacity="0.7" />
+          </svg>
+        </span>
+        <p class="contracts__seal-text" data-i18n="contracts.seal">Selo do Atelier · Forjado em MMXXVI</p>
+        <span class="contracts__seal-line" aria-hidden="true"></span>
+      </footer>
+    </section>
+
+    <!-- ======================================================
+         SECTION 5: PORTAL – Communication
+    ====================================================== -->
+    <section id="portal" class="portal" aria-labelledby="portal-headline">
+      <header class="section-head section-head--center">
+        <h2 id="portal-headline" class="section-head__title" data-i18n="portal.title">Portal de Comunicação</h2>
+        <p class="section-head__lede" data-i18n="portal.lede">
+          Aberto para alianças, mentoria criativa e novos artefatos digitais.
+        </p>
+      </header>
+
+      <div class="portal__stage">
+        <canvas id="portal-canvas" aria-hidden="true"></canvas>
+
+        <!-- PORTAL · two regional columns (June 2026 restructure)
+             ─────────────────────────────────────────────────────────
+             Each column represents one contact persona and the regions
+             where contracts can be issued. Card text is minimalist
+             (channel name only); flags + column title carry the
+             regional identity.
+               ▸ Column "atlantic"  · GH + WhatsApp PT + Email Carlos
+                 → Portugal · Brasil · Irlanda
+               ▸ Column "iberian"   · LinkedIn + WhatsApp ES + Email Raquel
+                 → Galicia · España
+             SVG flags are inlined for crispness and zero network cost;
+             colour accents are scoped via data-region on each column. -->
+        <div class="portal__columns" role="group" aria-label="Canais de contato">
+
+          <!-- ATLANTIC COLUMN · Portugal · Brasil · Irlanda -->
+          <section class="portal__column" data-region="atlantic" aria-labelledby="portal-col-atlantic-title">
+            <header class="portal__column-head">
+              <span class="portal__column-flags" aria-hidden="true">
+                <!-- Portugal: green + red bands with armillary sphere area simplified -->
+                <svg class="portal__flag" viewBox="0 0 36 24">
+                  <rect width="14" height="24" fill="#006633" />
+                  <rect x="14" width="22" height="24" fill="#D52B1E" />
+                  <circle cx="14" cy="12" r="3.6" fill="#FFE800" stroke="#5C2C0E" stroke-width="0.8" />
+                </svg>
+                <!-- Brasil: green field, yellow rhombus, blue celestial sphere -->
+                <svg class="portal__flag" viewBox="0 0 36 24">
+                  <rect width="36" height="24" fill="#009C3B" />
+                  <polygon points="18,3 33,12 18,21 3,12" fill="#FFDF00" />
+                  <circle cx="18" cy="12" r="4.6" fill="#002776" />
+                </svg>
+                <!-- Irlanda: vertical tricolor green-white-orange -->
+                <svg class="portal__flag" viewBox="0 0 36 24">
+                  <rect width="12" height="24" fill="#169B62" />
+                  <rect x="12" width="12" height="24" fill="#FFFFFF" />
+                  <rect x="24" width="12" height="24" fill="#FF883E" />
+                </svg>
+              </span>
+              <h3 id="portal-col-atlantic-title" class="portal__column-title" data-i18n="portal.col.atlantic">
+                Contratos para Portugal, Brasil &amp; Irlanda
+              </h3>
+              <span class="portal__column-rule" aria-hidden="true"></span>
+            </header>
+            <ul class="portal__links">
+              <li><a href="https://github.com/Zavsolrac" target="_blank" rel="noopener" class="portal__link"
+                  data-channel="github" aria-label="Abrir GitHub">
+                  <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
+                    <path fill="currentColor"
+                      d="M12 .5C5.65.5.5 5.65.5 12c0 5.08 3.29 9.39 7.86 10.91.57.1.78-.25.78-.55 0-.27-.01-1-.02-1.96-3.2.69-3.87-1.54-3.87-1.54-.52-1.32-1.27-1.67-1.27-1.67-1.04-.71.08-.7.08-.7 1.15.08 1.76 1.18 1.76 1.18 1.02 1.76 2.69 1.25 3.34.96.1-.74.4-1.25.72-1.54-2.55-.29-5.24-1.27-5.24-5.66 0-1.25.45-2.27 1.18-3.07-.12-.29-.51-1.46.11-3.04 0 0 .96-.31 3.16 1.17.92-.26 1.9-.39 2.88-.39.98 0 1.96.13 2.88.39 2.2-1.48 3.16-1.17 3.16-1.17.62 1.58.23 2.75.11 3.04.74.8 1.18 1.82 1.18 3.07 0 4.4-2.69 5.36-5.25 5.65.41.35.78 1.04.78 2.1 0 1.51-.01 2.73-.01 3.1 0 .3.21.66.79.55C20.21 21.39 23.5 17.08 23.5 12 23.5 5.65 18.35.5 12 .5z" />
+                  </svg>
+                  <span class="portal__link-label">GitHub</span>
+                </a></li>
+              <li><a href="https://wa.me/351910562698" target="_blank" rel="noopener" class="portal__link"
+                  data-channel="whatsapp" aria-label="Abrir WhatsApp Portugal">
+                  <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
+                    <path fill="currentColor"
+                      d="M17.47 14.38c-.3-.15-1.77-.87-2.04-.97-.27-.1-.47-.15-.67.15-.2.3-.77.97-.95 1.17-.17.2-.35.22-.65.07-.3-.15-1.27-.47-2.42-1.5-.9-.8-1.5-1.78-1.67-2.08-.17-.3-.02-.47.13-.62.13-.13.3-.35.45-.52.15-.17.2-.3.3-.5.1-.2.05-.37-.02-.52-.07-.15-.67-1.62-.92-2.22-.24-.58-.49-.5-.67-.51-.17-.01-.37-.01-.57-.01-.2 0-.52.07-.79.37-.27.3-1.04 1.02-1.04 2.5 0 1.47 1.07 2.9 1.22 3.1.15.2 2.1 3.2 5.08 4.49.71.31 1.26.49 1.69.62.71.23 1.36.2 1.87.12.57-.08 1.77-.72 2.02-1.42.25-.7.25-1.3.17-1.42-.07-.12-.27-.2-.57-.35zM12.04 21.5h-.01a9.5 9.5 0 0 1-4.83-1.32l-.35-.21-3.59.94.96-3.5-.23-.36a9.5 9.5 0 1 1 8.05 4.45zM20.52 3.45A11.49 11.49 0 0 0 12.04 0C5.49 0 .14 5.34.14 11.9c0 2.1.55 4.16 1.6 5.97L0 24l6.27-1.65a11.9 11.9 0 0 0 5.77 1.47h.01c6.55 0 11.9-5.34 11.9-11.91 0-3.18-1.24-6.17-3.43-8.46z" />
+                  </svg>
+                  <span class="portal__link-label">WhatsApp</span>
+                </a></li>
+              <li><a href="mailto:wishmastergm@gmail.com" class="portal__link" data-channel="email"
+                  aria-label="Enviar e-mail (Carlos)">
+                  <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
+                    <path fill="none" stroke="currentColor" stroke-width="1.6"
+                      d="M3 6 L21 6 L21 18 L3 18 Z M3 6 L12 13 L21 6" />
+                  </svg>
+                  <span class="portal__link-label">Email</span>
+                </a></li>
+            </ul>
+          </section>
+
+          <!-- IBERIAN COLUMN · Galicia · España -->
+          <section class="portal__column" data-region="iberian" aria-labelledby="portal-col-iberian-title">
+            <header class="portal__column-head">
+              <span class="portal__column-flags" aria-hidden="true">
+                <!-- Galicia: white field + blue diagonal stripe + red chalice hint -->
+                <svg class="portal__flag" viewBox="0 0 36 24">
+                  <rect width="36" height="24" fill="#FFFFFF" />
+                  <polygon points="0,0 7,0 36,24 29,24" fill="#005EB8" />
+                  <circle cx="18" cy="12" r="2.4" fill="#D52B1E" />
+                </svg>
+                <!-- España: red-yellow-red stripes (2:3:2 simplified) -->
+                <svg class="portal__flag" viewBox="0 0 36 24">
+                  <rect width="36" height="6" fill="#AA151B" />
+                  <rect y="6" width="36" height="12" fill="#F1BF00" />
+                  <rect y="18" width="36" height="6" fill="#AA151B" />
+                </svg>
+              </span>
+              <h3 id="portal-col-iberian-title" class="portal__column-title" data-i18n="portal.col.iberian">
+                Contratos para Galicia &amp; España
+              </h3>
+              <span class="portal__column-rule" aria-hidden="true"></span>
+            </header>
+            <ul class="portal__links">
+              <li><a href="https://www.linkedin.com/in/carlos-vaz-1a9a51274/" target="_blank" rel="noopener" class="portal__link"
+                  data-channel="linkedin" aria-label="Abrir LinkedIn">
+                  <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
+                    <path fill="currentColor"
+                      d="M20.45 20.45h-3.55v-5.57c0-1.33-.03-3.04-1.85-3.04-1.85 0-2.13 1.45-2.13 2.94v5.67H9.36V9h3.41v1.56h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.26 2.37 4.26 5.45zM5.34 7.43a2.06 2.06 0 1 1 0-4.12 2.06 2.06 0 0 1 0 4.12zM7.12 20.45H3.56V9h3.56zM22.22 0H1.77C.79 0 0 .77 0 1.72v20.55C0 23.23.79 24 1.77 24h20.45c.98 0 1.78-.77 1.78-1.73V1.72C24 .77 23.2 0 22.22 0z" />
+                  </svg>
+                  <span class="portal__link-label">LinkedIn</span>
+                </a></li>
+              <li><a href="https://wa.me/34617193035" target="_blank" rel="noopener" class="portal__link"
+                  data-channel="whatsapp" aria-label="Abrir WhatsApp Espanha">
+                  <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
+                    <path fill="currentColor"
+                      d="M17.47 14.38c-.3-.15-1.77-.87-2.04-.97-.27-.1-.47-.15-.67.15-.2.3-.77.97-.95 1.17-.17.2-.35.22-.65.07-.3-.15-1.27-.47-2.42-1.5-.9-.8-1.5-1.78-1.67-2.08-.17-.3-.02-.47.13-.62.13-.13.3-.35.45-.52.15-.17.2-.3.3-.5.1-.2.05-.37-.02-.52-.07-.15-.67-1.62-.92-2.22-.24-.58-.49-.5-.67-.51-.17-.01-.37-.01-.57-.01-.2 0-.52.07-.79.37-.27.3-1.04 1.02-1.04 2.5 0 1.47 1.07 2.9 1.22 3.1.15.2 2.1 3.2 5.08 4.49.71.31 1.26.49 1.69.62.71.23 1.36.2 1.87.12.57-.08 1.77-.72 2.02-1.42.25-.7.25-1.3.17-1.42-.07-.12-.27-.2-.57-.35zM12.04 21.5h-.01a9.5 9.5 0 0 1-4.83-1.32l-.35-.21-3.59.94.96-3.5-.23-.36a9.5 9.5 0 1 1 8.05 4.45zM20.52 3.45A11.49 11.49 0 0 0 12.04 0C5.49 0 .14 5.34.14 11.9c0 2.1.55 4.16 1.6 5.97L0 24l6.27-1.65a11.9 11.9 0 0 0 5.77 1.47h.01c6.55 0 11.9-5.34 11.9-11.91 0-3.18-1.24-6.17-3.43-8.46z" />
+                  </svg>
+                  <span class="portal__link-label">WhatsApp</span>
+                </a></li>
+              <li><a href="mailto:raquelce.rce@gmail.com" class="portal__link" data-channel="email"
+                  aria-label="Enviar e-mail (Raquel)">
+                  <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
+                    <path fill="none" stroke="currentColor" stroke-width="1.6"
+                      d="M3 6 L21 6 L21 18 L3 18 Z M3 6 L12 13 L21 6" />
+                  </svg>
+                  <span class="portal__link-label">Email</span>
+                </a></li>
+            </ul>
+          </section>
+
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ======================================================
+       MEMORY VAULT · Cinematic crystal + Arcane Relic Card
+       ------------------------------------------------------
+       Two columns:
+         · LEFT  → the original cinematic 3D crystal (Three.js
+                   `vault-gem`, with halo + orbital particles)
+         · RIGHT → a Magic: The Gathering-inspired collectible
+                   card revealing the project's information,
+                   crowned by a wax-seal "Open Artifact" CTA
+                   that links to the GitHub repository.
+       Sibling of <main> so its z-index sits above nav & merlin.
+  ====================================================== -->
+  <!-- ============================================================
+       KNOWLEDGE TREE OVERLAY · "Árvore do Conhecimento"
+       ------------------------------------------------------------
+       A secret chapter of the portfolio: a fullscreen astral plane
+       where a monumental ancestral tree grows left→right across the
+       widescreen viewport. Roots (origin) anchor the lower-left,
+       the engraved trunk (CARLOS VAZ · ARQUITETO DIGITAL) rises on
+       the left, and four structural branches expand horizontally,
+       each bearing crystal fruits (skills). A living magic circuit
+       of energy flows roots → trunk → branches → crystals.
+       Hover a crystal → tooltip; click → contextual relic panel.
+       Renderer: src/js/knowledgetree.js
+  ============================================================ -->
+  <div class="ktree" id="knowledge-tree" aria-hidden="true" role="dialog" aria-modal="true"
+    aria-labelledby="ktree-title">
+    <div class="ktree__backdrop" id="ktree-backdrop"></div>
+    <canvas class="ktree__canvas" id="ktree-canvas" aria-hidden="true"></canvas>
+
+    <header class="ktree__head">
+      <span class="ktree__sigil" aria-hidden="true">✦</span>
+      <h2 class="ktree__title" id="ktree-title" data-i18n="ktree.title">Árvore do Conhecimento</h2>
+      <p class="ktree__subtitle" data-i18n="ktree.subtitle">
+        Uma entidade ancestral viva · a trajetória de um arquiteto digital
+      </p>
+    </header>
+
+    <p class="ktree__hint" id="ktree-hint" data-i18n="ktree.hint">
+      Aproxime o cursor dos cristais para revelar cada saber · clique para abrir o artefato
+    </p>
+
+    <button class="ktree__close" id="ktree-close" type="button"
+      aria-label="Retornar ao Mundo" data-i18n-aria="ktree.close">
+      <span class="ktree__close-sigil" aria-hidden="true">✦</span>
+      <span class="ktree__close-label" data-i18n="ktree.close">Retornar ao Mundo</span>
+    </button>
+
+    <!-- Floating tooltip revealed when a crystal is hovered -->
+    <div class="ktree__tip" id="ktree-tip" aria-hidden="true">
+      <span class="ktree__tip-kicker" id="ktree-tip-kicker"></span>
+      <span class="ktree__tip-name" id="ktree-tip-name"></span>
+      <span class="ktree__tip-desc" id="ktree-tip-desc"></span>
+    </div>
+
+    <!-- Contextual relic panel — opens on crystal click (no page change) -->
+    <aside class="ktree__panel" id="ktree-panel" aria-hidden="true" aria-live="polite">
+      <button class="ktree__panel-close" id="ktree-panel-close" type="button" aria-label="Fechar artefato">
+        <svg viewBox="0 0 16 16" width="13" height="13" aria-hidden="true">
+          <path d="M3 3 L13 13 M13 3 L3 13" fill="none" stroke="currentColor" stroke-width="1.5"
+            stroke-linecap="round" />
+        </svg>
+      </button>
+      <span class="ktree__panel-sigil" id="ktree-panel-sigil" aria-hidden="true"></span>
+      <span class="ktree__panel-kicker" id="ktree-panel-kicker"></span>
+      <h3 class="ktree__panel-title" id="ktree-panel-title"></h3>
+      <p class="ktree__panel-desc" id="ktree-panel-desc"></p>
+
+      <div class="ktree__panel-section" id="ktree-panel-exp-wrap">
+        <span class="ktree__panel-label" data-i18n="ktree.panel.experience">Experiência relacionada</span>
+        <p class="ktree__panel-exp" id="ktree-panel-exp"></p>
+      </div>
+
+      <div class="ktree__panel-section" id="ktree-panel-proj-wrap">
+        <span class="ktree__panel-label" data-i18n="ktree.panel.projects">Projetos associados</span>
+        <ul class="ktree__panel-list" id="ktree-panel-proj"></ul>
+      </div>
+
+      <div class="ktree__panel-section" id="ktree-panel-tech-wrap">
+        <span class="ktree__panel-label" data-i18n="ktree.panel.tech">Tecnologias utilizadas</span>
+        <div class="ktree__panel-tags" id="ktree-panel-tech"></div>
+      </div>
+    </aside>
+  </div>
+
+  <div class="crystal-vault" id="crystal-vault" aria-hidden="true" role="dialog" aria-modal="true"
+    aria-labelledby="vault-title">
+    <div class="crystal-vault__backdrop" id="crystal-vault-backdrop"></div>
+
+    <div class="crystal-vault__stage" data-rarity="common">
+      <span class="crystal-vault__brand" aria-hidden="true">
+        <span class="crystal-vault__brand-mark">
+          <svg viewBox="0 0 16 16" width="14" height="14">
+            <path d="M8 1 L14 8 L8 15 L2 8 Z" fill="none" stroke="currentColor" stroke-width="1.4" />
+          </svg>
+        </span>
+        <span class="crystal-vault__brand-name" id="vault-brand-name">ARCANE ARCHITECT</span>
+      </span>
+
+      <button class="crystal-vault__close" id="crystal-vault-close" aria-label="Selar memória">
+        <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true">
+          <path d="M3 3 L13 13 M13 3 L3 13" fill="none" stroke="currentColor" stroke-width="1.4" />
+        </svg>
+      </button>
+
+      <!-- ────────────────────────────────────────────────────────────
+           GUIDED TOUR · prev/next arrows + roman counter.
+           These only render when the stage carries data-tour="true",
+           which is toggled by Crystals.openTour() — entered from the
+           hero "Ver Cristais" CTA. Outside of tour mode the buttons
+           sit invisible (display:none via CSS) so the regular crystal
+           detail flow is untouched.
+      ──────────────────────────────────────────────────────────────── -->
+      <button class="crystal-vault__nav crystal-vault__nav--prev" id="vault-tour-prev"
+              type="button" aria-label="Projeto anterior" data-i18n-aria="crystal.tour.prev">
+        <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+          <path d="M15 4 L7 12 L15 20" fill="none" stroke="currentColor"
+                stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+      <button class="crystal-vault__nav crystal-vault__nav--next" id="vault-tour-next"
+              type="button" aria-label="Próximo projeto" data-i18n-aria="crystal.tour.next">
+        <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+          <path d="M9 4 L17 12 L9 20" fill="none" stroke="currentColor"
+                stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+      <div class="crystal-vault__counter" id="vault-tour-counter" aria-hidden="true">
+        <span class="crystal-vault__counter-current" id="vault-tour-counter-current">I</span>
+        <span class="crystal-vault__counter-sep">·</span>
+        <span class="crystal-vault__counter-total" id="vault-tour-counter-total">IV</span>
+      </div>
+
+      <!-- LEFT · Cinematic crystal (Three.js mini scene) -->
+      <div class="crystal-vault__core">
+        <div class="crystal-vault__halo" aria-hidden="true"></div>
+        <div class="crystal-vault__particles" id="vault-particles" aria-hidden="true"></div>
+        <div class="crystal-vault__gem" id="vault-gem" aria-hidden="true"></div>
+      </div>
+
+      <!-- RIGHT · Arcane Relic Card (MTG-inspired) -->
+      <article class="relic-card" aria-label="Relíquia Arcana">
+        <div class="relic-card__aura" aria-hidden="true"></div>
+
+        <div class="relic-card__frame">
+          <!-- Top: illuminated illustration (~58% of card height) -->
+          <figure class="relic-card__art" id="vault-shot-wrap">
+            <div class="relic-card__art-inner" id="vault-shot" aria-hidden="true"></div>
+            <span class="relic-card__art-overlay" aria-hidden="true"></span>
+            <span class="relic-card__art-sigil" aria-hidden="true">
+              <svg viewBox="0 0 28 28" width="22" height="22">
+                <circle cx="14" cy="14" r="11" fill="none" stroke="currentColor" stroke-width="1" opacity="0.85"/>
+                <path d="M14 4 L15 13 L24 14 L15 15 L14 24 L13 15 L4 14 L13 13 Z" fill="currentColor" opacity="0.95"/>
+              </svg>
+            </span>
+          </figure>
+
+          <!-- Type line: Relíquia · Type · Rarity -->
+          <p class="relic-card__typeline">
+            <span class="relic-card__typeline-prefix" data-i18n="crystal.relic">Relíquia</span>
+            <span class="relic-card__typeline-sep" aria-hidden="true">·</span>
+            <span class="relic-card__typeline-type" id="vault-type">—</span>
+            <span class="relic-card__typeline-sep" aria-hidden="true">·</span>
+            <span class="relic-card__typeline-rarity" id="vault-rarity">—</span>
+          </p>
+
+          <!-- Title plate -->
+          <header class="relic-card__title-plate">
+            <span class="relic-card__title-flourish relic-card__title-flourish--l" aria-hidden="true"></span>
+            <h3 class="relic-card__title" id="vault-title">—</h3>
+            <span class="relic-card__title-flourish relic-card__title-flourish--r" aria-hidden="true"></span>
+          </header>
+
+          <!-- Textbox: flavour description + tech sigils -->
+          <div class="relic-card__textbox">
+            <p class="relic-card__desc" id="vault-desc">—</p>
+            <ul class="relic-card__tags" id="vault-tags" aria-label="Tecnologias"></ul>
+          </div>
+
+          <!-- Bottom seal: single CTA → GitHub -->
+          <footer class="relic-card__footer">
+            <a id="vault-github" href="#" target="_blank" rel="noopener" class="relic-card__seal">
+              <span class="relic-card__seal-glyph" aria-hidden="true">
+                <svg viewBox="0 0 24 24" width="14" height="14">
+                  <circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.2"/>
+                  <path d="M12 3 L13.2 10.8 L21 12 L13.2 13.2 L12 21 L10.8 13.2 L3 12 L10.8 10.8 Z" fill="currentColor"/>
+                </svg>
+              </span>
+              <span class="relic-card__seal-label" data-i18n="crystal.openArtifact">Abrir Artefato</span>
+            </a>
+          </footer>
+
+          <!-- Ornamental corners -->
+          <span class="relic-card__corner relic-card__corner--tl" aria-hidden="true"></span>
+          <span class="relic-card__corner relic-card__corner--tr" aria-hidden="true"></span>
+          <span class="relic-card__corner relic-card__corner--bl" aria-hidden="true"></span>
+          <span class="relic-card__corner relic-card__corner--br" aria-hidden="true"></span>
+        </div>
+      </article>
+    </div>
+  </div>
+
+  <!-- ======================================================
+       MERLIN · The living companion
+       ------------------------------------------------------
+       Merlin is a magical NPC who lives inside the archive.
+       Three integrated pieces behave as one companion:
+         · merlin__sprite       wizard figure with floating /
+                                breathing / aura animations
+         · merlin__scroll       parchment speech bubble (gold
+                                accents, quill cursor on hover)
+         · merlin__quill        mini parchment input where the
+                                visitor whispers questions
+       Spell particles burst from .merlin__spell whenever the
+       wizard speaks, teleports or reacts.  All elements are
+       pointer-events: none on idle; only the avatar, scroll and
+       quill input are interactive, so Merlin never blocks the
+       page beneath. Controller: src/js/merlin.js
+  ====================================================== -->
+  <!-- ============================================================
+       DOMÍNIOS EM EXPANSÃO · ambient right-rail artefact
+       ============================================================
+       A quiet inscription pinned to the right edge, vertically
+       centred so it never collides with the Hero (top-left), the
+       crystals, or Merlin (bottom-right). It reads as a fragment of
+       Carlos's Arquivo Arcano rather than a dashboard widget:
+         · gold Cinzel title on dark parchment-glass, bronze frame
+         · three "domains" with knowledge bars that slowly breathe
+           wider/narrower (continuous growth — never a fixed level,
+           never empty) crossed by a 2000s-style luminous load sweep
+         · six active skills, each with a slow pulsing gold ember
+       At rest the panel is dimmed (discreet); it brightens on hover
+       or focus. Below 1100px it auto-collapses into a slim rune tab
+       (toggled by src/js/domains.js). No percentages, no levels.   -->
+  <aside class="domains" id="domains" data-collapsed="false"
+         aria-label="Domínios em Expansão">
+    <!-- Collapse / expand tab — only shown on narrow viewports -->
+    <button class="domains__handle" id="domains-handle" type="button"
+            aria-expanded="true" aria-controls="domains-panel">
+      <span class="domains__handle-rune" aria-hidden="true">✶</span>
+      <span class="domains__handle-label" data-i18n="domains.handle">Domínios</span>
+    </button>
+
+    <div class="domains__panel" id="domains-panel">
+      <div class="domains__frame" aria-hidden="true"></div>
+
+      <header class="domains__head">
+        <span class="domains__sigil" aria-hidden="true">
+          <svg viewBox="0 0 48 48" width="26" height="26" focusable="false">
+            <g fill="none" stroke="currentColor" stroke-width="1.1"
+               stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="24" cy="24" r="9.5" opacity="0.85"/>
+              <circle cx="24" cy="24" r="15" opacity="0.4"/>
+              <path d="M24 4 L24 12 M24 36 L24 44 M4 24 L12 24 M36 24 L44 24"/>
+              <path d="M24 18 L28 24 L24 30 L20 24 Z" opacity="0.9"/>
+            </g>
+          </svg>
+        </span>
+        <h2 class="domains__title" data-i18n="domains.title">Domínios em Expansão</h2>
+        <span class="domains__rule" aria-hidden="true"></span>
+      </header>
+
+      <ul class="domains__techs">
+        <li class="domains__tech">
+          <span class="domains__tech-name">JavaScript</span>
+          <span class="domains__bar" role="img"
+                aria-label="JavaScript — em expansão contínua">
+            <span class="domains__bar-fill"
+                  style="--reach-min: 60%; --reach-max: 90%; --grow-dur: 17s; --sweep-dur: 4.2s; --sweep-delay: 0s;">
+              <span class="domains__bar-sweep" aria-hidden="true"></span>
+            </span>
+          </span>
+        </li>
+        <li class="domains__tech">
+          <span class="domains__tech-name">Rust</span>
+          <span class="domains__bar" role="img"
+                aria-label="Rust — em expansão contínua">
+            <span class="domains__bar-fill"
+                  style="--reach-min: 50%; --reach-max: 82%; --grow-dur: 19s; --sweep-dur: 4.8s; --sweep-delay: 1.4s;">
+              <span class="domains__bar-sweep" aria-hidden="true"></span>
+            </span>
+          </span>
+        </li>
+        <li class="domains__tech">
+          <span class="domains__tech-name">Prompt Engineering</span>
+          <span class="domains__bar" role="img"
+                aria-label="Prompt Engineering — em expansão contínua">
+            <span class="domains__bar-fill"
+                  style="--reach-min: 66%; --reach-max: 92%; --grow-dur: 15s; --sweep-dur: 3.8s; --sweep-delay: 0.7s;">
+              <span class="domains__bar-sweep" aria-hidden="true"></span>
+            </span>
+          </span>
+        </li>
+      </ul>
+
+      <header class="domains__head domains__head--sub">
+        <h3 class="domains__subtitle" data-i18n="domains.skills">Competências Ativas</h3>
+        <span class="domains__rule" aria-hidden="true"></span>
+      </header>
+
+      <ul class="domains__skills">
+        <li class="domains__skill">
+          <span class="domains__pulse" aria-hidden="true" style="--pulse-delay: 0s;"></span>
+          <span class="domains__skill-name">UX Design</span>
+        </li>
+        <li class="domains__skill">
+          <span class="domains__pulse" aria-hidden="true" style="--pulse-delay: 0.6s;"></span>
+          <span class="domains__skill-name">Storytelling Digital</span>
+        </li>
+        <li class="domains__skill">
+          <span class="domains__pulse" aria-hidden="true" style="--pulse-delay: 1.2s;"></span>
+          <span class="domains__skill-name">AI-Assisted Development</span>
+        </li>
+        <li class="domains__skill">
+          <span class="domains__pulse" aria-hidden="true" style="--pulse-delay: 1.8s;"></span>
+          <span class="domains__skill-name">Creative Direction</span>
+        </li>
+        <li class="domains__skill">
+          <span class="domains__pulse" aria-hidden="true" style="--pulse-delay: 2.4s;"></span>
+          <span class="domains__skill-name">UI Engineering</span>
+        </li>
+        <li class="domains__skill">
+          <span class="domains__pulse" aria-hidden="true" style="--pulse-delay: 3s;"></span>
+          <span class="domains__skill-name">Front-End Architecture</span>
+        </li>
+      </ul>
+    </div>
+  </aside>
+
+  <div class="merlin" id="merlin" aria-hidden="true" data-pos="middle-right">
+    <!-- Spell particle stage (above the sprite, never blocks clicks) -->
+    <div class="merlin__spell" id="merlin-spell" aria-hidden="true"></div>
+
+    <!-- Speech scroll (parchment) -->
+    <aside class="merlin__scroll" id="merlin-bubble" role="status" aria-live="polite">
+      <span class="merlin__scroll-curl merlin__scroll-curl--top" aria-hidden="true"></span>
+      <span class="merlin__scroll-curl merlin__scroll-curl--bottom" aria-hidden="true"></span>
+      <span class="merlin__scroll-seal" aria-hidden="true">
+        <svg viewBox="0 0 16 16" width="11" height="11">
+          <circle cx="8" cy="8" r="6.5" fill="#A13E1E" stroke="#5D2410" stroke-width="0.6" />
+          <path d="M8 4 L9.2 7 L12.4 7 L9.8 9 L10.8 12 L8 10.2 L5.2 12 L6.2 9 L3.6 7 L6.8 7 Z" fill="#FFE6A8" />
+        </svg>
+      </span>
+      <p class="merlin__text" id="merlin-text"></p>
+    </aside>
+
+    <!-- Quill input · mini parchment for asking the wizard -->
+    <form class="merlin__quill" id="merlin-form" autocomplete="off" aria-label="Ask Merlin">
+      <span class="merlin__quill-icon" aria-hidden="true">
+        <svg viewBox="0 0 16 16" width="11" height="11">
+          <path d="M3 13 L5.5 10.5 L7 12 L4.5 14.5 Z" fill="#3A2E20" />
+          <path d="M5.5 10.5 L12 4 Q13.5 2.5 13 1.5 Q12 0.5 10.5 2 L4 8.5 Z" fill="#F4E8C6" stroke="#5D4423"
+            stroke-width="0.3" />
+          <path d="M11 3 L13 1.5" stroke="#C2A46B" stroke-width="0.7" stroke-linecap="round" />
+        </svg>
+      </span>
+      <input class="merlin__quill-input" id="merlin-input" type="text" name="q" maxlength="120"
+        placeholder="Whisper a question…" data-i18n-placeholder="merlin.ask"
+        aria-label="Whisper a question to Merlin" />
+      <button class="merlin__quill-send" id="merlin-send" type="submit" aria-label="Send">
+        <svg viewBox="0 0 16 16" width="10" height="10" aria-hidden="true">
+          <path d="M3 8 L13 8 M9 4 L13 8 L9 12" fill="none" stroke="currentColor" stroke-width="1.4"
+            stroke-linecap="round" />
+        </svg>
+      </button>
+    </form>
+
+    <!-- Wizard sprite -->
+    <button class="merlin__avatar" id="merlin-avatar" type="button" aria-label="Invoke Merlin for wisdom">
+      <span class="merlin__aura" aria-hidden="true"></span>
+      <span class="merlin__halo" aria-hidden="true"></span>
+      <!-- IDLE PHOTONS · 8 firefly-like motes orbit the wizard,
+           mirroring the photon dust around the Memory Crystals so
+           Merlin reads as a living relic. Each photon carries its
+           own --ox/--oy anchor, --dur cycle and --delay offset. -->
+      <span class="merlin__photons" aria-hidden="true">
+        <span class="merlin__photon" style="--ox:-30px; --oy:-22px; --dur:3.6s; --delay:0s"></span>
+        <span class="merlin__photon" style="--ox: 32px; --oy:-24px; --dur:4.1s; --delay:1.2s"></span>
+        <span class="merlin__photon" style="--ox:-38px; --oy:  4px; --dur:4.6s; --delay:0.5s"></span>
+        <span class="merlin__photon" style="--ox: 36px; --oy:  8px; --dur:3.9s; --delay:2.0s"></span>
+        <span class="merlin__photon" style="--ox:-12px; --oy:-34px; --dur:5.0s; --delay:1.8s"></span>
+        <span class="merlin__photon" style="--ox: 16px; --oy:-30px; --dur:3.3s; --delay:0.9s"></span>
+        <span class="merlin__photon" style="--ox:-22px; --oy: 24px; --dur:4.8s; --delay:2.6s"></span>
+        <span class="merlin__photon" style="--ox: 26px; --oy: 22px; --dur:3.7s; --delay:0.3s"></span>
+      </span>
+      <svg class="merlin__sprite" viewBox="0 0 64 76" aria-hidden="true">
+        <defs>
+          <radialGradient id="merlin-orb-grad" cx="50%" cy="50%" r="55%">
+            <stop offset="0%" stop-color="#FFF1C9" stop-opacity="1" />
+            <stop offset="55%" stop-color="#FFD089" stop-opacity="0.85" />
+            <stop offset="100%" stop-color="#C2A46B" stop-opacity="0" />
+          </radialGradient>
+          <linearGradient id="merlin-hat-grad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#3A2E4A" />
+            <stop offset="100%" stop-color="#1F1A2A" />
+          </linearGradient>
+          <linearGradient id="merlin-robe-grad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#3D2E5A" />
+            <stop offset="100%" stop-color="#241936" />
+          </linearGradient>
+        </defs>
+
+        <!-- STAFF (orb at the top) -->
+        <g class="merlin__staff">
+          <line x1="51" y1="30" x2="46" y2="68" stroke="#5D4423" stroke-width="2" stroke-linecap="round" />
+          <line x1="51" y1="30" x2="46" y2="68" stroke="#8A6A3D" stroke-width="0.8" opacity="0.7" />
+          <!-- glowing orb -->
+          <circle class="merlin__staff-glow" cx="51" cy="22" r="9" fill="url(#merlin-orb-grad)" />
+          <circle cx="51" cy="22" r="3.5" fill="#FFF1C9" />
+          <circle cx="51" cy="22" r="1.4" fill="#FFFFFF" />
+        </g>
+
+        <!-- HAT -->
+        <path d="M14 30 L26 4 L40 32 Z" fill="url(#merlin-hat-grad)" stroke="#C2A46B" stroke-width="0.8" />
+        <!-- hat brim -->
+        <ellipse cx="27" cy="32" rx="16" ry="2.6" fill="#1F1A2A" stroke="#C2A46B" stroke-width="0.5" />
+        <!-- hat stars -->
+        <g class="merlin__hat-stars">
+          <circle cx="22" cy="22" r="0.9" fill="#FFE6A8" />
+          <circle cx="28" cy="16" r="0.7" fill="#FFE6A8" />
+          <circle cx="30" cy="26" r="0.6" fill="#FFE6A8" />
+        </g>
+        <!-- hat band -->
+        <rect x="14" y="30.5" width="26" height="1.4" fill="#C2A46B" opacity="0.7" />
+
+        <!-- FACE -->
+        <ellipse cx="27" cy="38" rx="8" ry="6" fill="#E6CBA8" />
+        <!-- eyes (closed dots, friendly) -->
+        <circle cx="24" cy="37" r="0.85" fill="#0F2A22" />
+        <circle cx="30" cy="37" r="0.85" fill="#0F2A22" />
+        <!-- subtle mouth -->
+        <path d="M25.5 40.5 Q27 41.5 28.5 40.5" stroke="#5D4423" stroke-width="0.5" fill="none"
+          stroke-linecap="round" />
+
+        <!-- BEARD -->
+        <path d="M18 41 Q21 50 22 56 Q24 64 27 66 Q30 64 32 56 Q33 50 36 41 Q33 47 27 47 Q21 47 18 41 Z" fill="#EDE5D4"
+          stroke="#C2A46B" stroke-width="0.4" />
+        <!-- beard strands -->
+        <path d="M22 50 L21 60 M27 52 L27 64 M32 50 L33 60" stroke="#C2A46B" stroke-width="0.3" opacity="0.4"
+          fill="none" />
+
+        <!-- ROBE -->
+        <path d="M14 56 Q14 60 16 62 L38 62 Q40 60 40 56 L42 74 L12 74 Z" fill="url(#merlin-robe-grad)" stroke="#C2A46B"
+          stroke-width="0.5" />
+        <!-- robe trim -->
+        <path d="M12 74 L42 74" stroke="#C2A46B" stroke-width="0.7" />
+        <!-- robe rune on chest -->
+        <circle cx="27" cy="62" r="1.6" fill="none" stroke="#C2A46B" stroke-width="0.4" opacity="0.7" />
+        <path d="M27 60.5 L27 63.5 M25.5 62 L28.5 62" stroke="#C2A46B" stroke-width="0.4" opacity="0.7" />
+      </svg>
+    </button>
+  </div>
+
+  <!-- ======================================================
+       CODEX DO ARQUITETO · Lendário registro do personagem.
+       Acessado clicando na foto do perfil_carlos no núcleo.
+  ====================================================== -->
+  <div class="codex" id="codex" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="codex-title">
+    <canvas class="codex__energy" id="codex-energy" aria-hidden="true"></canvas>
+    <div class="codex__veil" id="codex-veil"></div>
+
+    <article class="codex__book" role="document">
+      <button class="codex__close" id="codex-close" aria-label="Selar o Codex">
+        <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">
+          <path d="M5 5 L19 19 M19 5 L5 19" stroke="currentColor" stroke-width="1.6" fill="none"
+            stroke-linecap="round" />
+        </svg>
+      </button>
+
+      <span class="codex__corner codex__corner--tl" aria-hidden="true"></span>
+      <span class="codex__corner codex__corner--tr" aria-hidden="true"></span>
+      <span class="codex__corner codex__corner--bl" aria-hidden="true"></span>
+      <span class="codex__corner codex__corner--br" aria-hidden="true"></span>
+
+      <div class="codex__crown" aria-hidden="true">
+        <svg class="codex__crown-svg" viewBox="0 0 480 36">
+          <line x1="20" y1="18" x2="180" y2="18" stroke="currentColor" stroke-width="0.7" />
+          <line x1="300" y1="18" x2="460" y2="18" stroke="currentColor" stroke-width="0.7" />
+          <g transform="translate(240 18)">
+            <circle r="11" fill="none" stroke="currentColor" stroke-width="0.9" />
+            <path d="M0 -16 L4 -6 L14 -6 L6 0 L9 10 L0 4 L-9 10 L-6 0 L-14 -6 L-4 -6 Z" fill="currentColor"
+              opacity="0.85" />
+          </g>
+          <circle cx="180" cy="18" r="2" fill="currentColor" />
+          <circle cx="300" cy="18" r="2" fill="currentColor" />
+        </svg>
+      </div>
+
+      <header class="codex__head">
+        <p class="codex__eyebrow" data-i18n="codex.eyebrow">CAPITVLVM · III · MMXXVI</p>
+        <h2 class="codex__title" id="codex-title" data-i18n="codex.title">Codex do Arquiteto</h2>
+        <p class="codex__subtitle" data-i18n="codex.subtitle">Registro lendário do Núcleo Arcano</p>
+      </header>
+
+      <div class="codex__spread">
+        <!-- LEFT PAGE · Identidade -->
+        <section class="codex__page codex__page--left">
+          <div class="codex__watermark" aria-hidden="true"></div>
+
+          <figure class="codex__portrait">
+            <span class="codex__portrait-frame">
+              <span class="codex__portrait-corner codex__portrait-corner--tl"></span>
+              <span class="codex__portrait-corner codex__portrait-corner--tr"></span>
+              <span class="codex__portrait-corner codex__portrait-corner--bl"></span>
+              <span class="codex__portrait-corner codex__portrait-corner--br"></span>
+              <img src="src/assets/perfil_carlos.jpg" alt="Retrato de Carlos Vaz" />
+            </span>
+            <figcaption class="codex__portrait-cap" data-i18n="codex.portrait">— ARCANE ARCHITECT —</figcaption>
+          </figure>
+
+          <h3 class="codex__name">Carlos Vaz</h3>
+          <p class="codex__class-main" data-i18n="codex.classMain">Arcane Architect</p>
+
+          <div class="codex__divider" aria-hidden="true">
+            <span class="codex__divider-mark">✦</span>
+          </div>
+
+          <dl class="codex__identity">
+            <div>
+              <dt data-i18n="codex.identity.classes">Classes Secundárias</dt>
+              <dd>
+                <span data-i18n="codex.classes.env">Environmental Manager</span>
+                <span class="sep">·</span>
+                <span data-i18n="codex.classes.front">Front-End Developer</span>
+                <span class="sep">·</span>
+                <span data-i18n="codex.classes.ai">AI Builder</span>
+              </dd>
+            </div>
+            <div>
+              <dt data-i18n="codex.identity.origin">Origem</dt>
+              <dd data-i18n="codex.identity.origin.value">Brasil · Terra das Constelações Tropicais</dd>
+            </div>
+            <div>
+              <dt data-i18n="codex.identity.chapter">Capítulo</dt>
+              <dd>III · MMXXVI</dd>
+            </div>
+          </dl>
+
+          <section class="codex__langs">
+            <h4 data-i18n="codex.langs.title">Línguas Faladas</h4>
+            <ul>
+              <li>
+                <span class="codex__lang-name" data-i18n="codex.langs.pt">Português</span>
+                <span class="codex__bar"><span class="codex__bar-fill" style="--w:100%"></span></span>
+                <span class="codex__lang-tag" data-i18n="codex.langs.pt.tag">NATIVO</span>
+              </li>
+              <li>
+                <span class="codex__lang-name" data-i18n="codex.langs.en">Inglês</span>
+                <span class="codex__bar"><span class="codex__bar-fill" style="--w:82%"></span></span>
+                <span class="codex__lang-tag" data-i18n="codex.langs.en.tag">AVANÇADO · B2</span>
+              </li>
+              <li>
+                <span class="codex__lang-name" data-i18n="codex.langs.es">Espanhol</span>
+                <span class="codex__bar"><span class="codex__bar-fill" style="--w:65%"></span></span>
+                <span class="codex__lang-tag" data-i18n="codex.langs.es.tag">INTERMEDIÁRIO</span>
+              </li>
+              <li>
+                <span class="codex__lang-name" data-i18n="codex.langs.gl">Galego</span>
+                <span class="codex__bar"><span class="codex__bar-fill" style="--w:35%"></span></span>
+                <span class="codex__lang-tag" data-i18n="codex.langs.gl.tag">BÁSICO</span>
+              </li>
+            </ul>
+          </section>
+
+          <div class="codex__divider" aria-hidden="true">
+            <span class="codex__divider-mark">✦</span>
+          </div>
+
+          <!-- MANIFESTO · the architect's purpose statement, taken verbatim
+               from the CV's "Objetivo / Atuar como…" paragraph. -->
+          <section class="codex__sobre">
+            <h4 data-i18n="codex.sobre.title">Manifesto do Arquiteto</h4>
+            <p class="codex__sobre-body" data-i18n="codex.sobre.body">
+              Atuar como Gestor Ambiental com foco em ações climáticas, planejamento ambiental e sustentabilidade. Como
+              desenvolvedor web em formação, integrar tecnologia e soluções digitais para otimizar processos de gestão
+              ambiental, análise de dados e comunicação institucional.
+            </p>
+          </section>
+
+          <div class="codex__divider" aria-hidden="true">
+            <span class="codex__divider-mark">✦</span>
+          </div>
+
+          <!-- SOBRE · expanded biography (CV "Sobre" section). -->
+          <section class="codex__sobre">
+            <h4 data-i18n="codex.bio.title">Sobre o Arquiteto</h4>
+            <p class="codex__sobre-body" data-i18n="codex.bio.body">
+              Profissional com formação em Gestão Ambiental e experiência em projetos de pesquisa, educação ambiental e
+              conservação da natureza. Atualmente em transição para a área de tecnologia, desenvolvendo competências em
+              Desenvolvimento Web Full Stack, com foco na criação de soluções digitais modernas, funcionais e
+              sustentáveis.
+            </p>
+          </section>
+
+          <div class="codex__divider" aria-hidden="true">
+            <span class="codex__divider-mark">✦</span>
+          </div>
+
+          <!-- SINAIS DE CONVOCAÇÃO · contact runes -->
+          <section class="codex__contact">
+            <h4 data-i18n="codex.contact.title">Sinais de Convocação</h4>
+            <ul>
+              <li>
+                <a href="mailto:wishmastergm@gmail.com" rel="noopener">
+                  <span class="codex__contact-rune" aria-hidden="true">✉</span>
+                  <span class="codex__contact-text">wishmastergm@gmail.com</span>
+                </a>
+              </li>
+              <li>
+                <a href="https://wa.me/351910562698" target="_blank" rel="noopener">
+                  <span class="codex__contact-rune" aria-hidden="true">☎</span>
+                  <span class="codex__contact-text">+351 910 562 698</span>
+                </a>
+              </li>
+              <li>
+                <a href="https://wa.me/34617193035" target="_blank" rel="noopener">
+                  <span class="codex__contact-rune" aria-hidden="true">☎</span>
+                  <span class="codex__contact-text">+34 617 193 035</span>
+                </a>
+              </li>
+              <li>
+                <a href="https://www.linkedin.com/in/carlos-vaz-1a9a51274/" target="_blank" rel="noopener">
+                  <span class="codex__contact-rune" aria-hidden="true">in</span>
+                  <span class="codex__contact-text">linkedin.com/in/carlos-vaz</span>
+                </a>
+              </li>
+              <li>
+                <a href="https://github.com/Zavsolrac" target="_blank" rel="noopener">
+                  <span class="codex__contact-rune" aria-hidden="true">⌬</span>
+                  <span class="codex__contact-text">github.com/Zavsolrac</span>
+                </a>
+              </li>
+            </ul>
+          </section>
+
+          <div class="codex__divider" aria-hidden="true">
+            <span class="codex__divider-mark">✦</span>
+          </div>
+
+          <!-- SELOS ARCANOS · public certificates extracted from the
+               LinkedIn profile (Licenses & Certifications section). Each
+               seal is a wax-stamped tile with the issuing house's sigil
+               (I = IFRS, B = IPB, U = UFRGS) and a hover-revealed CTA
+               that opens the corresponding LinkedIn certificate page. -->
+          <section class="codex__seals">
+            <h4 data-i18n="codex.seals.title">Selos Arcanos</h4>
+            <ul class="codex__seals-grid">
+              <li>
+                <a href="https://www.linkedin.com/in/carlos-vaz-1a9a51274/details/certifications/" target="_blank" rel="noopener" class="codex__seal" data-house="ifrs">
+                  <span class="codex__seal-sigil" aria-hidden="true">I</span>
+                  <span class="codex__seal-body">
+                    <span class="codex__seal-title">Tecnologia em Gestão Ambiental</span>
+                    <span class="codex__seal-meta">IFRS · Diploma</span>
+                  </span>
+                </a>
+              </li>
+              <li>
+                <a href="https://www.linkedin.com/in/carlos-vaz-1a9a51274/details/certifications/" target="_blank" rel="noopener" class="codex__seal" data-house="ifrs">
+                  <span class="codex__seal-sigil" aria-hidden="true">I</span>
+                  <span class="codex__seal-body">
+                    <span class="codex__seal-title">Horta Escolar Agroecológica</span>
+                    <span class="codex__seal-meta">IFRS · 8º Seminário de Extensão</span>
+                  </span>
+                </a>
+              </li>
+              <li>
+                <a href="https://www.linkedin.com/in/carlos-vaz-1a9a51274/details/certifications/" target="_blank" rel="noopener" class="codex__seal" data-house="ifrs">
+                  <span class="codex__seal-sigil" aria-hidden="true">I</span>
+                  <span class="codex__seal-body">
+                    <span class="codex__seal-title">Sistema Educativo · Saint'Hilaire</span>
+                    <span class="codex__seal-meta">IFRS · Bolsista Voluntário</span>
+                  </span>
+                </a>
+              </li>
+              <li>
+                <a href="https://www.linkedin.com/in/carlos-vaz-1a9a51274/details/certifications/" target="_blank" rel="noopener" class="codex__seal" data-house="ifrs">
+                  <span class="codex__seal-sigil" aria-hidden="true">I</span>
+                  <span class="codex__seal-body">
+                    <span class="codex__seal-title">9º Seminário de Extensão</span>
+                    <span class="codex__seal-meta">IFRS · 6º Salão de Pesquisa</span>
+                  </span>
+                </a>
+              </li>
+              <li>
+                <a href="https://www.linkedin.com/in/carlos-vaz-1a9a51274/details/certifications/" target="_blank" rel="noopener" class="codex__seal" data-house="ifrs">
+                  <span class="codex__seal-sigil" aria-hidden="true">I</span>
+                  <span class="codex__seal-body">
+                    <span class="codex__seal-title">Extração de Areia · Viamão</span>
+                    <span class="codex__seal-meta">IFRS · Estudo Ambiental</span>
+                  </span>
+                </a>
+              </li>
+              <li>
+                <a href="https://www.linkedin.com/in/carlos-vaz-1a9a51274/details/certifications/" target="_blank" rel="noopener" class="codex__seal" data-house="ifrs">
+                  <span class="codex__seal-sigil" aria-hidden="true">I</span>
+                  <span class="codex__seal-body">
+                    <span class="codex__seal-title">11º Seminário de Iniciação Científica</span>
+                    <span class="codex__seal-meta">IFRS · Pesquisa Tecnológica</span>
+                  </span>
+                </a>
+              </li>
+              <li>
+                <a href="https://www.linkedin.com/in/carlos-vaz-1a9a51274/details/certifications/" target="_blank" rel="noopener" class="codex__seal" data-house="ufrgs">
+                  <span class="codex__seal-sigil" aria-hidden="true">U</span>
+                  <span class="codex__seal-body">
+                    <span class="codex__seal-title">Biopoder Camponês · Agroecologia</span>
+                    <span class="codex__seal-meta">UFRGS · Bombeiros Agroecológicos</span>
+                  </span>
+                </a>
+              </li>
+              <li>
+                <a href="https://www.linkedin.com/in/carlos-vaz-1a9a51274/details/certifications/" target="_blank" rel="noopener" class="codex__seal" data-house="ufrgs">
+                  <span class="codex__seal-sigil" aria-hidden="true">U</span>
+                  <span class="codex__seal-body">
+                    <span class="codex__seal-title">Atlas Socioambiental de Viamão</span>
+                    <span class="codex__seal-meta">UFRGS · Comitê Impulsor</span>
+                  </span>
+                </a>
+              </li>
+              <li>
+                <a href="https://www.linkedin.com/in/carlos-vaz-1a9a51274/details/certifications/" target="_blank" rel="noopener" class="codex__seal" data-house="ipb">
+                  <span class="codex__seal-sigil" aria-hidden="true">B</span>
+                  <span class="codex__seal-body">
+                    <span class="codex__seal-title">Heavy Metal Melódico · Projeto</span>
+                    <span class="codex__seal-meta">IPB · Projeto Acadêmico</span>
+                  </span>
+                </a>
+              </li>
+              <li>
+                <a href="https://www.linkedin.com/in/carlos-vaz-1a9a51274/details/certifications/" target="_blank" rel="noopener" class="codex__seal" data-house="ipb">
+                  <span class="codex__seal-sigil" aria-hidden="true">B</span>
+                  <span class="codex__seal-body">
+                    <span class="codex__seal-title">Clube de Xadrez · Mentor</span>
+                    <span class="codex__seal-meta">IPB · Mentor e Coordenador</span>
+                  </span>
+                </a>
+              </li>
+            </ul>
+            <a class="codex__seals-cta" href="https://www.linkedin.com/in/carlos-vaz-1a9a51274/details/certifications/" target="_blank" rel="noopener">
+              <span data-i18n="codex.seals.cta">Ver todos no LinkedIn</span>
+              <span aria-hidden="true">→</span>
+            </a>
+          </section>
+
+          <div class="codex__divider" aria-hidden="true">
+            <span class="codex__divider-mark">✦</span>
+          </div>
+
+          <!-- CARTOGRAFIA AMBIENTAL · public Google My Maps authored by
+               Carlos during his environmental management work. Each card
+               carries a thematic cartographic sigil (mining / trail /
+               water / wildlife / build / compass), a flavour description
+               and opens the corresponding map in a new tab. -->
+          <section class="codex__cartography">
+            <h4 data-i18n="codex.cartography.title">Cartografia Ambiental</h4>
+            <p class="codex__cartography-sub" data-i18n="codex.cartography.sub">Mapas públicos · Domínio do Cartógrafo</p>
+
+            <ul class="codex__cartography-list">
+              <li>
+                <a class="codex__map" data-theme="mining"
+                   href="https://www.google.com/maps/d/edit?hl=pt-BR&mid=16BM99UvRfWXl3Onkaa9zoGSLYCUnuN6a&ll=-30.1579460751081%2C-50.91790664999999&z=12"
+                   target="_blank" rel="noopener">
+                  <span class="codex__map-thumb" aria-hidden="true">
+                    <svg viewBox="0 0 64 64" class="codex__map-svg">
+                      <rect x="2" y="2" width="60" height="60" fill="none" stroke="currentColor" stroke-width="0.6" opacity="0.4"/>
+                      <pattern id="cart-grid-a" width="8" height="8" patternUnits="userSpaceOnUse"><path d="M0 8 L8 0" stroke="currentColor" stroke-width="0.4" opacity="0.35"/></pattern>
+                      <rect x="6" y="6" width="52" height="52" fill="url(#cart-grid-a)"/>
+                      <path d="M14 46 L22 30 L30 38 L38 22 L48 42" fill="none" stroke="currentColor" stroke-width="1.4"/>
+                      <circle cx="14" cy="46" r="2.2" fill="currentColor"/>
+                      <circle cx="22" cy="30" r="2.2" fill="currentColor"/>
+                      <circle cx="30" cy="38" r="2.2" fill="currentColor"/>
+                      <circle cx="38" cy="22" r="2.2" fill="currentColor"/>
+                      <circle cx="48" cy="42" r="2.2" fill="currentColor"/>
+                    </svg>
+                  </span>
+                  <span class="codex__map-body">
+                    <span class="codex__map-title">Estações de Extração de Areia</span>
+                    <span class="codex__map-desc">Pontos georreferenciados de mineração analisados em campo. Estudo ambiental de áreas de extrativismo mineral.</span>
+                    <span class="codex__map-meta">Viamão · RS</span>
+                  </span>
+                </a>
+              </li>
+
+              <li>
+                <a class="codex__map" data-theme="trail"
+                   href="https://www.google.com/maps/d/edit?hl=pt-BR&mid=105AdYWE6thSY72c4gXJ6X1Na-uSalGG9&ll=-30.089640795393407%2C-51.09857995&z=17"
+                   target="_blank" rel="noopener">
+                  <span class="codex__map-thumb" aria-hidden="true">
+                    <svg viewBox="0 0 64 64" class="codex__map-svg">
+                      <circle cx="32" cy="32" r="26" fill="none" stroke="currentColor" stroke-width="0.6" opacity="0.4"/>
+                      <path d="M10 50 Q22 30, 30 36 T 54 14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-dasharray="3 2.5"/>
+                      <circle cx="10" cy="50" r="2.2" fill="currentColor"/>
+                      <circle cx="54" cy="14" r="2.6" fill="currentColor"/>
+                      <path d="M40 22 L46 18 L46 26 Z" fill="currentColor" opacity="0.85"/>
+                      <text x="20" y="20" font-family="Cinzel, serif" font-size="7" font-weight="700" fill="currentColor" opacity="0.9">N</text>
+                    </svg>
+                  </span>
+                  <span class="codex__map-body">
+                    <span class="codex__map-title">Trilha da Coruja · Saint'Hilaire</span>
+                    <span class="codex__map-desc">Georreferenciamento da trilha ecológica no Parque Natural Municipal Saint'Hilaire, mapeada durante o projeto FAPERGS de iniciação científica.</span>
+                    <span class="codex__map-meta">PNM Saint'Hilaire · Viamão</span>
+                  </span>
+                </a>
+              </li>
+
+              <li>
+                <a class="codex__map" data-theme="hydro"
+                   href="https://www.google.com/maps/d/edit?hl=pt-BR&mid=1081K7dFsvL2suZm8E4vTYLDHaDnHKZgV&ll=-9.812359871543542%2C-56.781976500000006&z=4"
+                   target="_blank" rel="noopener">
+                  <span class="codex__map-thumb" aria-hidden="true">
+                    <svg viewBox="0 0 64 64" class="codex__map-svg">
+                      <path d="M6 22 Q20 14, 32 22 T 58 24" fill="none" stroke="currentColor" stroke-width="1.2" opacity="0.85"/>
+                      <path d="M6 34 Q22 26, 34 34 T 58 36" fill="none" stroke="currentColor" stroke-width="1.2" opacity="0.65"/>
+                      <path d="M6 46 Q20 38, 32 46 T 58 48" fill="none" stroke="currentColor" stroke-width="1.2" opacity="0.45"/>
+                      <path d="M32 8 C 28 14, 28 18, 32 22 C 36 18, 36 14, 32 8 Z" fill="currentColor"/>
+                      <circle cx="20" cy="22" r="1.4" fill="currentColor"/>
+                      <circle cx="46" cy="34" r="1.4" fill="currentColor"/>
+                      <circle cx="14" cy="46" r="1.4" fill="currentColor"/>
+                    </svg>
+                  </span>
+                  <span class="codex__map-body">
+                    <span class="codex__map-title">Hidrelétricas e Regiões Hidrográficas</span>
+                    <span class="codex__map-desc">Mapeamento nacional de hidrelétricas e bacias hidrográficas brasileiras. Análise de impactos territoriais no recurso hídrico.</span>
+                    <span class="codex__map-meta">Brasil · Escala Nacional</span>
+                  </span>
+                </a>
+              </li>
+
+              <li>
+                <a class="codex__map" data-theme="build"
+                   href="https://www.google.com/maps/d/edit?hl=pt-BR&mid=13R0PwsO7MQkZQYzy6as3_zTym-gXZDa_&ll=-30.071534564184958%2C-51.059547&z=15"
+                   target="_blank" rel="noopener">
+                  <span class="codex__map-thumb" aria-hidden="true">
+                    <svg viewBox="0 0 64 64" class="codex__map-svg">
+                      <rect x="2" y="2" width="60" height="60" fill="none" stroke="currentColor" stroke-width="0.6" opacity="0.35"/>
+                      <pattern id="cart-grid-b" width="6" height="6" patternUnits="userSpaceOnUse"><path d="M0 0 L0 6 M0 0 L6 0" stroke="currentColor" stroke-width="0.3" opacity="0.3"/></pattern>
+                      <rect x="6" y="6" width="52" height="52" fill="url(#cart-grid-b)"/>
+                      <rect x="14" y="20" width="14" height="14" fill="currentColor" opacity="0.75"/>
+                      <rect x="32" y="14" width="10" height="18" fill="currentColor" opacity="0.55"/>
+                      <rect x="20" y="38" width="22" height="8" fill="currentColor" opacity="0.4"/>
+                      <rect x="44" y="32" width="8" height="14" fill="currentColor" opacity="0.65"/>
+                    </svg>
+                  </span>
+                  <span class="codex__map-body">
+                    <span class="codex__map-title">Projeto Residencial Campos do Conde</span>
+                    <span class="codex__map-desc">Análise espacial e ocupação territorial do empreendimento residencial. Estudo de planejamento urbano-ambiental.</span>
+                    <span class="codex__map-meta">Viamão · RS</span>
+                  </span>
+                </a>
+              </li>
+
+              <li>
+                <a class="codex__map" data-theme="wildlife"
+                   href="https://www.google.com/maps/d/edit?hl=pt-BR&mid=1J9yIDKLAAQEV-iFssn7TYRAnR2v_ex5i&ll=-30.071534564184958%2C-51.059547&z=15"
+                   target="_blank" rel="noopener">
+                  <span class="codex__map-thumb" aria-hidden="true">
+                    <svg viewBox="0 0 64 64" class="codex__map-svg">
+                      <path d="M10 54 C 14 40, 22 36, 32 36 C 42 36, 50 40, 54 54" fill="none" stroke="currentColor" stroke-width="0.8" opacity="0.5"/>
+                      <path d="M16 38 L20 26 L24 38 Z" fill="currentColor" opacity="0.55"/>
+                      <path d="M40 36 L46 22 L52 36 Z" fill="currentColor" opacity="0.7"/>
+                      <path d="M26 40 L32 18 L38 40 Z" fill="currentColor"/>
+                      <ellipse cx="22" cy="48" rx="1.8" ry="2.4" fill="currentColor"/>
+                      <ellipse cx="18" cy="46" rx="1" ry="1.4" fill="currentColor"/>
+                      <ellipse cx="26" cy="46" rx="1" ry="1.4" fill="currentColor"/>
+                      <ellipse cx="20" cy="44" rx="1" ry="1.4" fill="currentColor"/>
+                      <ellipse cx="24" cy="44" rx="1" ry="1.4" fill="currentColor"/>
+                    </svg>
+                  </span>
+                  <span class="codex__map-body">
+                    <span class="codex__map-title">Monitoramento de Fauna Silvestre</span>
+                    <span class="codex__map-desc">Pontos de monitoramento e catalogação taxonômica da fauna na área do Residencial Campos do Conde.</span>
+                    <span class="codex__map-meta">Campos do Conde · Viamão</span>
+                  </span>
+                </a>
+              </li>
+
+              <li>
+                <a class="codex__map" data-theme="build"
+                   href="https://www.google.com/maps/d/edit?hl=pt-BR&mid=1iDoXtYnA5LXdBi0QA4vgew79Ea-_yf-K&ll=-30.084526008552885%2C-51.06069444999999&z=17"
+                   target="_blank" rel="noopener">
+                  <span class="codex__map-thumb" aria-hidden="true">
+                    <svg viewBox="0 0 64 64" class="codex__map-svg">
+                      <rect x="2" y="2" width="60" height="60" fill="none" stroke="currentColor" stroke-width="0.6" opacity="0.35"/>
+                      <path d="M14 44 L14 24 L32 14 L50 24 L50 44 Z" fill="none" stroke="currentColor" stroke-width="1.4"/>
+                      <path d="M14 24 L50 24" stroke="currentColor" stroke-width="0.9" opacity="0.55"/>
+                      <rect x="20" y="28" width="6" height="10" fill="currentColor" opacity="0.7"/>
+                      <rect x="38" y="28" width="6" height="10" fill="currentColor" opacity="0.7"/>
+                      <rect x="28" y="36" width="8" height="8" fill="currentColor"/>
+                    </svg>
+                  </span>
+                  <span class="codex__map-body">
+                    <span class="codex__map-title">Projeto Vestiário · IFRS Campus Viamão</span>
+                    <span class="codex__map-desc">Localização e planejamento estrutural do projeto do vestiário no Campus Viamão. Estudo de infraestrutura institucional.</span>
+                    <span class="codex__map-meta">IFRS · Campus Viamão</span>
+                  </span>
+                </a>
+              </li>
+
+              <li>
+                <a class="codex__map" data-theme="trail"
+                   href="https://www.google.com/maps/d/edit?hl=pt-BR&mid=1HpisZMKlmwE9ncIOes1UU8OUOdMTxDN9&ll=-30.08103631581638%2C-51.060739500000004&z=16"
+                   target="_blank" rel="noopener">
+                  <span class="codex__map-thumb" aria-hidden="true">
+                    <svg viewBox="0 0 64 64" class="codex__map-svg">
+                      <circle cx="32" cy="32" r="26" fill="none" stroke="currentColor" stroke-width="0.6" opacity="0.4"/>
+                      <path d="M12 12 Q24 28, 32 28 T 52 52" fill="none" stroke="currentColor" stroke-width="1.6" stroke-dasharray="3 2.5"/>
+                      <circle cx="12" cy="12" r="2.4" fill="currentColor"/>
+                      <circle cx="52" cy="52" r="2.4" fill="currentColor"/>
+                      <path d="M30 18 L34 14 L34 22 Z" fill="currentColor" opacity="0.85"/>
+                      <path d="M40 38 L44 34 L44 42 Z" fill="currentColor" opacity="0.85"/>
+                    </svg>
+                  </span>
+                  <span class="codex__map-body">
+                    <span class="codex__map-title">Trilha IFRS Campus Viamão</span>
+                    <span class="codex__map-desc">Mapeamento da trilha educativa no Campus Viamão do IFRS. Recurso pedagógico para projetos de educação ambiental.</span>
+                    <span class="codex__map-meta">IFRS · Campus Viamão</span>
+                  </span>
+                </a>
+              </li>
+
+              <li>
+                <a class="codex__map" data-theme="compass"
+                   href="https://www.google.com/maps/d/edit?hl=pt-BR&mid=1Uvw6b8b-IAxbnbL0peSvzE38SscZYe06&ll=-30.05555069903017%2C-51.07178495&z=12"
+                   target="_blank" rel="noopener">
+                  <span class="codex__map-thumb" aria-hidden="true">
+                    <svg viewBox="0 0 64 64" class="codex__map-svg">
+                      <circle cx="32" cy="32" r="22" fill="none" stroke="currentColor" stroke-width="0.8" opacity="0.85"/>
+                      <circle cx="32" cy="32" r="16" fill="none" stroke="currentColor" stroke-width="0.4" opacity="0.45"/>
+                      <path d="M32 12 L36 30 L52 32 L36 34 L32 52 L28 34 L12 32 L28 30 Z" fill="currentColor" opacity="0.85"/>
+                      <circle cx="32" cy="32" r="2" fill="currentColor"/>
+                      <text x="32" y="10" font-family="Cinzel, serif" font-size="6" font-weight="700" fill="currentColor" text-anchor="middle">N</text>
+                    </svg>
+                  </span>
+                  <span class="codex__map-body">
+                    <span class="codex__map-title">Mapeamento de Estágios · Área Ambiental</span>
+                    <span class="codex__map-desc">Cartografia de instituições e empresas em Viamão que oferecem vagas de estágio na área ambiental. Recurso para futuros estudantes.</span>
+                    <span class="codex__map-meta">Viamão · RS</span>
+                  </span>
+                </a>
+              </li>
+            </ul>
+          </section>
+
+          <p class="codex__page-num">— I —</p>
+        </section>
+
+        <!-- CENTER SPINE -->
+        <span class="codex__spine" aria-hidden="true"></span>
+
+        <!-- RIGHT PAGE · Atributos · Crônicas · Relíquias -->
+        <section class="codex__page codex__page--right">
+          <div class="codex__watermark codex__watermark--alt" aria-hidden="true"></div>
+
+          <section class="codex__attrs">
+            <h4 data-i18n="codex.attrs.title">Atributos do Arquiteto</h4>
+            <ul>
+              <li>
+                <span class="codex__attr-name" data-i18n="codex.attrs.tech">Inteligência Técnica</span>
+                <span class="codex__attr-val">91</span>
+                <span class="codex__attr-bar"><span class="codex__attr-fill" style="--w:91%"></span></span>
+              </li>
+              <li>
+                <span class="codex__attr-name" data-i18n="codex.attrs.adapt">Adaptabilidade</span>
+                <span class="codex__attr-val">96</span>
+                <span class="codex__attr-bar"><span class="codex__attr-fill" style="--w:96%"></span></span>
+              </li>
+              <li>
+                <span class="codex__attr-name" data-i18n="codex.attrs.creat">Criatividade</span>
+                <span class="codex__attr-val">84</span>
+                <span class="codex__attr-bar"><span class="codex__attr-fill" style="--w:84%"></span></span>
+              </li>
+              <li>
+                <span class="codex__attr-name" data-i18n="codex.attrs.comm">Comunicação</span>
+                <span class="codex__attr-val">78</span>
+                <span class="codex__attr-bar"><span class="codex__attr-fill" style="--w:78%"></span></span>
+              </li>
+              <li>
+                <span class="codex__attr-name" data-i18n="codex.attrs.persev">Perseverança</span>
+                <span class="codex__attr-val">98</span>
+                <span class="codex__attr-bar"><span class="codex__attr-fill" style="--w:98%"></span></span>
+              </li>
+              <li>
+                <span class="codex__attr-name" data-i18n="codex.attrs.vision">Visão Sistêmica</span>
+                <span class="codex__attr-val">95</span>
+                <span class="codex__attr-bar"><span class="codex__attr-fill" style="--w:95%"></span></span>
+              </li>
+            </ul>
+          </section>
+
+          <div class="codex__divider" aria-hidden="true">
+            <span class="codex__divider-mark">✦</span>
+          </div>
+
+          <section class="codex__chronicles">
+            <h4 data-i18n="codex.chronicles.title">Crônicas</h4>
+            <ol>
+              <li>
+                <time>2018</time>
+                <p data-i18n="codex.chronicles.2018">Início do Técnico em Meio Ambiente · Instituto Federal do Rio
+                  Grande do Sul (IFRS) · Primeiros passos pela natureza</p>
+              </li>
+              <li>
+                <time>2019</time>
+                <p data-i18n="codex.chronicles.2019">Início da Tecnologia em Gestão Ambiental · IFRS · Despertar do
+                  conhecimento</p>
+              </li>
+              <li>
+                <time>2020</time>
+                <p data-i18n="codex.chronicles.2020">Saint'Hilaire · Despertar da Conservação · Educação Ambiental viva
+                </p>
+              </li>
+              <li>
+                <time>2021</time>
+                <p data-i18n="codex.chronicles.2021">Bolsa PROBIC/FAPERGS · Cartografia da fauna e flora arcana</p>
+              </li>
+              <li>
+                <time>2022</time>
+                <p data-i18n="codex.chronicles.2022">Travessia Atlântica · Intercâmbio Brasil ⇄ Portugal · IPB Bragança
+                </p>
+              </li>
+              <li>
+                <time>2023</time>
+                <p data-i18n="codex.chronicles.2023">Diplomação · Gestor Ambiental forjado · Visão sistêmica do mundo
+                  natural</p>
+              </li>
+              <li>
+                <time>2024</time>
+                <p data-i18n="codex.chronicles.2024">Início da transição tecnológica · O chamado arcano · Web Full Stack
+                </p>
+              </li>
+              <li>
+                <time>2025</time>
+                <p data-i18n="codex.chronicles.2025">Desenvolvimento Web · Forja das interfaces vivas</p>
+              </li>
+              <li class="is-now">
+                <time>2026</time>
+                <p data-i18n="codex.chronicles.2026">Inteligência Artificial · Domínio do Núcleo Arcano</p>
+              </li>
+            </ol>
+          </section>
+
+          <div class="codex__divider" aria-hidden="true">
+            <span class="codex__divider-mark">✦</span>
+          </div>
+
+          <!-- PERGAMINHOS ACADÊMICOS · academic formation from the CV -->
+          <section class="codex__formacao">
+            <h4 data-i18n="codex.formacao.title">Pergaminhos Acadêmicos</h4>
+            <ol>
+              <li>
+                <time>2019 – 2023</time>
+                <p>
+                  <strong data-i18n="codex.formacao.f1.title">Tecnologia em Gestão Ambiental</strong>
+                  · <span data-i18n="codex.formacao.f1.body">IFRS — Instituto Federal de Educação, Ciência e Tecnologia
+                    do Rio Grande do Sul · Brasil</span>
+                </p>
+              </li>
+              <li>
+                <time>2022 – 2023</time>
+                <p>
+                  <strong data-i18n="codex.formacao.f2.title">Mobilidade Acadêmica Internacional</strong>
+                  · <span data-i18n="codex.formacao.f2.body">IPB — Instituto Politécnico de Bragança · Portugal ·
+                    Programa de intercâmbio acadêmico em Línguas para Relações Internacionais e Engenharia
+                    Ambiental</span>
+                </p>
+              </li>
+              <li class="is-now">
+                <time data-i18n="codex.formacao.f3.time">2024 – cursando</time>
+                <p>
+                  <strong data-i18n="codex.formacao.f3.title">Desenvolvedor Web Full Stack (Assíncrono)</strong>
+                  · <span data-i18n="codex.formacao.f3.body">Extensão Universitária com monitoria e suporte</span>
+                </p>
+              </li>
+            </ol>
+          </section>
+
+          <div class="codex__divider" aria-hidden="true">
+            <span class="codex__divider-mark">✦</span>
+          </div>
+
+          <!-- PESQUISAS ARCANAS · academic research from the CV.
+               Replaces the old single-entry "Crônicas de Serviço" — the
+               PROBIC fellowship is reclassified as research, while the
+               Saint'Hilaire internship moves down into Pactos Voluntários. -->
+          <section class="codex__research">
+            <h4 data-i18n="codex.research.title">Pesquisas Arcanas</h4>
+            <ol>
+              <li>
+                <time>2021 – 2022</time>
+                <p>
+                  <strong data-i18n="codex.research.r1.title">Bolsista de Iniciação Científica · PROBIC /
+                    FAPERGS</strong>
+                  · <span data-i18n="codex.research.r1.body">Projeto "Mapeamento e Catalogação Taxonômica da Fauna e
+                    Flora do Parque Natural Municipal Saint'Hilaire · Estudo de Viabilidade para o Ecoturismo"</span>
+                </p>
+                <ul class="codex__sub-list">
+                  <li data-i18n="codex.research.r1.task1">Levantamento de fauna e flora</li>
+                  <li data-i18n="codex.research.r1.task2">Catalogação taxonômica</li>
+                  <li data-i18n="codex.research.r1.task3">Apoio a pesquisas de campo</li>
+                  <li data-i18n="codex.research.r1.task4">Produção de dados para estudos de conservação e ecoturismo
+                  </li>
+                </ul>
+              </li>
+            </ol>
+          </section>
+
+          <div class="codex__divider" aria-hidden="true">
+            <span class="codex__divider-mark">✦</span>
+          </div>
+
+          <!-- PACTOS VOLUNTÁRIOS · expanded volunteer chronicles. Now four
+               entries (Saint'Hilaire moved from the old "Crônicas de
+               Serviço" + new Mentoring Academy entry), each with a sub-list
+               of activities mirroring the CV. -->
+          <section class="codex__voluntariado">
+            <h4 data-i18n="codex.voluntariado.title">Pactos Voluntários</h4>
+            <ol>
+              <li>
+                <time>2019 – 2020</time>
+                <p>
+                  <strong data-i18n="codex.voluntariado.v1.title">Bolsista de Extensão · Hortas Escolares Agroecológicas
+                    (Fase IV)</strong>
+                  · <span data-i18n="codex.voluntariado.v1.body">NEA — Núcleo de Estudos em Agroecologia · IFRS ·
+                    Brasil</span>
+                </p>
+                <ul class="codex__sub-list">
+                  <li data-i18n="codex.voluntariado.v1.task1">Agroecologia</li>
+                  <li data-i18n="codex.voluntariado.v1.task2">Educação ambiental</li>
+                  <li data-i18n="codex.voluntariado.v1.task3">Implantação e manutenção de hortas escolares</li>
+                </ul>
+              </li>
+              <li>
+                <time>2020 – 2022</time>
+                <p>
+                  <strong data-i18n="codex.voluntariado.v2.title">Estagiário Voluntário · Saint'Hilaire</strong>
+                  · <span data-i18n="codex.voluntariado.v2.body">Parque Natural Municipal Saint'Hilaire · Porto Alegre /
+                    RS</span>
+                </p>
+                <ul class="codex__sub-list">
+                  <li data-i18n="codex.voluntariado.v2.task1">Educação Ambiental</li>
+                  <li data-i18n="codex.voluntariado.v2.task2">Conservação Ambiental</li>
+                  <li data-i18n="codex.voluntariado.v2.task3">Sensibilização da comunidade para a preservação dos
+                    recursos naturais</li>
+                </ul>
+              </li>
+              <li>
+                <time>2022 – 2023</time>
+                <p>
+                  <strong data-i18n="codex.voluntariado.v3.title">Fundador & Coordenador Voluntário · Clube de Xadrez ·
+                    IPB</strong>
+                  · <span data-i18n="codex.voluntariado.v3.body">Universidade Politécnica de Bragança · Portugal</span>
+                </p>
+                <ul class="codex__sub-list">
+                  <li data-i18n="codex.voluntariado.v3.task1">Organização das atividades do clube</li>
+                  <li data-i18n="codex.voluntariado.v3.task2">Mentoria para estudantes iniciantes</li>
+                  <li data-i18n="codex.voluntariado.v3.task3">Promoção de eventos e integração acadêmica</li>
+                </ul>
+              </li>
+              <li>
+                <time>2022 – 2023</time>
+                <p>
+                  <strong data-i18n="codex.voluntariado.v4.title">Mentoring Academy</strong>
+                  · <span data-i18n="codex.voluntariado.v4.body">ESTiG — Escola Superior de Tecnologia e Gestão de
+                    Bragança · IPB · Participação em atividades de mentoria e integração acadêmica</span>
+                </p>
+              </li>
+            </ol>
+          </section>
+
+          <div class="codex__divider" aria-hidden="true">
+            <span class="codex__divider-mark">✦</span>
+          </div>
+
+          <section class="codex__relics">
+            <h4 data-i18n="codex.relics.title">Relíquias Obtidas</h4>
+            <ul>
+              <li><span class="codex__relic-rune">⌬</span><span>HTML</span></li>
+              <li><span class="codex__relic-rune">◈</span><span>CSS</span></li>
+              <li><span class="codex__relic-rune">⟁</span><span>JavaScript</span></li>
+              <li><span class="codex__relic-rune">⌁</span><span>React</span></li>
+              <li><span class="codex__relic-rune">✶</span><span>Inteligência Artificial</span></li>
+              <li><span class="codex__relic-rune">⊹</span><span>Prompt Engineering</span></li>
+              <li><span class="codex__relic-rune">☘</span><span>Licenciamento Ambiental</span></li>
+            </ul>
+          </section>
+
+          <div class="codex__divider" aria-hidden="true">
+            <span class="codex__divider-mark">✦</span>
+          </div>
+
+          <!-- PACTOS DE HONRA · soft skills from the CV -->
+          <section class="codex__softskills">
+            <h4 data-i18n="codex.softskills.title">Pactos de Honra</h4>
+            <ul>
+              <li><span class="codex__relic-rune">✦</span><span data-i18n="codex.softskills.leadership">Liderança</span>
+              </li>
+              <li><span class="codex__relic-rune">☼</span><span data-i18n="codex.softskills.logic">Raciocínio
+                  Lógico</span></li>
+              <li><span class="codex__relic-rune">⟁</span><span data-i18n="codex.softskills.adapt">Adaptabilidade</span>
+              </li>
+              <li><span class="codex__relic-rune">⌘</span><span data-i18n="codex.softskills.problem">Resolução de
+                  Problemas</span></li>
+              <li><span class="codex__relic-rune">◈</span><span data-i18n="codex.softskills.team">Trabalho em
+                  Equipe</span></li>
+            </ul>
+          </section>
+
+          <div class="codex__divider" aria-hidden="true">
+            <span class="codex__divider-mark">✦</span>
+          </div>
+
+          <!-- DISTINTIVOS CONCEDIDOS · interest data from the CV -->
+          <section class="codex__honors">
+            <h4 data-i18n="codex.honors.title">Distintivos Concedidos</h4>
+            <ul>
+              <li>
+                <span class="codex__relic-rune">✪</span>
+                <span data-i18n="codex.honors.crea">Registro CREA · Conselho Regional de Engenharia e Agronomia</span>
+              </li>
+              <li>
+                <span class="codex__relic-rune">⌖</span>
+                <span data-i18n="codex.honors.cnh">Carteira Nacional de Habilitação · Categoria AB</span>
+              </li>
+            </ul>
+          </section>
+
+          <p class="codex__page-num">— II —</p>
+        </section>
+      </div>
+
+      <!-- OUTORGA SELADA · CV download. Closes the codex with a clear,
+           ceremonial call-to-action that hands the parchment to the visitor. -->
+      <section class="codex__download" aria-labelledby="codex-download-title">
+        <h4 class="codex__download-title" id="codex-download-title" data-i18n="codex.download.title">Outorga Selada</h4>
+        <p class="codex__download-sub" data-i18n="codex.download.sub">Levai contigo o pergaminho original do Arquiteto.
+        </p>
+        <a class="codex__download-btn" href="src/assets/cv/Carlos-Vaz-CV-PT-BR.pdf"
+          download="Carlos-Vaz-Curriculum-Vitae.pdf" target="_blank" rel="noopener">
+          <span class="codex__download-icon" aria-hidden="true">
+            <svg viewBox="0 0 28 28" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.6"
+              stroke-linecap="round" stroke-linejoin="round">
+              <path d="M14 4 V18" />
+              <path d="M8 12 L14 18 L20 12" />
+              <path d="M5 22 H23" />
+            </svg>
+          </span>
+          <span class="codex__download-text">
+            <strong data-i18n="codex.download.label">Baixar o Currículo</strong>
+            <em data-i18n="codex.download.format">PDF · Currículum Vitae · Português (BR)</em>
+          </span>
+          <span class="codex__download-seal" aria-hidden="true">✦</span>
+        </a>
+      </section>
+
+      <footer class="codex__seal">
+        <span class="codex__seal-line"></span>
+        <span class="codex__seal-mark" aria-hidden="true">
+          <svg viewBox="0 0 36 36" width="34" height="34">
+            <circle cx="18" cy="18" r="15" fill="none" stroke="currentColor" stroke-width="1" />
+            <circle cx="18" cy="18" r="9" fill="none" stroke="currentColor" stroke-width="0.6" />
+            <path d="M18 5 L20 12 L27 12 L21 16 L24 23 L18 19 L12 23 L15 16 L9 12 L16 12 Z" fill="currentColor"
+              opacity="0.7" />
+          </svg>
+        </span>
+        <p class="codex__seal-text" data-i18n="codex.seal">Selo do Núcleo Arcano · Forjado em MMXXVI</p>
+        <span class="codex__seal-line"></span>
+      </footer>
+    </article>
+  </div>
+
+  <!-- ======================================================
+       ARCANE WELCOME · first-visit onboarding overlay
+       Renders ONCE per visitor (persisted in localStorage as
+       cv:arcane-welcome:seen:v1). The overlay is pointer-events:
+       none and never blocks interaction with the page beneath.
+       The 3-phase timeline (materialize → idle → dissolve) is
+       driven by src/js/welcome.js. The dragon's-breath fire
+       layers + character-by-character cascade are CSS only.
+       Dev / QA hooks (always available in the console):
+         ArcaneWelcome.show()  · ArcaneWelcome.reset()
+         ?welcome=show in the URL forces a replay.
+  ====================================================== -->
+  <aside class="welcome" id="arcane-welcome" aria-hidden="true">
+    <div class="welcome__veil" aria-hidden="true"></div>
+    <!-- DRAGON'S BREATH · realistic moving-fire burst that materializes
+         the message. Multiple gradient layers blended with screen
+         create an organic flame look without WebGL. -->
+    <div class="welcome__breath" aria-hidden="true">
+      <span class="welcome__breath-aura"></span>
+      <span class="welcome__breath-burst"></span>
+      <span class="welcome__breath-core"></span>
+      <!-- 12 flame tongues distributed every ~30° for a fuller burst.
+           Each carries a deterministic delay + scale so the corona
+           reads asymmetric / organic. -->
+      <span class="welcome__breath-lick" style="--lick-angle: 0deg;   --lick-delay: 0.05s; --lick-scale: 1.12;"></span>
+      <span class="welcome__breath-lick" style="--lick-angle: 30deg;  --lick-delay: 0.18s; --lick-scale: 0.94;"></span>
+      <span class="welcome__breath-lick" style="--lick-angle: 60deg;  --lick-delay: 0.10s; --lick-scale: 1.06;"></span>
+      <span class="welcome__breath-lick" style="--lick-angle: 95deg;  --lick-delay: 0.22s; --lick-scale: 0.90;"></span>
+      <span class="welcome__breath-lick" style="--lick-angle: 128deg; --lick-delay: 0.08s; --lick-scale: 1.14;"></span>
+      <span class="welcome__breath-lick" style="--lick-angle: 162deg; --lick-delay: 0.24s; --lick-scale: 0.88;"></span>
+      <span class="welcome__breath-lick" style="--lick-angle: 198deg; --lick-delay: 0.06s; --lick-scale: 1.10;"></span>
+      <span class="welcome__breath-lick" style="--lick-angle: 232deg; --lick-delay: 0.20s; --lick-scale: 0.96;"></span>
+      <span class="welcome__breath-lick" style="--lick-angle: 268deg; --lick-delay: 0.12s; --lick-scale: 1.08;"></span>
+      <span class="welcome__breath-lick" style="--lick-angle: 300deg; --lick-delay: 0.04s; --lick-scale: 0.92;"></span>
+      <span class="welcome__breath-lick" style="--lick-angle: 328deg; --lick-delay: 0.16s; --lick-scale: 1.04;"></span>
+      <span class="welcome__breath-lick" style="--lick-angle: 350deg; --lick-delay: 0.14s; --lick-scale: 0.98;"></span>
+
+      <!-- 14 embers shooting outward in scattered directions.
+           Wider spread + a few going downward simulate the
+           gravity arc of cooled sparks. -->
+      <span class="welcome__breath-ember" style="--em-x: -28%; --em-y: -36%; --em-delay: 0.30s;"></span>
+      <span class="welcome__breath-ember" style="--em-x:  30%; --em-y: -42%; --em-delay: 0.45s;"></span>
+      <span class="welcome__breath-ember" style="--em-x: -42%; --em-y: -20%; --em-delay: 0.55s;"></span>
+      <span class="welcome__breath-ember" style="--em-x:  40%; --em-y: -28%; --em-delay: 0.38s;"></span>
+      <span class="welcome__breath-ember" style="--em-x: -10%; --em-y: -48%; --em-delay: 0.62s;"></span>
+      <span class="welcome__breath-ember" style="--em-x:  18%; --em-y: -52%; --em-delay: 0.50s;"></span>
+      <span class="welcome__breath-ember" style="--em-x: -55%; --em-y: -32%; --em-delay: 0.70s;"></span>
+      <span class="welcome__breath-ember" style="--em-x:  52%; --em-y: -38%; --em-delay: 0.78s;"></span>
+      <span class="welcome__breath-ember" style="--em-x: -32%; --em-y:   8%; --em-delay: 0.60s;"></span>
+      <span class="welcome__breath-ember" style="--em-x:  38%; --em-y:  12%; --em-delay: 0.68s;"></span>
+      <span class="welcome__breath-ember" style="--em-x:   2%; --em-y: -58%; --em-delay: 0.85s;"></span>
+      <span class="welcome__breath-ember" style="--em-x: -24%; --em-y: -56%; --em-delay: 0.92s;"></span>
+      <span class="welcome__breath-ember" style="--em-x:  26%; --em-y: -60%; --em-delay: 1.05s;"></span>
+      <span class="welcome__breath-ember" style="--em-x: -48%; --em-y:   2%; --em-delay: 0.82s;"></span>
+    </div>
+    <div class="welcome__motes" aria-hidden="true">
+      <span class="welcome__mote"></span>
+      <span class="welcome__mote"></span>
+      <span class="welcome__mote"></span>
+      <span class="welcome__mote"></span>
+      <span class="welcome__mote"></span>
+      <span class="welcome__mote"></span>
+      <span class="welcome__mote"></span>
+      <span class="welcome__mote"></span>
+      <span class="welcome__mote"></span>
+      <span class="welcome__mote"></span>
+      <span class="welcome__mote"></span>
+      <span class="welcome__mote"></span>
+    </div>
+    <div class="welcome__panel">
+      <h2 class="welcome__title welcome__line" data-line="1">
+        <span class="welcome__star" aria-hidden="true">✦</span>
+        <span class="welcome__title-text" data-i18n="welcome.title">Bem-vindo ao Portfólio Temático de Carlos Vaz</span>
+        <span class="welcome__star" aria-hidden="true">✦</span>
+      </h2>
+      <p class="welcome__line welcome__line--intro" data-line="2" data-i18n="welcome.intro">Esta experiência foi criada para
+        proporcionar uma experiência imersiva,</p>
+      <p class="welcome__line" data-line="3" data-i18n="welcome.l1">Navegue pelos cristais, percorra a árvore de conhecimentos</p>
+      <p class="welcome__line" data-line="4" data-i18n="welcome.l2">e descubra os artefatos digitais</p>
+      <p class="welcome__line" data-line="5" data-i18n="welcome.l3">que compõem minha trajetória profissional.</p>
+    </div>
+  </aside>
+
+  <footer class="footer">
+    <div class="footer__inner">
+      <p class="footer__line" data-i18n="footer.line">
+        Crafted with arcane precision and modern fire. Carlos Vaz, MMXXVI.
+      </p>
+      <p class="footer__legal">
+        <span class="footer__legal-copy" data-i18n="footer.copyright">© 2026 Carlos Vaz. Todos os direitos reservados.</span>
+        <span class="footer__legal-notice" data-i18n="footer.notice">Este portfólio e seus conteúdos destinam-se à apresentação profissional. A disponibilização pública de projetos e códigos não constitui cessão de direitos autorais nem autorização para reprodução, redistribuição ou utilização sem autorização do autor.</span>
+      </p>
+    </div>
+  </footer>
+
+  <!-- ─────────────────────────────────────────────────────────────
+       AMBIENT SOUNDTRACK · "In Search of the Philosopher's Stone"
+       ─────────────────────────────────────────────────────────────
+       The track loops continuously while the visitor is on the page.
+       Two formats are provided so every browser gets the best codec:
+         · .ogg  → primary (smaller, native on Firefox/Chromium)
+         · .mp3  → fallback (Safari + legacy support)
+       Initial volume is intentionally low so the music remains a
+       background atmosphere, never overpowering the narration.
+       Autoplay + mute persistence are handled in initAudio().      -->
+  <audio id="ambient-track" loop preload="auto" aria-hidden="true">
+    <source src="src/assets/audio/in_search_of_the_philosophers_stone.ogg" type="audio/ogg">
+    <source src="src/assets/audio/in_search_of_the_philosophers_stone.mp3" type="audio/mpeg">
+  </audio>
+
+  <script src="https://unpkg.com/three@0.149.0/build/three.min.js" defer></script>
+  <script src="src/js/i18n.js" defer></script>
+  <script src="src/js/effects.js" defer></script>
+  <script src="src/js/skilltree.js" defer></script>
+  <script src="src/js/craft.js" defer></script>
+  <script src="src/js/narrative.js" defer></script>
+  <script src="src/js/narrative-particles.js" defer></script>
+  <script src="src/js/milestone.js" defer></script>
+  <script src="src/js/crystals.js" defer></script>
+  <script src="src/js/portal.js" defer></script>
+  <script src="src/js/merlin.js" defer></script>
+  <script src="src/js/domains.js" defer></script>
+  <script src="src/js/knowledgetree.js" defer></script>
+  <script src="src/js/codex.js" defer></script>
+  <script src="src/js/welcome.js" defer></script>
+  <script src="src/js/main.js" defer></script>
+
+  <!-- ============================================================
+       ⚠  TEMPORARY DEBUG TOOL · Visual Boundary Audit
+       ============================================================
+       Highlights every element with background, backdrop-filter,
+       border, box-shadow, outline or pseudo-overlay so we can
+       spot rectangular UI containers contaminating the fantasy
+       environment.
+
+       USAGE
+         • Toggle:   Alt+B
+         • Force on: append `?vba=1` to the URL
+         • Filters:  while enabled, press 1–6 to isolate a single
+                     category, 0 to show all
+         • From the console: `VBA.enable()`, `VBA.disable()`,
+                             `VBA.uninstall()`
+
+       REMOVAL (when done auditing):
+         1. Delete this <script> tag block
+         2. Delete src/js/debug-boundary-audit.js
+         Nothing else in the codebase depends on it.
+       ============================================================ -->
+  <script src="src/js/debug-boundary-audit.js" defer></script>
+</body>
+
+</html>
