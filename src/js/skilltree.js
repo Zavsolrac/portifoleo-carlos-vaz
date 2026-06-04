@@ -122,6 +122,10 @@ const SkillTree = (() => {
   let time = 0;
   let globalGlow = 0;
   let reducedMotion = false;
+  /** Touch-first devices treat the wallpaper as a fixed backdrop — no
+   *  drag-pan or pinch-zoom (scroll gestures were panning the camera
+   *  and forcing full canvas redraws every frame). */
+  let isWallpaperTouch = false;
   let lastInteractAt = performance.now();
   let cachedBgGrad = null;
   let cachedBgSize = { w: 0, h: 0 };
@@ -1508,6 +1512,10 @@ const SkillTree = (() => {
 
   function render() {
     renderRaf = null;
+    // #region agent log
+    const __dbgT0 = performance.now();
+    window.__stCalls = (window.__stCalls || 0) + 1;
+    // #endregion
     if (document.body.classList.contains("ktree-open")) {
       pauseForKtree();
       return;
@@ -1522,6 +1530,16 @@ const SkillTree = (() => {
     cam.x += (targetCam.x - cam.x) * 0.1;
     cam.y += (targetCam.y - cam.y) * 0.1;
     cam.zoom += (targetCam.zoom - cam.zoom) * 0.1;
+
+    // Touch devices: wallpaper stays pinned — scroll must never pan the tree.
+    if (isWallpaperTouch) {
+      targetCam.x = CX;
+      targetCam.y = CY;
+      targetCam.zoom = 0.7;
+      cam.x = CX;
+      cam.y = CY;
+      cam.zoom = 0.7;
+    }
 
     // Decay per-node click pulses (cheap, runs only over recently
     // clicked nodes thanks to the early-out on === 0).
@@ -1549,8 +1567,11 @@ const SkillTree = (() => {
     // wallpaper no longer parallaxes, the frozen frame is identical to
     // what scroll would show → perfectly smooth, with no jump. Never
     // freeze during the awakening intro (introElapsed >= 0).
+    // On touch devices a finger-down scroll still counts as scrolling,
+    // not tree interaction — otherwise mobile scroll never freezes.
+    const blockScrollFreeze = mouse.down && !isWallpaperTouch;
     if (introElapsed < 0 && window.__cvScrolling &&
-        !mouse.down && !hovered && coreField.targetStrength < 0.05) {
+        !blockScrollFreeze && !hovered && coreField.targetStrength < 0.05) {
       scheduleRender();
       return;
     }
@@ -1564,11 +1585,21 @@ const SkillTree = (() => {
     drawParticles();
     drawMouseAura();
 
+    // #region agent log
+    window.__stHeavy = (window.__stHeavy || 0) + 1;
+    window.__stTime = (window.__stTime || 0) + (performance.now() - __dbgT0);
+    if (!window.__stLast || performance.now() - window.__stLast > 1000) {
+      const dt = window.__stLast ? (performance.now() - window.__stLast) / 1000 : 1;
+      fetch('http://127.0.0.1:7279/ingest/89c13b11-4c60-49a0-81e3-64782c804124',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'bc6917'},body:JSON.stringify({sessionId:'bc6917',runId:'run1',hypothesisId:'H6',location:'skilltree.js:render',message:'skilltree wallpaper per-sec',data:{rafFps:Math.round((window.__stCalls||0)/dt),heavyFps:Math.round((window.__stHeavy||0)/dt),avgHeavyMs:+((window.__stTime||0)/Math.max(1,window.__stHeavy)).toFixed(2),innerW:window.innerWidth,dpr:Math.min(window.devicePixelRatio||1,isWallpaperTouch?1:2),canvasPx:canvasBg.width*canvasBg.height,nodes:nodes.length,camDrift:+Math.hypot(cam.x-CX,cam.y-CY).toFixed(1),isWallpaperTouch,touchDragBlocked:window.__stTouchDragBlocked||0},timestamp:Date.now()})}).catch(()=>{});
+      window.__stLast = performance.now(); window.__stCalls = 0; window.__stHeavy = 0; window.__stTime = 0; window.__stTouchDragBlocked = 0;
+    }
+    // #endregion
+
     scheduleRender();
   }
 
   function resize() {
-    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    const dpr = Math.min(window.devicePixelRatio || 1, isWallpaperTouch ? 1 : 2);
     const w = window.innerWidth;
     const h = window.innerHeight;
     [canvasBg, canvasFg].forEach((c) => {
@@ -1801,7 +1832,9 @@ const SkillTree = (() => {
       // Mapping linear: dentro de PROX_INNER → força 1; em PROX_OUTER → 0.
       // Quando o cursor sai do raio externo OU está sobre UI bloqueante,
       // o alvo cai pra 0 e o campo decai suavemente no render().
-      if (!blocksTreeInput(e)) {
+      // Skip on touch — finger trails during scroll were lighting the
+      // core field and forcing heavy redraws on every scroll frame.
+      if (!blocksTreeInput(e) && !isWallpaperTouch && e.pointerType !== "touch") {
         const distToCore = Math.hypot(mouse.wx - CX, mouse.wy - CY);
         if (distToCore < CORE_PROX_OUTER) {
           const span = CORE_PROX_OUTER - CORE_PROX_INNER;
@@ -1818,12 +1851,16 @@ const SkillTree = (() => {
         const ddx = e.clientX - mouse.dx;
         const ddy = e.clientY - mouse.dy;
         if (Math.abs(ddx) > 5 || Math.abs(ddy) > 5) mouse.drag = true;
-        if (mouse.drag) {
+        if (mouse.drag && !isWallpaperTouch && e.pointerType !== "touch") {
           targetCam.x -= ddx / cam.zoom;
           targetCam.y -= ddy / cam.zoom;
           mouse.dx = e.clientX;
           mouse.dy = e.clientY;
           document.body.style.cursor = "grabbing";
+        } else if (mouse.drag && (isWallpaperTouch || e.pointerType === "touch")) {
+          // #region agent log
+          window.__stTouchDragBlocked = (window.__stTouchDragBlocked || 0) + 1;
+          // #endregion
         }
       }
 
@@ -1899,6 +1936,7 @@ const SkillTree = (() => {
 
     let touchDist = 0;
     window.addEventListener("touchstart", (e) => {
+      if (isWallpaperTouch) return;
       if (e.touches.length === 2) {
         touchDist = Math.hypot(
           e.touches[0].clientX - e.touches[1].clientX,
@@ -1909,6 +1947,7 @@ const SkillTree = (() => {
 
     window.addEventListener("touchmove", (e) => {
       if (document.body.classList.contains("ktree-open")) return;
+      if (isWallpaperTouch) return;
       if (e.touches.length === 2 && touchDist > 0) {
         const d = Math.hypot(
           e.touches[0].clientX - e.touches[1].clientX,
@@ -1938,6 +1977,8 @@ const SkillTree = (() => {
     if (!canvasBg || !canvasFg) return;
 
     reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    isWallpaperTouch = window.matchMedia("(hover: none) and (pointer: coarse)").matches ||
+      window.matchMedia("(max-width: 767px)").matches;
 
     initAudio();
     buildTree();

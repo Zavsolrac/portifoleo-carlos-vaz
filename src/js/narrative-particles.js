@@ -226,7 +226,9 @@ window.NarrativeParticles = (() => {
     resizeTimer = setTimeout(resize, 120);
   }
   function resize() {
-    dpr     = Math.min(2, window.devicePixelRatio || 1);
+    const isTouchWallpaper = window.matchMedia("(hover: none) and (pointer: coarse)").matches ||
+      window.matchMedia("(max-width: 767px)").matches;
+    dpr     = Math.min(isTouchWallpaper ? 1 : 2, window.devicePixelRatio || 1);
     width   = window.innerWidth;
     height  = window.innerHeight;
     canvas.style.width  = width + "px";
@@ -237,7 +239,8 @@ window.NarrativeParticles = (() => {
     /* Adjust population to viewport area: phones get ~280, 1080p
        gets ~800, 4K gets capped at 1100 so we never blow the GPU. */
     const target = Math.round(BASE_COUNT * (width * height) / (1920 * 1080));
-    count = Math.max(MIN_COUNT, Math.min(MAX_COUNT, target));
+    const minCount = isTouchWallpaper ? 140 : MIN_COUNT;
+    count = Math.max(minCount, Math.min(MAX_COUNT, target));
     /* When count grows on resize we extend the array; when it shrinks
        we just stop iterating past `count` — no churn. */
     if (!P || P.length < count * STRIDE) {
@@ -421,6 +424,10 @@ window.NarrativeParticles = (() => {
     if (hidden) { rafId = null; return; }
     if (document.body.classList.contains("ktree-open")) { rafId = null; return; }
     rafId = requestAnimationFrame(loop);
+    // #region agent log
+    const __dbgN0 = performance.now();
+    window.__npCalls = (window.__npCalls || 0) + 1;
+    // #endregion
 
     narrativeFrame++;
     const narrIdle = performance.now() - lastPointerAt > 2000;
@@ -447,6 +454,16 @@ window.NarrativeParticles = (() => {
       case "converge":  renderConverge(now, baseAlpha); break;
       default:          renderIdle(baseAlpha);
     }
+
+    // #region agent log
+    window.__npHeavy = (window.__npHeavy || 0) + 1;
+    window.__npTime = (window.__npTime || 0) + (performance.now() - __dbgN0);
+    if (!window.__npLast || performance.now() - window.__npLast > 1000) {
+      const __dt = window.__npLast ? (performance.now() - window.__npLast) / 1000 : 1;
+      fetch('http://127.0.0.1:7279/ingest/89c13b11-4c60-49a0-81e3-64782c804124',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'bc6917'},body:JSON.stringify({sessionId:'bc6917',runId:'run1',hypothesisId:'H3',location:'narrative-particles.js:loop',message:'narrative particles per-sec',data:{rafFps:Math.round((window.__npCalls||0)/__dt),heavyFps:Math.round((window.__npHeavy||0)/__dt),avgHeavyMs:+((window.__npTime||0)/Math.max(1,window.__npHeavy)).toFixed(2),count:count,mode:mode,innerW:window.innerWidth,dpr:dpr},timestamp:Date.now()})}).catch(()=>{});
+      window.__npLast = performance.now(); window.__npCalls = 0; window.__npHeavy = 0; window.__npTime = 0;
+    }
+    // #endregion
   }
 
   /* ── render branches ─────────────────────────────────────────── */

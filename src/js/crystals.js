@@ -360,6 +360,9 @@ const Crystals = {
        wallpaper, the parallax must respond wherever the cursor is. */
     const target = this.section;
     if (!target || this._reducedMotion) return;
+    const isTouchWallpaper = window.matchMedia("(hover: none) and (pointer: coarse)").matches ||
+      window.matchMedia("(max-width: 767px)").matches;
+    if (isTouchWallpaper) return;
 
     let raf = 0;
     let tx = 0, ty = 0, cx = 0, cy = 0;
@@ -798,13 +801,17 @@ const Crystals = {
     const camera = new THREE.PerspectiveCamera(42, 1, 0.1, 200);
     camera.position.set(0, 0, 22);
 
+    const isMobileWallpaper = window.matchMedia("(hover: none) and (pointer: coarse)").matches ||
+      window.matchMedia("(max-width: 767px)").matches;
+    this._mobileWallpaper = isMobileWallpaper;
+
     const renderer = new THREE.WebGLRenderer({
       canvas: this.canvas,
       alpha: true,
-      antialias: true,
+      antialias: !isMobileWallpaper,
       powerPreference: "high-performance",
     });
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+    renderer.setPixelRatio(isMobileWallpaper ? 1 : Math.min(window.devicePixelRatio || 1, 2));
     renderer.setClearColor(0x000000, 0);
     renderer.outputEncoding = THREE.sRGBEncoding;
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
@@ -945,6 +952,10 @@ const Crystals = {
       /* Do not keep an idle RAF while paused — frees the GPU/CPU for
          the Knowledge Tree overlay. Restart via _resumeWallpaper(). */
       if (!t.running) return;
+      // #region agent log
+      const __dbgC0 = performance.now();
+      window.__crCalls = (window.__crCalls || 0) + 1;
+      // #endregion
 
       const vaultOpen = !!document.querySelector(".crystal-vault.is-open");
       const ktreeOpen = document.body.classList.contains("ktree-open");
@@ -971,12 +982,14 @@ const Crystals = {
       const elapsed = t.clock.getElapsedTime();
 
       // Camera parallax from mouse (smooth easing on dolly + truck)
-      const mx = parseFloat(this.section?.style.getPropertyValue("--mx") || "0");
-      const my = parseFloat(this.section?.style.getPropertyValue("--my") || "0");
-      camera.position.x += (mx * 3.0 - camera.position.x) * 0.04;
-      camera.position.y += (-my * 1.8 - camera.position.y) * 0.04;
-      camera.position.z += ((22 - my * 0.8) - camera.position.z) * 0.03;
-      camera.lookAt(0, 0, 0);
+      if (!this._mobileWallpaper) {
+        const mx = parseFloat(this.section?.style.getPropertyValue("--mx") || "0");
+        const my = parseFloat(this.section?.style.getPropertyValue("--my") || "0");
+        camera.position.x += (mx * 3.0 - camera.position.x) * 0.04;
+        camera.position.y += (-my * 1.8 - camera.position.y) * 0.04;
+        camera.position.z += ((22 - my * 0.8) - camera.position.z) * 0.03;
+        camera.lookAt(0, 0, 0);
+      }
 
       // (Nucleus pulse removed — Arcane Core sphere was a visual anomaly)
 
@@ -1023,6 +1036,17 @@ const Crystals = {
 
       renderer.render(scene, camera);
       this.updateCaptionPositions(t);
+
+      // #region agent log
+      window.__crHeavy = (window.__crHeavy || 0) + 1;
+      window.__crTime = (window.__crTime || 0) + (performance.now() - __dbgC0);
+      if (!window.__crLast || performance.now() - window.__crLast > 1000) {
+        const dt = window.__crLast ? (performance.now() - window.__crLast) / 1000 : 1;
+        const info = renderer.info ? renderer.info.render : null;
+        fetch('http://127.0.0.1:7279/ingest/89c13b11-4c60-49a0-81e3-64782c804124',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'bc6917'},body:JSON.stringify({sessionId:'bc6917',runId:'run1',hypothesisId:'H2',location:'crystals.js:animate',message:'crystals webgl per-sec',data:{rafFps:Math.round((window.__crCalls||0)/dt),heavyFps:Math.round((window.__crHeavy||0)/dt),avgHeavyMs:+((window.__crTime||0)/Math.max(1,window.__crHeavy)).toFixed(2),crystals:t.crystals.length,drawCalls:info?info.calls:-1,triangles:info?info.triangles:-1,innerW:window.innerWidth,dpr:Math.min(window.devicePixelRatio||1,2)},timestamp:Date.now()})}).catch(()=>{});
+        window.__crLast = performance.now(); window.__crCalls = 0; window.__crHeavy = 0; window.__crTime = 0;
+      }
+      // #endregion
 
       requestAnimationFrame(animate);
     };
