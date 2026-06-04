@@ -201,13 +201,20 @@ const Crystals = {
       if (e.key === "ArrowLeft")  { e.preventDefault(); this.tourPrev(); }
     });
 
-    /* Hero "Ver Cristais" CTA opens the guided tour rather than the
-       default anchor-scroll. The href="#memories" stays as a graceful
-       fallback if JS fails to load. */
-    const ctaCrystals = document.getElementById("hero-cta-crystals");
-    ctaCrystals?.addEventListener("click", (e) => {
-      e.preventDefault();
-      this.openTour();
+    /* Any element flagged with [data-open-tour] (the "Explorar Relíquias"
+       button in the Memory Crystals section, plus the legacy hero
+       "Ver Cristais" CTA) opens the guided relic-card tour instead of the
+       default anchor-scroll. The href stays as a graceful no-JS fallback.
+       Bound by attribute so the trigger can never be orphaned again by a
+       button rename/id change. */
+    const tourTriggers = document.querySelectorAll(
+      "[data-open-tour], #hero-cta-crystals"
+    );
+    tourTriggers.forEach((trigger) => {
+      trigger.addEventListener("click", (e) => {
+        e.preventDefault();
+        this.openTour();
+      });
     });
 
     window.addEventListener("langchange", () => this.updateCaptions());

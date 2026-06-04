@@ -3058,6 +3058,64 @@ html[data-theme="light"] .craft__stage[data-active="ambience"]  .craft__line[dat
 .memories__legend-item[data-rarity="legendary"] .memories__legend-dot { background: #E5BEAE; color: #E5BEAE; }
 
 /* ------------------------------------------------------------ */
+/*  "Explorar Relíquias" — gateway to the guided relic-card tour */
+/* ------------------------------------------------------------ */
+.memories__explore {
+  position: relative;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  margin: 1.5rem auto 0;
+  padding: 0.6rem 1.35rem;
+  border-radius: 4px;
+  font-family: var(--font-body);
+  font-size: 0.74rem;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  text-decoration: none;
+  cursor: pointer;
+  color: #2a1808;
+  background: linear-gradient(160deg, #f1dcb8 0%, #d8b984 52%, #bc954f 100%);
+  border: 1px solid rgba(120, 80, 40, 0.6);
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 245, 220, 0.45),
+    0 4px 14px rgba(0, 0, 0, 0.34);
+  transition: transform 0.35s var(--ease-out, cubic-bezier(.16,1,.3,1)),
+    box-shadow 0.45s ease, background 0.45s ease;
+  isolation: isolate;
+}
+.memories__explore-sigil {
+  display: inline-flex;
+  color: #4a2e12;
+  filter: drop-shadow(0 0 3px rgba(255, 240, 200, 0.4));
+}
+.memories__explore-arrow {
+  display: inline-flex;
+  transition: transform 0.4s var(--ease-out, cubic-bezier(.16,1,.3,1));
+}
+.memories__explore:hover,
+.memories__explore:focus-visible {
+  outline: none;
+  transform: translateY(-1px);
+  background: linear-gradient(160deg, #f8e7c6 0%, #e3c590 52%, #c8a056 100%);
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 245, 220, 0.6),
+    0 7px 20px rgba(0, 0, 0, 0.4),
+    0 0 20px rgba(255, 231, 160, 0.32);
+}
+.memories__explore:hover .memories__explore-arrow,
+.memories__explore:focus-visible .memories__explore-arrow {
+  transform: translateX(3px);
+}
+.memories__explore:active { transform: translateY(0) scale(0.99); }
+@media (prefers-reduced-motion: reduce) {
+  .memories__explore,
+  .memories__explore-arrow { transition: none; }
+}
+
+/* ------------------------------------------------------------ */
 /*  Floating loader — bottom-right, no stage                    */
 /* ------------------------------------------------------------ */
 
