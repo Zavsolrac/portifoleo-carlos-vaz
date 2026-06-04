@@ -24,50 +24,52 @@ document.addEventListener("DOMContentLoaded", () => {
   if (window.Convergence) Convergence.init();
   if (window.Enhancements) Enhancements.init();
   initAudio();
+  initAmbience();
   initTheme();
   initSmoothAnchors();
 });
 
 /* ------------------------------------------------------------------
- *  AMBIENT SOUNDTRACK
+ *  AMBIENT SOUNDTRACK · controller (no autoplay)
  * ------------------------------------------------------------------
- *  Plays "In Search of the Philosopher's Stone" as a looped, low-volume
- *  background score. The <audio id="ambient-track"> element in index.html
- *  carries two <source> tags: .ogg primary + .mp3 fallback.
+ *  Wraps the looped <audio id="ambient-track"> ( "In Search of the
+ *  Philosopher's Stone", .ogg + .mp3 ) in a tiny shared controller
+ *  exposed on `window.AmbientAudio`. Both the legacy nav tool button
+ *  and the new "Cristal da Ambiência" (initAmbience) consume it, so
+ *  the play/pause/volume state always stays in sync.
  *
- *  Behaviour:
- *    · Default volume is intentionally LOW (0.18) so the music sits
- *      beneath the narration without competing for attention.
- *    · On first visit we try to autoplay (modern browsers usually
- *      block this for audible media — we handle that gracefully by
- *      arming a one-shot listener that retries on the first user
- *      gesture: click, keydown, touchstart, scroll).
- *    · A user preference is persisted in localStorage under
- *      "cv-audio". Allowed values:
- *        - "playing" → keep playing on next visit
- *        - "muted"   → user explicitly silenced; never auto-start again
- *      First-time visitors get the implicit "playing" intent.
- *    · The existing #audio-toggle button toggles between the two
- *      states with a soft fade.
+ *  Product direction (June 2026): the track NEVER auto-starts. The
+ *  visitor must awaken it deliberately (the Ambience Crystal). We only
+ *  persist the chosen VOLUME as a preference; playback always begins
+ *  from an explicit user action. Volume is intentionally low (0.18).
  * ----------------------------------------------------------------- */
 function initAudio() {
-  const btn   = document.getElementById("audio-toggle");
   const audio = document.getElementById("ambient-track");
-  if (!btn || !audio) return;
+  if (!audio) return;
 
-  const STORAGE_KEY  = "cv-audio";
-  const TARGET_VOL   = 0.18;             // low, atmospheric
-  const FADE_MS      = 1200;             // fade-in / fade-out duration
+  const VOL_KEY      = "cv-audio-vol";   // "0".."1"
+  const DEFAULT_VOL  = 0.18;
+  const FADE_MS      = 1200;
   const FADE_STEP_MS = 60;
 
   audio.loop   = true;
-  audio.volume = 0;                      // start silent → fade in
+  audio.volume = 0;
 
-  /** Persisted intent — null on first visit. */
-  let intent;
-  try { intent = localStorage.getItem(STORAGE_KEY); } catch { intent = null; }
-  // First-time visitors default to "playing".
-  if (intent !== "muted" && intent !== "playing") intent = "playing";
+  let targetVol = DEFAULT_VOL;
+  try {
+    const v = parseFloat(localStorage.getItem(VOL_KEY));
+    if (!Number.isNaN(v) && v >= 0 && v <= 1) targetVol = v;
+  } catch { /* ignore */ }
+
+  // Explicit intent flag — the source of truth for the UI. Volume is
+  // faded asynchronously, so checking audio.volume directly would race
+  // with the fade; the flag flips synchronously on play()/stop().
+  let wantPlaying = false;
+
+  const subscribers = new Set();
+  function notify() {
+    subscribers.forEach((fn) => { try { fn(wantPlaying); } catch { /* ignore */ } });
+  }
 
   let fadeTimer = null;
   function clearFade() {
@@ -89,77 +91,173 @@ function initAudio() {
     }, FADE_STEP_MS);
   }
 
-  function syncButton(isPlaying) {
-    btn.setAttribute("aria-pressed", isPlaying ? "true" : "false");
-    btn.classList.toggle("is-playing", isPlaying);
-    btn.setAttribute(
-      "aria-label",
-      isPlaying ? "Silenciar música ambiente" : "Ativar música ambiente"
-    );
-  }
+  const AmbientAudio = {
+    /** Intended playing state (drives all UI). */
+    isPlaying() { return wantPlaying; },
+    /** Begin (or resume) playback with a soft fade-in. Returns a Promise. */
+    play() {
+      wantPlaying = true;
+      notify();
+      audio.muted = false;
+      const p = audio.play();
+      const onStarted = () => { fadeTo(targetVol); };
+      if (p && typeof p.then === "function") {
+        return p.then(onStarted).catch((err) => {
+          // Could not start (rare without a gesture) — revert UI.
+          wantPlaying = false;
+          notify();
+          throw err;
+        });
+      }
+      onStarted();
+      return Promise.resolve();
+    },
+    /** Fade out, then pause. */
+    stop() {
+      wantPlaying = false;
+      notify();
+      fadeTo(0, () => { try { audio.pause(); } catch { /* ignore */ } });
+    },
+    toggle() {
+      if (wantPlaying) { this.stop(); return Promise.resolve(); }
+      return this.play();
+    },
+    getVolume() { return targetVol; },
+    setVolume(v) {
+      targetVol = Math.max(0, Math.min(1, Number(v) || 0));
+      try { localStorage.setItem(VOL_KEY, String(targetVol)); } catch { /* ignore */ }
+      // Apply live while playing (skip the fade so the slider feels direct).
+      if (wantPlaying && !audio.muted) { clearFade(); audio.volume = targetVol; }
+    },
+    /** Subscribe to play/pause changes. Returns an unsubscribe fn. */
+    onChange(fn) {
+      if (typeof fn === "function") subscribers.add(fn);
+      return () => subscribers.delete(fn);
+    },
+  };
+  window.AmbientAudio = AmbientAudio;
 
-  /** Start playback with a soft fade-in. Returns the play() promise. */
-  function startPlayback() {
-    const p = audio.play();
-    if (p && typeof p.then === "function") {
-      return p
-        .then(() => { fadeTo(TARGET_VOL); syncButton(true); })
-        .catch((err) => { syncButton(false); throw err; });
-    }
-    fadeTo(TARGET_VOL);
-    syncButton(true);
-    return Promise.resolve();
-  }
-
-  /** Fade out → pause. */
-  function stopPlayback() {
-    fadeTo(0, () => { try { audio.pause(); } catch { /* ignore */ } });
-    syncButton(false);
-  }
-
-  /** Arm a one-shot listener that retries playback on the first user
-   *  gesture. Used when the browser blocks our initial autoplay. */
-  function armFirstGestureRetry() {
-    const events = ["pointerdown", "keydown", "touchstart", "wheel", "scroll"];
-    const retry = () => {
-      events.forEach((ev) => window.removeEventListener(ev, retry, true));
-      // Only retry if the user hasn't explicitly muted in between.
-      let current;
-      try { current = localStorage.getItem(STORAGE_KEY); } catch { current = null; }
-      if (current === "muted") return;
-      startPlayback().catch(() => { /* still blocked; stay silent */ });
+  /* Legacy nav tool button — kept as a secondary control, in sync. */
+  const navBtn = document.getElementById("audio-toggle");
+  if (navBtn) {
+    const syncNav = (playing) => {
+      navBtn.setAttribute("aria-pressed", playing ? "true" : "false");
+      navBtn.classList.toggle("is-playing", playing);
+      navBtn.setAttribute(
+        "aria-label",
+        playing ? "Silenciar música ambiente" : "Ativar música ambiente"
+      );
     };
-    events.forEach((ev) =>
-      window.addEventListener(ev, retry, { once: true, capture: true, passive: true })
-    );
+    navBtn.addEventListener("click", () => AmbientAudio.toggle());
+    AmbientAudio.onChange(syncNav);
+    syncNav(false);
   }
 
-  /* ── Button toggle ─────────────────────────────────────────────── */
-  btn.addEventListener("click", () => {
-    const isPlaying = !audio.paused && audio.volume > 0.001;
-    if (isPlaying) {
-      stopPlayback();
-      try { localStorage.setItem(STORAGE_KEY, "muted"); } catch { /* ignore */ }
-    } else {
-      startPlayback()
-        .then(() => {
-          try { localStorage.setItem(STORAGE_KEY, "playing"); } catch { /* ignore */ }
-        })
-        .catch(() => { /* ignore play() rejection (rare on user gesture) */ });
-    }
+  /* No autoplay: the cosmos stays silent until the visitor awakens the
+     Ambience Crystal (or clicks the nav tool). */
+}
+
+/* ------------------------------------------------------------------
+ *  CRISTAL DA AMBIÊNCIA · a tiny hidden relic that awakens the score
+ * ------------------------------------------------------------------
+ *  A ~34px runic crystal anchored bottom-left. Dormant by default
+ *  (faint, slow pulse). Clicking it awakens the ambient track AND
+ *  unfurls a small grimoire panel ("Trilha do Reino") with a
+ *  play/pause action and a hidden-until-needed volume control.
+ *  Consumes window.AmbientAudio so it stays in sync with the nav tool.
+ * ----------------------------------------------------------------- */
+function initAmbience() {
+  const root = document.getElementById("ambience");
+  const api  = window.AmbientAudio;
+  if (!root || !api) return;
+
+  const crystal     = document.getElementById("ambience-crystal");
+  const panel       = document.getElementById("ambience-panel");
+  const actionBtn   = document.getElementById("ambience-toggle");
+  const actionRune  = actionBtn ? actionBtn.querySelector(".ambience__action-rune") : null;
+  const actionLabel = actionBtn ? actionBtn.querySelector(".ambience__action-label") : null;
+  const volume      = document.getElementById("ambience-volume");
+
+  const t = (key, fallback) => {
+    try {
+      if (window.I18n && typeof I18n.t === "function") {
+        const v = I18n.t(key);
+        if (v && v !== key) return v;
+      }
+    } catch { /* ignore */ }
+    return fallback;
+  };
+
+  if (volume) volume.value = String(Math.round(api.getVolume() * 100));
+
+  function reflect(playing) {
+    root.classList.toggle("is-awake", playing);
+    if (crystal) crystal.setAttribute("aria-pressed", playing ? "true" : "false");
+    if (actionRune)  actionRune.textContent  = playing ? "❚❚" : "▶";
+    if (actionLabel) actionLabel.textContent = playing
+      ? t("ambience.pause", "Pausar")
+      : t("ambience.play", "Iniciar Música");
+  }
+  api.onChange(reflect);
+
+  function openPanel() {
+    if (panel) panel.hidden = false;
+    root.classList.add("is-open");
+    if (crystal) crystal.setAttribute("aria-expanded", "true");
+  }
+  function closePanel() {
+    if (panel) panel.hidden = true;
+    root.classList.remove("is-open");
+    if (crystal) crystal.setAttribute("aria-expanded", "false");
+  }
+
+  /* Clicking the crystal unfurls the grimoire. On first awakening it
+     also starts the ambience (the relic "comes alive"); clicking it
+     again simply furls the panel — the music keeps flowing. */
+  if (crystal) {
+    crystal.addEventListener("click", (e) => {
+      e.stopPropagation();
+      if (root.classList.contains("is-open")) {
+        closePanel();
+        return;
+      }
+      openPanel();
+      if (!api.isPlaying()) {
+        api.play().catch(() => { /* rejected before gesture — rare */ });
+      }
+    });
+  }
+
+  if (actionBtn) {
+    actionBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      api.toggle();
+    });
+  }
+
+  if (volume) {
+    volume.addEventListener("input", () => {
+      api.setVolume((Number(volume.value) || 0) / 100);
+    });
+    // Keep the slider in sync if volume changes elsewhere.
+    api.onChange(() => {
+      const pct = String(Math.round(api.getVolume() * 100));
+      if (volume.value !== pct) volume.value = pct;
+    });
+  }
+
+  // Dismiss the panel on outside click / Escape (music is unaffected).
+  document.addEventListener("click", (e) => {
+    if (root.classList.contains("is-open") && !root.contains(e.target)) closePanel();
+  });
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && root.classList.contains("is-open")) closePanel();
   });
 
-  /* ── Initial state ─────────────────────────────────────────────── */
-  syncButton(false);
+  // Re-translate labels when the language changes.
+  window.addEventListener("langchange", () => reflect(api.isPlaying()));
 
-  if (intent === "muted") {
-    // Visitor previously silenced the track — respect that, do nothing.
-    return;
-  }
-
-  /* Try to autoplay. Modern browsers usually reject audible autoplay,
-     so we fall back to playing on the first user gesture.            */
-  startPlayback().catch(() => armFirstGestureRetry());
+  reflect(api.isPlaying());
 }
 
 /* ------------------------------------------------------------------

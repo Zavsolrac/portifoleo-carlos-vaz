@@ -14066,3 +14066,348 @@ html[data-theme="light"] .contract__enchant--inherit .contract__enchant-name {
 @media (prefers-reduced-motion: reduce) {
   .contract[data-rarity="mythic"] .contract__book::after { animation: none; opacity: 0.7; }
 }
+
+/* ════════════════════════════════════════════════════════════════════
+   CRISTAL DA AMBIÊNCIA · a tiny hidden soundtrack relic (bottom-left)
+   --------------------------------------------------------------------
+   Aged gold + arcane violet, runic facets, a slow dormant pulse and a
+   small grimoire panel ("Trilha do Reino") that unfurls above it. Built
+   to read as a collector's detail, never a media player / audio bar.
+   ════════════════════════════════════════════════════════════════════ */
+.ambience {
+  position: fixed;
+  left: 1.25rem;
+  bottom: 1.25rem;
+  z-index: 150;
+  display: flex;
+  flex-direction: column-reverse;   /* the panel unfurls ABOVE the crystal */
+  align-items: flex-start;
+  gap: 0.55rem;
+}
+
+/* ── The crystal (dormant button) ──────────────────────────────────── */
+.ambience__crystal {
+  position: relative;
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border-radius: 8px;
+  cursor: pointer;
+  color: #c9a15f;
+  background:
+    radial-gradient(circle at 36% 28%, rgba(168, 85, 247, 0.20), transparent 60%),
+    linear-gradient(160deg, rgba(40, 30, 22, 0.62), rgba(18, 13, 22, 0.56));
+  border: 1px solid rgba(201, 161, 95, 0.42);
+  box-shadow:
+    inset 0 0 0 1px rgba(242, 200, 121, 0.08),
+    0 4px 14px rgba(0, 0, 0, 0.42);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+  isolation: isolate;
+  transition:
+    transform 0.4s var(--ease-out, cubic-bezier(.16,1,.3,1)),
+    border-color 0.4s ease, box-shadow 0.5s ease, color 0.4s ease;
+}
+.ambience__gem {
+  position: relative;
+  z-index: 2;
+  filter: drop-shadow(0 0 3px rgba(242, 200, 121, 0.35));
+  transition: filter 0.5s ease;
+}
+.ambience__gem-facets { color: #f2c879; }
+
+/* Soft aura — faint slow pulse while dormant ("there's something here"). */
+.ambience__aura {
+  position: absolute;
+  inset: -3px;
+  z-index: 1;
+  border-radius: inherit;
+  pointer-events: none;
+  background: radial-gradient(circle, rgba(242, 200, 121, 0.22), transparent 70%);
+  opacity: 0.2;
+  animation: ambience-dormant 5.5s ease-in-out infinite;
+}
+@keyframes ambience-dormant {
+  0%, 100% { opacity: 0.14; transform: scale(0.9); }
+  50%      { opacity: 0.36; transform: scale(1.06); }
+}
+
+.ambience__crystal:hover,
+.ambience__crystal:focus-visible {
+  outline: none;
+  color: #f2c879;
+  transform: translateY(-2px);
+  border-color: rgba(242, 200, 121, 0.6);
+  box-shadow:
+    inset 0 0 0 1px rgba(242, 200, 121, 0.14),
+    0 6px 18px rgba(0, 0, 0, 0.46),
+    0 0 16px rgba(168, 85, 247, 0.28);
+}
+
+/* Discreet motes — invisible until the relic is awakened. */
+.ambience__motes { position: absolute; inset: 0; z-index: 1; pointer-events: none; }
+.ambience__motes i {
+  position: absolute;
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #ffe9a8, rgba(242, 200, 121, 0) 70%);
+  opacity: 0;
+}
+.ambience__motes i:nth-child(1) { left: 16%; bottom: 22%; }
+.ambience__motes i:nth-child(2) { left: 70%; bottom: 30%; }
+.ambience__motes i:nth-child(3) { left: 44%; bottom: 64%; }
+
+/* ── AWAKENED state (music playing) ────────────────────────────────── */
+.ambience.is-awake .ambience__crystal {
+  color: #f7d98e;
+  border-color: rgba(242, 200, 121, 0.6);
+  box-shadow:
+    inset 0 0 0 1px rgba(242, 200, 121, 0.16),
+    0 4px 16px rgba(0, 0, 0, 0.46),
+    0 0 18px rgba(168, 85, 247, 0.32);
+}
+.ambience.is-awake .ambience__aura {
+  background: radial-gradient(circle,
+    rgba(242, 200, 121, 0.34), rgba(168, 85, 247, 0.12) 56%, transparent 74%);
+  animation: ambience-awake 3.6s ease-in-out infinite;
+}
+@keyframes ambience-awake {
+  0%, 100% { opacity: 0.4; transform: scale(1); }
+  50%      { opacity: 0.68; transform: scale(1.12); }
+}
+.ambience.is-awake .ambience__gem {
+  filter: drop-shadow(0 0 6px rgba(242, 200, 121, 0.6));
+  animation: ambience-gem-breathe 4.4s ease-in-out infinite;
+}
+@keyframes ambience-gem-breathe {
+  0%, 100% { transform: scale(1); }
+  50%      { transform: scale(1.08); }
+}
+.ambience.is-awake .ambience__motes i { animation: ambience-mote 4.2s ease-in-out infinite; }
+.ambience.is-awake .ambience__motes i:nth-child(2) { animation-delay: 1.3s; }
+.ambience.is-awake .ambience__motes i:nth-child(3) { animation-delay: 2.5s; }
+@keyframes ambience-mote {
+  0%       { opacity: 0; transform: translateY(2px) scale(0.6); }
+  30%      { opacity: 0.9; }
+  100%     { opacity: 0; transform: translateY(-12px) scale(1); }
+}
+
+/* ── Tooltip (hover) ───────────────────────────────────────────────── */
+.ambience__tooltip {
+  position: absolute;
+  left: calc(100% + 10px);
+  top: 50%;
+  transform: translateY(-50%) translateX(-4px);
+  white-space: nowrap;
+  padding: 0.34rem 0.62rem;
+  border-radius: 4px;
+  font-family: "Cormorant Garamond", "Libre Caslon Text", serif;
+  font-size: 0.82rem;
+  font-style: italic;
+  color: #f0e2cf;
+  background: linear-gradient(160deg, rgba(34, 26, 18, 0.96), rgba(20, 15, 24, 0.94));
+  border: 1px solid rgba(201, 161, 95, 0.42);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.42);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.35s ease, transform 0.35s var(--ease-out, cubic-bezier(.16,1,.3,1));
+}
+.ambience__crystal:hover .ambience__tooltip,
+.ambience__crystal:focus-visible .ambience__tooltip {
+  opacity: 1;
+  transform: translateY(-50%) translateX(0);
+}
+.ambience.is-open .ambience__tooltip { opacity: 0 !important; }
+
+/* ── Grimoire panel ────────────────────────────────────────────────── */
+.ambience__panel {
+  position: relative;
+  width: 196px;
+  padding: 0.85rem 0.95rem 0.95rem;
+  border-radius: 4px;
+  background:
+    repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.02) 0 2px, transparent 2px 4px),
+    linear-gradient(158deg, rgba(38, 30, 22, 0.97), rgba(22, 16, 26, 0.95));
+  border: 1px solid rgba(201, 161, 95, 0.38);
+  box-shadow:
+    inset 0 0 0 1px rgba(242, 200, 121, 0.07),
+    inset 0 0 26px rgba(168, 85, 247, 0.05),
+    0 16px 38px rgba(0, 0, 0, 0.5);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  transform-origin: left bottom;
+  animation: ambience-unfurl 0.4s var(--ease-out, cubic-bezier(.16,1,.3,1)) both;
+}
+@keyframes ambience-unfurl {
+  from { opacity: 0; transform: translateY(6px) scale(0.96); }
+  to   { opacity: 1; transform: none; }
+}
+/* Elven gilt corners */
+.ambience__panel-corner {
+  position: absolute;
+  width: 11px;
+  height: 11px;
+  border: 1px solid rgba(201, 161, 95, 0.55);
+  pointer-events: none;
+}
+.ambience__panel-corner--tl { top: 6px;    left: 6px;    border-right: 0; border-bottom: 0; }
+.ambience__panel-corner--tr { top: 6px;    right: 6px;   border-left: 0;  border-bottom: 0; }
+.ambience__panel-corner--bl { bottom: 6px; left: 6px;    border-right: 0; border-top: 0; }
+.ambience__panel-corner--br { bottom: 6px; right: 6px;   border-left: 0;  border-top: 0; }
+
+.ambience__panel-title {
+  margin: 0 0 0.4rem;
+  text-align: center;
+  font-family: "Cinzel", "Cormorant Garamond", serif;
+  font-size: 0.82rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  color: #ecd29a;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+}
+.ambience__panel-rule {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0 0 0.7rem;
+  color: rgba(201, 161, 95, 0.55);
+  font-size: 0.6rem;
+}
+.ambience__panel-rule::before,
+.ambience__panel-rule::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(201, 161, 95, 0.45), transparent);
+}
+
+/* Play / Pause action — a small wax-seal style button */
+.ambience__action {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  width: 100%;
+  margin-bottom: 0.7rem;
+  padding: 0.5rem 0.7rem;
+  border-radius: 4px;
+  cursor: pointer;
+  font-family: "Cormorant Garamond", "Libre Caslon Text", serif;
+  font-size: 0.92rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: #2a1808;
+  background: linear-gradient(160deg, #f1dcb8 0%, #d8b984 52%, #bc954f 100%);
+  border: 1px solid rgba(120, 80, 40, 0.6);
+  box-shadow: inset 0 0 0 1px rgba(255, 245, 220, 0.4), 0 3px 10px rgba(0, 0, 0, 0.34);
+  transition: transform 0.3s var(--ease-out, cubic-bezier(.16,1,.3,1)), box-shadow 0.4s ease, background 0.4s ease;
+}
+.ambience__action-rune {
+  font-size: 0.72rem;
+  letter-spacing: 0.04em;
+  color: #4a2e12;
+}
+.ambience__action:hover,
+.ambience__action:focus-visible {
+  outline: none;
+  transform: translateY(-1px);
+  background: linear-gradient(160deg, #f8e7c6 0%, #e3c590 52%, #c8a056 100%);
+  box-shadow: inset 0 0 0 1px rgba(255, 245, 220, 0.55), 0 5px 14px rgba(0, 0, 0, 0.4), 0 0 14px rgba(255, 231, 160, 0.3);
+}
+
+/* Volume — discreet runic slider */
+.ambience__volume {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+.ambience__volume-label {
+  font-family: var(--font-mono);
+  font-size: 0.56rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(201, 161, 95, 0.85);
+}
+.ambience__volume-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 3px;
+  border-radius: 3px;
+  cursor: pointer;
+  background: linear-gradient(90deg, rgba(242, 200, 121, 0.7), rgba(168, 85, 247, 0.5));
+  outline: none;
+}
+.ambience__volume-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 38% 32%, #fff2d4, #c9a15f);
+  border: 1px solid rgba(120, 80, 40, 0.7);
+  box-shadow: 0 0 6px rgba(242, 200, 121, 0.5);
+}
+.ambience__volume-slider::-moz-range-thumb {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 38% 32%, #fff2d4, #c9a15f);
+  border: 1px solid rgba(120, 80, 40, 0.7);
+  box-shadow: 0 0 6px rgba(242, 200, 121, 0.5);
+}
+.ambience__volume-slider:focus-visible {
+  box-shadow: 0 0 0 2px rgba(242, 200, 121, 0.5);
+}
+
+/* Recede during focused experiences, mirroring domains/merlin. */
+body.vault-open .ambience,
+body.is-codex-summoning .ambience {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* ── Light theme · aged manuscript ─────────────────────────────────── */
+html[data-theme="light"] .ambience__crystal {
+  color: #8a5a1f;
+  background:
+    radial-gradient(circle at 36% 28%, rgba(139, 92, 246, 0.16), transparent 60%),
+    linear-gradient(160deg, rgba(244, 232, 205, 0.92), rgba(232, 216, 182, 0.88));
+  border-color: rgba(120, 84, 40, 0.45);
+}
+html[data-theme="light"] .ambience__gem-facets { color: #9a6a28; }
+html[data-theme="light"] .ambience__tooltip {
+  color: #2a1c0e;
+  background: linear-gradient(160deg, rgba(245, 234, 209, 0.97), rgba(232, 217, 184, 0.95));
+  border-color: rgba(120, 84, 40, 0.4);
+}
+html[data-theme="light"] .ambience__panel {
+  background:
+    repeating-linear-gradient(0deg, rgba(120, 84, 40, 0.025) 0 2px, transparent 2px 4px),
+    linear-gradient(158deg, rgba(245, 234, 209, 0.98), rgba(232, 217, 184, 0.96));
+  border-color: rgba(120, 84, 40, 0.4);
+  box-shadow: 0 16px 38px rgba(74, 45, 20, 0.18);
+}
+html[data-theme="light"] .ambience__panel-corner { border-color: rgba(120, 84, 40, 0.5); }
+html[data-theme="light"] .ambience__panel-title { color: #7a4f1a; text-shadow: none; }
+html[data-theme="light"] .ambience__volume-label { color: #8a5a1f; }
+
+/* ── Mobile · lift above the bottom-left Domains handle ────────────── */
+@media (max-width: 1100px) {
+  .ambience { bottom: 4.75rem; }
+}
+
+/* ── Reduced motion ────────────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .ambience__aura,
+  .ambience.is-awake .ambience__aura,
+  .ambience.is-awake .ambience__gem,
+  .ambience.is-awake .ambience__motes i,
+  .ambience__panel {
+    animation: none !important;
+  }
+  .ambience__crystal { transition: none; }
+}

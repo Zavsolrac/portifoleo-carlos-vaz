@@ -3578,6 +3578,55 @@
     <source src="src/assets/audio/in_search_of_the_philosophers_stone.mp3" type="audio/mpeg">
   </audio>
 
+  <!-- ======================================================
+       CRISTAL DA AMBIÊNCIA · a tiny hidden relic (bottom-left).
+       Dormant by default; click awakens the ambient score and
+       unfurls a small grimoire panel ("Trilha do Reino") with a
+       play/pause action + a discreet volume control. No autoplay —
+       the visitor chooses to wake it. Controller: initAmbience().
+  ====================================================== -->
+  <div class="ambience" id="ambience">
+    <button class="ambience__crystal" id="ambience-crystal" type="button"
+            aria-expanded="false" aria-pressed="false" aria-haspopup="dialog"
+            aria-label="Cristal da Ambiência">
+      <span class="ambience__aura" aria-hidden="true"></span>
+      <span class="ambience__motes" aria-hidden="true">
+        <i></i><i></i><i></i>
+      </span>
+      <svg class="ambience__gem" viewBox="0 0 32 32" width="20" height="20" aria-hidden="true">
+        <path class="ambience__gem-body" d="M16 2 L26 11 L21 29 L11 29 L6 11 Z"
+              fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round" />
+        <path class="ambience__gem-facets" d="M6 11 L16 14 L26 11 M16 14 L11 29 M16 14 L21 29 M16 2 L16 14"
+              fill="none" stroke="currentColor" stroke-width="0.8" opacity="0.7" />
+      </svg>
+      <span class="ambience__tooltip" role="tooltip" data-i18n="ambience.tooltip">
+        ✦ Escutar os Ecos do Reino
+      </span>
+    </button>
+
+    <div class="ambience__panel" id="ambience-panel" role="dialog"
+         aria-label="Trilha do Reino" hidden>
+      <span class="ambience__panel-corner ambience__panel-corner--tl" aria-hidden="true"></span>
+      <span class="ambience__panel-corner ambience__panel-corner--tr" aria-hidden="true"></span>
+      <span class="ambience__panel-corner ambience__panel-corner--bl" aria-hidden="true"></span>
+      <span class="ambience__panel-corner ambience__panel-corner--br" aria-hidden="true"></span>
+
+      <p class="ambience__panel-title" data-i18n="ambience.title">Trilha do Reino</p>
+      <div class="ambience__panel-rule" aria-hidden="true"><span>✦</span></div>
+
+      <button class="ambience__action" id="ambience-toggle" type="button">
+        <span class="ambience__action-rune" aria-hidden="true">▶</span>
+        <span class="ambience__action-label" data-i18n="ambience.play">Iniciar Música</span>
+      </button>
+
+      <label class="ambience__volume">
+        <span class="ambience__volume-label" data-i18n="ambience.volume">Volume</span>
+        <input class="ambience__volume-slider" id="ambience-volume" type="range"
+               min="0" max="100" value="18" aria-label="Volume da trilha" />
+      </label>
+    </div>
+  </div>
+
   <script src="https://unpkg.com/three@0.149.0/build/three.min.js" defer></script>
   <script src="src/js/i18n.js" defer></script>
   <script src="src/js/effects.js" defer></script>
