@@ -22,6 +22,7 @@ document.addEventListener("DOMContentLoaded", () => {
   Merlin.init();
   Codex.init();
   if (window.Convergence) Convergence.init();
+  if (window.Enhancements) Enhancements.init();
   initAudio();
   initTheme();
   initSmoothAnchors();

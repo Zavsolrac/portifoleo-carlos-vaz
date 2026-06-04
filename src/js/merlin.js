@@ -94,6 +94,7 @@ const Merlin = {
       ask: "Sussurra uma pergunta…",
       portfolio: "Este arquivo é a jornada de Carlos Vaz, Arquiteto Arcano. Cada secção esconde um capítulo: a Árvore traz o seu domínio técnico, os Cristais guardam projetos vividos, o Codex revela a sua origem e os Contratos selam o que ele pode forjar para ti.",
       services: {
+        aprendiz: { title: "Relíquia do Aprendiz", body: "A porta de entrada do atelier — landing page profissional, até 5 seções, WhatsApp, formulário, publicação online e 1 rodada de ajustes. Ideal para pequenos negócios e primeira presença digital. Investimento €149 (R$ 890), prazo de 3 a 7 dias. É o primeiro contrato no Codex, com o selo Primeiro Passo." },
         landing: { title: "Landing Page Arcana", body: "Uma página única e encantada — forjada em HTML, CSS e JavaScript — para divulgar um produto, serviço, evento ou campanha com presença marcante. Investimento a partir de €590 (R$ 3.290), pronta em cerca de uma a duas semanas. Procura o seu selo no Codex dos Contratos." },
         institucional: { title: "Site Institucional", body: "Um pequeno reino digital de várias páginas que estabelece autoridade e confiança para empresas e marcas. Investimento a partir de €1.290 (R$ 6.900). Inclui deploy, SSL, responsividade móvel e SEO inicial." },
         portfolio: { title: "Portfólio Profissional", body: "Um arquivo vivo que narra a tua trajetória — projetos, identidade e experiência tecidos em storytelling, tal como este portal que percorres. Investimento a partir de €1.790 (R$ 8.900)." },
@@ -102,7 +103,7 @@ const Merlin = {
         sobmedida: { title: "Projeto Sob Medida", body: "Quando nenhum contrato comum serve, forja-se um artefacto único conforme a tua visão — sistemas, plataformas, experiências raras. A partir de €2.490 (R$ 13.900), com orçamento selado sob medida." },
       },
       kb: {
-        pricing: "Os Contratos Arcanos vão da Landing Page (€590 · R$ 3.290) ao Projeto Sob Medida (€2.490+ · R$ 13.900+), passando por Site Institucional (€1.290), Portfólio Profissional (€1.790), Automação com IA (€2.990) e Narrativa Visual (€1.290). Abre o Codex dos Contratos para ver cada selo, o que inclui e o prazo.",
+        pricing: "Os Contratos Arcanos começam pela Relíquia do Aprendiz (€149 · R$ 890) — a porta de entrada — e sobem até o Projeto Sob Medida (€2.490+ · R$ 13.900+), passando por Landing Page (€590), Site Institucional (€1.290), Portfólio (€1.790), Automação com IA (€2.990) e Narrativa Visual (€1.290). Abre o Codex dos Contratos para ver cada selo, o que inclui e o prazo.",
         included: "Cada pacto sela um artefacto completo, não apenas um site: deploy profissional, certificado SSL (HTTPS), responsividade móvel, SEO inicial, configuração de domínio e suporte inicial — somados a storytelling, animações cinemáticas, modo claro/escuro e galeria de projetos.",
         delivery: "O tempo varia com a raridade do contrato: uma Landing Page nasce em cerca de sete a quinze dias; reinos maiores, como sites institucionais e narrativas visuais, pedem algumas semanas. O prazo exato é selado antes de começarmos a obra.",
         skills: "Carlos domina o Front-End (HTML, CSS, JavaScript, TypeScript, React, Next.js), o Back-End (Node, APIs, bases de dados), a Cloud, a Automação e a Inteligência Artificial (Prompt Engineering, RAG, agentes, LLMs). Percorre a Árvore do Conhecimento para ver cada ramo aceso.",
@@ -247,6 +248,7 @@ const Merlin = {
       ask: "Murmura unha pregunta…",
       portfolio: "Este arquivo é a viaxe de Carlos Vaz, Arquitecto Arcano. Cada sección agocha un capítulo: a Árbore mostra o seu dominio técnico, os Cristais gardan proxectos vividos, o Codex revela a súa orixe e os Contratos selan o que pode forxar para ti.",
       services: {
+        aprendiz: { title: "Reliquia do Aprendiz", body: "A porta de entrada do atelier — landing profesional, ata 5 seccións, WhatsApp, formulario, publicación online e 1 rolda de axustes. Ideal para pequenos negocios e primeira presenza dixital. Investimento €149 (R$ 890), prazo de 3 a 7 días. É o primeiro contrato no Codex, co selo Primeiro Paso." },
         landing: { title: "Landing Page Arcana", body: "Unha páxina única e encantada — forxada en HTML, CSS e JavaScript — para divulgar un produto, servizo, evento ou campaña con presenza marcante. Investimento dende €590 (R$ 3.290), lista nunha ou dúas semanas. Busca o seu selo no Codex dos Contratos." },
         institucional: { title: "Site Institucional", body: "Un pequeno reino dixital de varias páxinas que establece autoridade e confianza para empresas e marcas. Investimento dende €1.290 (R$ 6.900). Inclúe deploy, SSL, responsividade móbil e SEO inicial." },
         portfolio: { title: "Portfolio Profesional", body: "Un arquivo vivo que narra a túa traxectoria — proxectos, identidade e experiencia tecidos en storytelling, coma este portal que percorres. Investimento dende €1.790 (R$ 8.900)." },
@@ -255,7 +257,7 @@ const Merlin = {
         sobmedida: { title: "Proxecto Sob Medida", body: "Cando ningún contrato común serve, fórxase un artefacto único conforme a túa visión — sistemas, plataformas, experiencias raras. Dende €2.490 (R$ 13.900), cun orzamento selado a medida." },
       },
       kb: {
-        pricing: "Os Contratos Arcanos van da Landing Page (€590 · R$ 3.290) ao Proxecto Sob Medida (€2.490+ · R$ 13.900+), pasando por Site Institucional (€1.290), Portfolio Profesional (€1.790), Automatización con IA (€2.990) e Narrativa Visual (€1.290). Abre o Codex dos Contratos para ver cada selo, o que inclúe e o prazo.",
+        pricing: "Os Contratos Arcanos comezan pola Reliquia do Aprendiz (€149 · R$ 890) — a porta de entrada — e suben ata o Proxecto Sob Medida (€2.490+ · R$ 13.900+), pasando por Landing Page (€590), Site Institucional (€1.290), Portfolio (€1.790), Automatización con IA (€2.990) e Narrativa Visual (€1.290). Abre o Codex dos Contratos para ver cada selo, o que inclúe e o prazo.",
         included: "Cada pacto sela un artefacto completo, non só un sitio: deploy profesional, certificado SSL (HTTPS), responsividade móbil, SEO inicial, configuración de dominio e soporte inicial — máis storytelling, animacións cinemáticas, modo claro/escuro e galería de proxectos.",
         delivery: "O tempo varía coa rareza do contrato: unha Landing Page nace nuns sete a quince días; reinos maiores, coma sitios institucionais e narrativas visuais, piden algunhas semanas. O prazo exacto séllase antes de comezar a obra.",
         skills: "Carlos domina o Front-End (HTML, CSS, JavaScript, TypeScript, React, Next.js), o Back-End (Node, APIs, bases de datos), a Cloud, a Automatización e a Intelixencia Artificial (Prompt Engineering, RAG, axentes, LLMs). Percorre a Árbore do Coñecemento para ver cada póla acesa.",
@@ -394,6 +396,7 @@ const Merlin = {
       ask: "Susurra una pregunta…",
       portfolio: "Este archivo es el viaje de Carlos Vaz, Arquitecto Arcano. Cada sección esconde un capítulo: el Árbol muestra su dominio técnico, los Cristales guardan proyectos vividos, el Codex revela su origen y los Contratos sellan lo que puede forjar para ti.",
       services: {
+        aprendiz: { title: "Reliquia del Aprendiz", body: "La puerta de entrada del atelier — landing profesional, hasta 5 secciones, WhatsApp, formulario, publicación online y 1 ronda de ajustes. Ideal para pequeños negocios y primera presencia digital. Inversión €149 (R$ 890), plazo de 3 a 7 días. Es el primer contrato en el Codex, con el selo Primer Paso." },
         landing: { title: "Landing Page Arcana", body: "Una página única y encantada — forjada en HTML, CSS y JavaScript — para divulgar un producto, servicio, evento o campaña con presencia marcada. Inversión desde €590 (R$ 3.290), lista en una o dos semanas. Busca su sello en el Codex de los Contratos." },
         institucional: { title: "Sitio Institucional", body: "Un pequeño reino digital de varias páginas que establece autoridad y confianza para empresas y marcas. Inversión desde €1.290 (R$ 6.900). Incluye deploy, SSL, responsividad móvil y SEO inicial." },
         portfolio: { title: "Portafolio Profesional", body: "Un archivo vivo que narra tu trayectoria — proyectos, identidad y experiencia tejidos en storytelling, como este portal que recorres. Inversión desde €1.790 (R$ 8.900)." },
@@ -402,7 +405,7 @@ const Merlin = {
         sobmedida: { title: "Proyecto a Medida", body: "Cuando ningún contrato común sirve, se forja un artefacto único conforme a tu visión — sistemas, plataformas, experiencias raras. Desde €2.490 (R$ 13.900), con presupuesto sellado a medida." },
       },
       kb: {
-        pricing: "Los Contratos Arcanos van de la Landing Page (€590 · R$ 3.290) al Proyecto a Medida (€2.490+ · R$ 13.900+), pasando por Sitio Institucional (€1.290), Portafolio Profesional (€1.790), Automatización con IA (€2.990) y Narrativa Visual (€1.290). Abre el Codex de los Contratos para ver cada sello, lo que incluye y el plazo.",
+        pricing: "Los Contratos Arcanos empiezan por la Reliquia del Aprendiz (€149 · R$ 890) — la puerta de entrada — y ascienden hasta el Proyecto a Medida (€2.490+ · R$ 13.900+), pasando por Landing Page (€590), Sitio Institucional (€1.290), Portafolio (€1.790), Automatización con IA (€2.990) y Narrativa Visual (€1.290). Abre el Codex de los Contratos para ver cada sello, lo que incluye y el plazo.",
         included: "Cada pacto sella un artefacto completo, no solo un sitio: deploy profesional, certificado SSL (HTTPS), responsividad móvil, SEO inicial, configuración de dominio y soporte inicial — más storytelling, animaciones cinemáticas, modo claro/oscuro y galería de proyectos.",
         delivery: "El tiempo varía con la rareza del contrato: una Landing Page nace en unos siete a quince días; reinos mayores, como sitios institucionales y narrativas visuales, piden algunas semanas. El plazo exacto se sella antes de comenzar la obra.",
         skills: "Carlos domina el Front-End (HTML, CSS, JavaScript, TypeScript, React, Next.js), el Back-End (Node, APIs, bases de datos), la Cloud, la Automatización y la Inteligencia Artificial (Prompt Engineering, RAG, agentes, LLMs). Recorre el Árbol del Conocimiento para ver cada rama encendida.",
@@ -541,6 +544,7 @@ const Merlin = {
       ask: "Whisper a question…",
       portfolio: "This archive is the journey of Carlos Vaz, the Arcane Architect. Each section hides a chapter: the Tree shows his technical mastery, the Crystals hold lived projects, the Codex reveals his origin, and the Contracts seal what he can forge for you.",
       services: {
+        aprendiz: { title: "Apprentice's Relic", body: "The atelier's gateway — professional landing page, up to 5 sections, WhatsApp, contact form, online publishing and 1 round of revisions. Ideal for small businesses and a first digital presence. Investment €149 (R$ 890), delivered in 3 to 7 days. It's the first contract in the Codex, marked with the First Step seal." },
         landing: { title: "Arcane Landing Page", body: "A single enchanted page — forged in HTML, CSS and JavaScript — to herald a product, service, event or campaign with striking presence. Investment from €590 (R$ 3,290), ready in about one to two weeks. Seek its seal in the Codex of Contracts." },
         institucional: { title: "Institutional Site", body: "A small digital realm of several pages that establishes authority and trust for companies and brands. Investment from €1,290 (R$ 6,900). It includes deploy, SSL, mobile responsiveness and initial SEO." },
         portfolio: { title: "Professional Portfolio", body: "A living archive narrating your journey — projects, identity and experience woven into storytelling, much like this portal you wander. Investment from €1,790 (R$ 8,900)." },
@@ -549,7 +553,7 @@ const Merlin = {
         sobmedida: { title: "Bespoke Project", body: "When no common contract will serve, a unique artefact is forged to your vision — systems, platforms, rare experiences. From €2,490 (R$ 13,900), with a quote sealed to measure." },
       },
       kb: {
-        pricing: "The Arcane Contracts range from the Landing Page (€590 · R$ 3,290) to the Bespoke Project (€2,490+ · R$ 13,900+), through the Institutional Site (€1,290), Professional Portfolio (€1,790), AI Automation (€2,990) and Visual Narrative (€1,290). Open the Codex of Contracts to see each seal, what it includes and the timeline.",
+        pricing: "The Arcane Contracts begin with the Apprentice's Relic (€149 · R$ 890) — the gateway — and rise to the Bespoke Project (€2,490+ · R$ 13,900+), through the Landing Page (€590), Institutional Site (€1,290), Portfolio (€1,790), AI Automation (€2,990) and Visual Narrative (€1,290). Open the Codex of Contracts to see each seal, what it includes and the timeline.",
         included: "Every pact seals a complete artefact, not merely a site: professional deploy, SSL certificate (HTTPS), mobile responsiveness, initial SEO, domain setup and initial support — together with storytelling, cinematic animations, light/dark mode and a project gallery.",
         delivery: "Time varies with the contract's rarity: a Landing Page is born in some seven to fifteen days; greater realms, such as institutional sites and visual narratives, ask for a few weeks. The exact timeline is sealed before the work begins.",
         skills: "Carlos commands the Front-End (HTML, CSS, JavaScript, TypeScript, React, Next.js), the Back-End (Node, APIs, databases), the Cloud, Automation and Artificial Intelligence (Prompt Engineering, RAG, agents, LLMs). Walk the Tree of Knowledge to see every lit branch.",
@@ -1042,6 +1046,9 @@ const Merlin = {
     const has  = (...ws) => ws.some((w) => q.includes(w));
 
     // ── Named services (most specific first) ──
+    if (has("aprendiz", "reliquia do aprendiz", "primeiro passo", "primeiro contrato",
+            "mais barato", "mais acessivel", "entrada", "entry", "149", "barato",
+            "iniciante", "primeira presenca", "primeira presença")) return svc.aprendiz;
     if (has("landing", "landin", "one page", "onepage", "one-page",
             "pagina de venda", "pagina de vendas", "lp arcana")) return svc.landing;
     if (has("institucional", "site da empresa", "site para empresa",

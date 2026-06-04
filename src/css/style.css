@@ -541,17 +541,19 @@ ul { list-style: none; }
 
 .section-head__title {
   font-family: var(--font-display);
-  font-size: clamp(2rem, 5vw, 3rem);
+  /* Refined June 2026 — reduced ~18% for a more elegant, less
+     headline-like scale across every section. */
+  font-size: clamp(1.65rem, 4vw, 2.5rem);
   font-weight: 400;
-  line-height: 1.15;
+  line-height: 1.18;
   color: var(--primary);
   margin-bottom: var(--space-sm);
 }
 
 .section-head__lede {
-  font-size: 1.05rem;
+  font-size: 1rem;
   color: var(--on-surface-variant);
-  line-height: 1.65;
+  line-height: 1.62;
   max-width: 58ch;
 }
 
@@ -723,9 +725,9 @@ ul { list-style: none; }
 
 .hero__name {
   font-family: var(--font-display);
-  /* Dialed back ~12% (June 2026) so the name yields some weight to the
-     constellation — the name leads, but no longer dominates the frame. */
-  font-size: clamp(2.4rem, 7vw, 3.95rem);
+  /* Dialed back further (June 2026 refinement, ~15%) so the name reads
+     as an elegant title rather than a modern headline. */
+  font-size: clamp(2.1rem, 6vw, 3.35rem);
   font-weight: 400;
   /* Tightened (June 2026): user asked for "Vaz" to sit closer to
      "Carlos". 0.92 collapses the visual gap to barely a hairline
@@ -937,10 +939,11 @@ ul { list-style: none; }
    garish) and rises 1px to suggest the seal lifting off the page. */
 .hero__cta--primary {
   color: #2A1808;
-  /* Dominant headline action — larger footprint, heavier type and a
-     slow breathing aura so the eye lands here first. */
-  padding: 0.82rem 1.7rem;
-  font-size: 0.82rem;
+  /* Dominant headline action — still leads, but refined (June 2026):
+     slimmer footprint and a quieter aura so it reads like an inked seal,
+     not an oversized modern button. */
+  padding: 0.66rem 1.4rem;
+  font-size: 0.78rem;
   font-weight: 600;
   letter-spacing: 0.2em;
   background: linear-gradient(160deg,
@@ -951,8 +954,8 @@ ul { list-style: none; }
   box-shadow:
     inset 0 0 0 1px rgba(255, 245, 220, 0.45),
     inset 0 -2px 8px rgba(120, 80, 40, 0.18),
-    0 10px 26px rgba(0, 0, 0, 0.4),
-    0 0 22px rgba(255, 231, 160, 0.18);
+    0 6px 18px rgba(0, 0, 0, 0.36),
+    0 0 14px rgba(255, 231, 160, 0.12);
 }
 /* Breathing attention halo behind the primary CTA. */
 .hero__cta--primary::after {
@@ -967,11 +970,11 @@ ul { list-style: none; }
   pointer-events: none;
 }
 @keyframes hero-cta-breathe {
-  0%, 100% { opacity: 0.25; transform: scale(0.98); }
-  50%      { opacity: 0.6;  transform: scale(1.05); }
+  0%, 100% { opacity: 0.16; transform: scale(0.98); }
+  50%      { opacity: 0.4;  transform: scale(1.04); }
 }
 .hero__cta--primary:hover {
-  transform: translateY(-2px);
+  transform: translateY(-1px);
   background: linear-gradient(160deg,
     rgba(255, 240, 210, 0.98) 0%,
     rgba(244, 221, 192, 0.95) 50%,
@@ -979,8 +982,8 @@ ul { list-style: none; }
   box-shadow:
     inset 0 0 0 1px rgba(255, 245, 220, 0.55),
     inset 0 -2px 8px rgba(120, 80, 40, 0.18),
-    0 14px 32px rgba(0, 0, 0, 0.46),
-    0 0 36px rgba(255, 231, 160, 0.42);
+    0 9px 24px rgba(0, 0, 0, 0.42),
+    0 0 22px rgba(255, 231, 160, 0.28);
 }
 .hero__cta--primary:hover .hero__cta-icon {
   transform: translateY(-1px);
@@ -1062,6 +1065,132 @@ ul { list-style: none; }
 @media (prefers-reduced-motion: reduce) {
   .hero__cta--ghost::after { animation: none; opacity: 0.7; }
 }
+
+/* HERO ROLE · plain-language professional line under the poetic lede.
+   Quiet, legible, never competing with the gold tagline — its job is
+   pure clarity for a recruiter scanning the fold. */
+.hero__role {
+  margin-top: 0.85rem;
+  max-width: 46ch;
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  font-weight: 400;
+  line-height: 1.62;
+  color: var(--on-surface-variant);
+  text-wrap: pretty;
+}
+html[data-theme="light"] .hero__role { color: #5b4a33; }
+
+/* ════════════════════════════════════════════════════════════════════
+   HERO ROLE · "Ring-inscription" treatment (Lord of the Rings core)
+   --------------------------------------------------------------------
+   The professional subtitle is framed like the One Ring's fiery
+   inscription: a warm molten-gold gradient that slowly drifts, an
+   ember glow that breathes, and an elven flourish rule above it.
+   The text stays fully legible — the gilding is subtle, not neon.
+   ════════════════════════════════════════════════════════════════════ */
+.hero__role--inscription {
+  position: relative;
+  margin-top: 1.2rem;
+  padding-top: 1.05rem;
+  letter-spacing: 0.012em;
+  /* Molten-gold inscription gradient (Mordor firelight → elven gold) */
+  background-image: linear-gradient(
+    100deg,
+    #b9893f 0%,
+    #e9c87e 22%,
+    #fff0c2 38%,
+    #e9c87e 52%,
+    #c79a4e 70%,
+    #f0d693 86%,
+    #c79a4e 100%
+  );
+  background-size: 220% 100%;
+  background-position: 0% 50%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+  text-shadow: 0 0 18px rgba(228, 184, 102, 0.16);
+  animation: hero-ring-inscription 13s ease-in-out infinite;
+}
+/* Elven flourish rule above the inscription — a thin gold line with a
+   central ✧, evoking a Rivendell engraving. */
+.hero__role--inscription::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: clamp(120px, 40%, 230px);
+  height: 1px;
+  background: linear-gradient(90deg,
+    transparent 0%,
+    rgba(228, 184, 102, 0.55) 18%,
+    rgba(255, 240, 194, 0.85) 50%,
+    rgba(228, 184, 102, 0.55) 82%,
+    transparent 100%);
+}
+.hero__role--inscription::after {
+  content: "\2727";   /* ✧ — elven star mark */
+  position: absolute;
+  top: -0.62rem;
+  left: clamp(58px, 20%, 114px);
+  transform: translateX(-50%);
+  font-size: 0.74rem;
+  color: #f0d693;
+  text-shadow: 0 0 10px rgba(228, 184, 102, 0.6);
+  -webkit-text-fill-color: #f0d693;
+  animation: hero-ring-twinkle 5.5s ease-in-out infinite;
+}
+@keyframes hero-ring-inscription {
+  0%, 100% { background-position: 0% 50%; }
+  50%      { background-position: 100% 50%; }
+}
+@keyframes hero-ring-twinkle {
+  0%, 100% { opacity: 0.65; transform: translateX(-50%) scale(1); }
+  50%      { opacity: 1;    transform: translateX(-50%) scale(1.18); }
+}
+/* Light theme — deeper bronze so the gilding stays readable on parchment */
+html[data-theme="light"] .hero__role--inscription {
+  background-image: linear-gradient(
+    100deg,
+    #8a5a1f 0%,
+    #b8842f 26%,
+    #d9a94e 44%,
+    #b8842f 64%,
+    #9a6a24 100%
+  );
+  text-shadow: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .hero__role--inscription { animation: none; background-position: 50% 50%; }
+  .hero__role--inscription::after { animation: none; }
+}
+
+/* TERTIARY CTA · understated text link that still opens the living
+   tree. No fill, no ring — just an underline that warms on hover, so
+   it stays subordinate to the gold seal + crystalline ghost. */
+.hero__cta--text {
+  padding: 0.5rem 0.4rem;
+  font-size: 0.7rem;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  color: var(--gold-aged, #c2a46b);
+  background: none;
+  border: 1px solid transparent;
+}
+.hero__cta--text .hero__cta-label {
+  background-image: linear-gradient(currentColor, currentColor);
+  background-size: 0% 1px;
+  background-position: 0 100%;
+  background-repeat: no-repeat;
+  transition: background-size 0.4s var(--ease-out, cubic-bezier(.16,1,.3,1));
+}
+.hero__cta--text:hover { color: var(--gold-burning, #f2c879); }
+.hero__cta--text:hover .hero__cta-label { background-size: 100% 1px; }
+.hero__cta--text:hover .hero__cta-icon { transform: translateY(-1px) rotate(-2deg); }
+html[data-theme="light"] .hero__cta--text { color: #8a5a1f; }
+html[data-theme="light"] .hero__cta--text:hover { color: #6b3f18; }
 
 /* NARRATIVE CAPTION STRIP · the three-act chapter list anchored
    to the left edge of the viewport. The list is always visible
@@ -1384,7 +1513,7 @@ main { position: relative; z-index: 10; }
 
 .tree-vault__title {
   font-family: var(--font-display);
-  font-size: clamp(2rem, 5vw, 3rem);
+  font-size: clamp(1.7rem, 4vw, 2.5rem);
   font-weight: 400;
   line-height: 1.15;
   color: var(--primary);
@@ -2703,7 +2832,7 @@ html[data-theme="light"] .craft__stage[data-active="ambience"]  .craft__line[dat
 
 .ritual__title {
   font-family: var(--font-display);
-  font-size: clamp(2rem, 5vw, 3.4rem);
+  font-size: clamp(1.7rem, 4vw, 2.8rem);
   font-weight: 400;
   letter-spacing: 0.04em;
   color: var(--primary);
@@ -2875,7 +3004,7 @@ html[data-theme="light"] .craft__stage[data-active="ambience"]  .craft__line[dat
 
 .memories__title {
   font-family: var(--font-display);
-  font-size: clamp(2rem, 4.5vw, 2.8rem);
+  font-size: clamp(1.65rem, 3.6vw, 2.35rem);
   color: var(--primary);
   line-height: 1.1;
   margin-bottom: 0.8rem;
@@ -6879,7 +7008,7 @@ html[data-theme="light"] .footer__legal:hover { opacity: 0.82; }
 }
 .codex__title {
   font-family: "Libre Caslon Text", Georgia, serif;
-  font-size: clamp(1.7rem, 3.4vw, 2.6rem);
+  font-size: clamp(1.5rem, 3vw, 2.2rem);
   font-weight: 700;
   letter-spacing: 0.04em;
   color: var(--ink);
@@ -9352,13 +9481,13 @@ html[data-theme="light"] .convergence {
 .contract__cta:hover,
 .contract__cta:focus-visible {
   color: var(--ember);
-  transform: translateY(-2px) scale(1.02);
+  transform: translateY(-1px) scale(1.01);
   background:
     linear-gradient(180deg, rgba(255, 235, 190, 0.78), rgba(229, 190, 174, 0.3));
   box-shadow:
     0 0 0 1px var(--parchment-1),
-    0 0 0 2px var(--rarity-accent, var(--gold)),
-    0 8px 22px var(--rarity-glow, rgba(229, 190, 174, 0.55));
+    0 0 0 1.5px var(--rarity-accent, var(--gold)),
+    0 5px 15px var(--rarity-glow, rgba(229, 190, 174, 0.4));
   outline: none;
 }
 
@@ -9752,42 +9881,46 @@ html[data-theme="light"] .contracts__disclaimer {
    Each contract inherits a slightly different gem palette
    while keeping the parchment/leather book identical.
 ============================================================ */
+/* Rarity progression (June 2026) — glow intensity now climbs with the
+   tier so the codex reads as "increasingly powerful artifacts":
+   COMUM soft bronze → RARO moderate blue → ÉPICO pulsing violet →
+   LENDÁRIO golden particles → MÍTICO gold+violet intense aura.       */
 .contract[data-rarity="common"] {
   --rarity-accent:        #C2A46B;   /* base gold */
   --rarity-accent-bright: #E5BEAE;
   --rarity-accent-deep:   #8C5A2F;
-  --rarity-glow:          rgba(229, 190, 174, 0.42);
+  --rarity-glow:          rgba(229, 190, 174, 0.32);   /* soft */
 }
 .contract[data-rarity="uncommon"] {
   --rarity-accent:        #5BA371;   /* moss-green verdigris */
   --rarity-accent-bright: #A6D9A6;
   --rarity-accent-deep:   #2F6B45;
-  --rarity-glow:          rgba(135, 210, 150, 0.45);
+  --rarity-glow:          rgba(135, 210, 150, 0.42);
 }
 .contract[data-rarity="rare"] {
   --rarity-accent:        #4F88C0;   /* arcane sapphire */
   --rarity-accent-bright: #A6CFEA;
   --rarity-accent-deep:   #1F3A5E;
-  --rarity-glow:          rgba(120, 175, 230, 0.5);
+  --rarity-glow:          rgba(120, 175, 230, 0.54);   /* moderate */
 }
 .contract[data-rarity="epic"] {
   --rarity-accent:        #9B5CD9;   /* royal violet */
   --rarity-accent-bright: #D4A8F2;
   --rarity-accent-deep:   #4A1A75;
-  --rarity-glow:          rgba(190, 130, 240, 0.55);
+  --rarity-glow:          rgba(190, 130, 240, 0.7);    /* pulsing energy */
 }
 .contract[data-rarity="legendary"] {
   --rarity-accent:        #D6A06B;   /* warm legendary gold */
   --rarity-accent-bright: #FFE7A0;
   --rarity-accent-deep:   #8C5A2F;
-  --rarity-glow:          rgba(255, 215, 130, 0.62);
+  --rarity-glow:          rgba(255, 215, 130, 0.8);    /* golden particles */
 }
-/* Mythic — sixth tier, emerald-touched gold for the narrative chapter */
+/* Mythic — apex tier: gold + violet blend, the most intense aura. */
 .contract[data-rarity="mythic"] {
-  --rarity-accent:        #6FB89A;   /* misty emerald */
-  --rarity-accent-bright: #C8E7D2;
-  --rarity-accent-deep:   #2A6B55;
-  --rarity-glow:          rgba(140, 220, 180, 0.55);
+  --rarity-accent:        #C9A66B;   /* regal gold base */
+  --rarity-accent-bright: #ECCAF4;   /* violet-touched light */
+  --rarity-accent-deep:   #5A2E78;   /* deep violet */
+  --rarity-glow:          rgba(206, 156, 240, 0.92);   /* gold+violet aura */
 }
 /* Legendary book: extra ember radiance for the final chapter.
    Phantom-border fix (June 2026): removed the hard 0/4px/5px
@@ -9799,6 +9932,41 @@ html[data-theme="light"] .contracts__disclaimer {
     inset 0 0 0 1px rgba(255, 215, 130, 0.22),
     0 22px 56px rgba(0, 0, 0, 0.5),
     0 0 110px rgba(255, 215, 130, 0.26);
+}
+
+/* Epic book — a quiet, pulsing violet energy beneath the parchment. */
+.contract[data-rarity="epic"] .contract__book {
+  box-shadow:
+    inset 0 0 0 1px rgba(190, 130, 240, 0.2),
+    0 20px 50px rgba(0, 0, 0, 0.48),
+    0 0 96px rgba(170, 110, 230, 0.22);
+}
+/* Mythic book — apex aura: gold+violet glow, the strongest in the codex. */
+.contract[data-rarity="mythic"] .contract__book {
+  box-shadow:
+    inset 0 0 0 1px rgba(236, 202, 244, 0.26),
+    0 24px 62px rgba(0, 0, 0, 0.52),
+    0 0 130px rgba(206, 156, 240, 0.3),
+    0 0 60px rgba(255, 215, 130, 0.18);
+}
+/* Mythic apex aura — an extra slow-breathing violet+gold halo layer
+   that no other rarity has, so the top tier feels unmistakably alive. */
+.contract[data-rarity="mythic"] .contract__book::after {
+  content: "";
+  position: absolute;
+  inset: -2px;
+  border-radius: inherit;
+  pointer-events: none;
+  z-index: -1;
+  background:
+    radial-gradient(60% 120% at 50% 0%, rgba(206, 156, 240, 0.16), transparent 70%),
+    radial-gradient(60% 120% at 50% 100%, rgba(255, 215, 130, 0.12), transparent 70%);
+  opacity: 0.85;
+  animation: contract-mythic-aura 6.5s ease-in-out infinite;
+}
+@keyframes contract-mythic-aura {
+  0%, 100% { opacity: 0.55; }
+  50%      { opacity: 0.95; }
 }
 
 /* ============================================================
@@ -9836,11 +10004,12 @@ html[data-theme="light"] .contracts__disclaimer {
     animation-delay: var(--breath-delay, 0s);
   }
   .contract:nth-child(1) .contract__book { --breath-delay: 0s; }
-  .contract:nth-child(2) .contract__book { --breath-delay: -1.5s; }
-  .contract:nth-child(3) .contract__book { --breath-delay: -3s; }
-  .contract:nth-child(4) .contract__book { --breath-delay: -4.5s; }
-  .contract:nth-child(5) .contract__book { --breath-delay: -6s; }
-  .contract:nth-child(6) .contract__book { --breath-delay: -7.5s; }
+  .contract:nth-child(2) .contract__book { --breath-delay: -1.2s; }
+  .contract:nth-child(3) .contract__book { --breath-delay: -2.4s; }
+  .contract:nth-child(4) .contract__book { --breath-delay: -3.6s; }
+  .contract:nth-child(5) .contract__book { --breath-delay: -4.8s; }
+  .contract:nth-child(6) .contract__book { --breath-delay: -6s; }
+  .contract:nth-child(7) .contract__book { --breath-delay: -7.2s; }
 }
 
 /* INK REVEAL on hover/focus — wash of arcane ink fades over the
@@ -12840,4 +13009,1002 @@ body.ktree-open .tree-wall {
     transition-duration: 0.2s !important;
     transition-delay: 0s !important;
   }
+}
+
+/* ════════════════════════════════════════════════════════════════════
+   PROFESSIONAL EVOLUTION LAYER · June 2026
+   --------------------------------------------------------------------
+   New conversion/clarity sections layered ON TOP of the existing arcane
+   universe — never replacing it. Everything here reuses the site tokens
+   (--gold, --primary, --font-display…) so the additions read as part of
+   the same manuscript. Motion is GPU-friendly (transform/opacity only)
+   and fully disabled under prefers-reduced-motion at the foot of this
+   block.
+   ════════════════════════════════════════════════════════════════════ */
+
+/* Shared rhythm for the new full-width sections. */
+.differentials,
+.milestones,
+.relatos,
+.invoke {
+  position: relative;
+  z-index: 1;
+  padding: clamp(3.5rem, 9vw, 7rem) clamp(1.25rem, 5vw, 3rem);
+}
+.differentials__head,
+.relatos .section-head,
+.milestones .section-head {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* ── CONTRACTS · "Serviços Profissionais" professional kicker ─────────
+   A plain-language line above the arcane title so a recruiter reads the
+   intent instantly. Sits between the latin eyebrow and the codex name. */
+.contracts__kicker {
+  font-family: var(--font-display);
+  font-size: clamp(0.92rem, 2.4vw, 1.15rem);
+  font-weight: 600;
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+  color: var(--gold-burning, #f2c879);
+  margin: 0.1rem 0 0.45rem;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+}
+html[data-theme="light"] .contracts__kicker {
+  color: #8a5a1f;
+  text-shadow: none;
+}
+
+/* ════════════════════════════════════════════════════════════════════
+   #1b · DIFERENCIAIS — "Por que trabalhar comigo?" runestone pillars
+   ════════════════════════════════════════════════════════════════════ */
+.differentials__grid {
+  list-style: none;
+  margin: clamp(2rem, 4vw, 3rem) auto 0;
+  padding: 0;
+  max-width: 1180px;
+  display: grid;
+  gap: clamp(0.9rem, 1.8vw, 1.4rem);
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+}
+/* On wide screens, lay the 5 pillars as 3 + 2 with the trio on top,
+   centred — avoids a lonely orphan card from auto-fit. */
+@media (min-width: 980px) {
+  .differentials__grid { grid-template-columns: repeat(6, 1fr); }
+  .pillar:nth-child(1) { grid-column: 1 / 3; }
+  .pillar:nth-child(2) { grid-column: 3 / 5; }
+  .pillar:nth-child(3) { grid-column: 5 / 7; }
+  .pillar:nth-child(4) { grid-column: 2 / 4; }
+  .pillar:nth-child(5) { grid-column: 4 / 6; }
+}
+
+.pillar {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  padding: clamp(1.3rem, 2.5vw, 1.8rem) clamp(1.2rem, 2.2vw, 1.6rem) clamp(1.4rem, 2.6vw, 1.9rem);
+  border-radius: 14px;
+  background:
+    linear-gradient(158deg,
+      rgba(26, 38, 28, 0.66) 0%,
+      rgba(12, 20, 13, 0.62) 70%,
+      rgba(9, 15, 10, 0.66) 100%);
+  border: 1px solid rgba(201, 161, 95, 0.30);
+  box-shadow:
+    inset 0 1px 0 rgba(242, 200, 121, 0.10),
+    inset 0 0 22px rgba(201, 161, 95, 0.04),
+    0 14px 32px rgba(0, 0, 0, 0.34);
+  -webkit-backdrop-filter: blur(7px) saturate(1.04);
+  backdrop-filter: blur(7px) saturate(1.04);
+  transition:
+    transform 0.5s var(--ease-out),
+    border-color 0.5s var(--ease-out),
+    box-shadow 0.5s var(--ease-out);
+}
+/* Faint engraved corner ticks — "inscribed stone" feel. */
+.pillar::before {
+  content: "";
+  position: absolute;
+  inset: 7px;
+  border-radius: 10px;
+  border: 1px solid rgba(201, 161, 95, 0.14);
+  pointer-events: none;
+  z-index: -1;
+}
+/* Soft gold aura that wells up from behind on hover/focus. */
+.pillar__aura {
+  position: absolute;
+  inset: -40% 10% auto;
+  height: 80%;
+  border-radius: 50%;
+  background: radial-gradient(ellipse at center,
+    rgba(242, 200, 121, 0.26), rgba(201, 161, 95, 0) 70%);
+  opacity: 0;
+  transform: translateY(20px) scale(0.85);
+  transition: opacity 0.55s var(--ease-out), transform 0.55s var(--ease-out);
+  pointer-events: none;
+  z-index: -1;
+}
+/* A single ember that drifts up across the stone when hovered. */
+.pillar__spark {
+  position: absolute;
+  left: 50%;
+  bottom: 18%;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #ffe9a8, rgba(242, 200, 121, 0) 70%);
+  opacity: 0;
+  pointer-events: none;
+}
+.pillar__glyph {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  color: var(--gold-aged, #c9a15f);
+  background: radial-gradient(circle at 50% 38%,
+    rgba(242, 200, 121, 0.14), rgba(201, 161, 95, 0.04) 70%);
+  border: 1px solid rgba(201, 161, 95, 0.32);
+  margin-bottom: 1rem;
+  transition: color 0.5s var(--ease-out), transform 0.55s var(--ease-out),
+    box-shadow 0.5s var(--ease-out);
+}
+.pillar__name {
+  font-family: var(--font-display);
+  font-size: clamp(1.02rem, 2.3vw, 1.18rem);
+  font-weight: 600;
+  line-height: 1.25;
+  color: var(--primary);
+  margin: 0 0 0.5rem;
+  letter-spacing: 0.01em;
+}
+.pillar__desc {
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  line-height: 1.6;
+  color: var(--on-surface-variant);
+  margin: 0;
+  text-wrap: pretty;
+}
+.pillar:hover,
+.pillar:focus-within {
+  transform: translateY(-4px);
+  border-color: rgba(242, 200, 121, 0.55);
+  box-shadow:
+    inset 0 1px 0 rgba(242, 200, 121, 0.18),
+    inset 0 0 28px rgba(201, 161, 95, 0.08),
+    0 20px 44px rgba(0, 0, 0, 0.42),
+    0 0 26px rgba(242, 200, 121, 0.16);
+}
+.pillar:hover .pillar__aura,
+.pillar:focus-within .pillar__aura {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+.pillar:hover .pillar__glyph,
+.pillar:focus-within .pillar__glyph {
+  color: var(--gold-burning, #f2c879);
+  transform: translateY(-2px) rotate(-4deg);
+  box-shadow: 0 0 18px rgba(242, 200, 121, 0.30);
+}
+.pillar:hover .pillar__spark {
+  animation: pillar-ember 1.5s var(--ease-out) infinite;
+}
+@keyframes pillar-ember {
+  0%   { opacity: 0;   transform: translate(-50%, 0) scale(0.6); }
+  18%  { opacity: 0.9; }
+  100% { opacity: 0;   transform: translate(-50%, -120px) scale(1.1); }
+}
+html[data-theme="light"] .pillar {
+  background: linear-gradient(158deg, rgba(244, 232, 205, 0.86), rgba(232, 216, 182, 0.8));
+  border-color: rgba(120, 84, 40, 0.34);
+  box-shadow: 0 14px 32px rgba(74, 45, 20, 0.14), inset 0 0 0 1px rgba(120, 84, 40, 0.05);
+}
+html[data-theme="light"] .pillar__name { color: #3a2410; }
+html[data-theme="light"] .pillar__desc { color: #4f3c25; }
+html[data-theme="light"] .pillar__glyph { color: #8a5a1f; border-color: rgba(120, 84, 40, 0.4); }
+
+/* ════════════════════════════════════════════════════════════════════
+   #1c · CONQUISTAS E MARCOS — animated count-up stats
+   ════════════════════════════════════════════════════════════════════ */
+.milestones__grid {
+  list-style: none;
+  margin: clamp(2rem, 4vw, 3rem) auto 0;
+  padding: 0;
+  max-width: 920px;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: clamp(0.8rem, 2vw, 1.6rem);
+}
+.stat {
+  position: relative;
+  text-align: center;
+  padding: clamp(1.1rem, 2.4vw, 1.7rem) 0.6rem;
+}
+/* Hairline dividers between stats (not after the last). */
+.stat:not(:last-child)::after {
+  content: "";
+  position: absolute;
+  top: 22%;
+  right: 0;
+  width: 1px;
+  height: 56%;
+  background: linear-gradient(180deg, transparent, rgba(201, 161, 95, 0.32), transparent);
+}
+.stat__rune {
+  display: block;
+  font-size: 0.9rem;
+  color: var(--gold-aged, #c9a15f);
+  opacity: 0.7;
+  margin-bottom: 0.35rem;
+}
+.stat__num {
+  display: block;
+  font-family: var(--font-display);
+  font-size: clamp(1.8rem, 4.6vw, 2.7rem);
+  font-weight: 600;
+  line-height: 1;
+  color: var(--gold-burning, #f2c879);
+  font-variant-numeric: tabular-nums;
+  text-shadow: 0 0 18px rgba(242, 200, 121, 0.18);
+  letter-spacing: -0.01em;
+}
+.stat__label {
+  display: block;
+  margin-top: 0.6rem;
+  font-family: var(--font-mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--on-surface-variant);
+}
+html[data-theme="light"] .stat__num { color: #9f6a1f; text-shadow: none; }
+html[data-theme="light"] .stat__rune { color: #8a5a1f; }
+@media (max-width: 640px) {
+  .milestones__grid { grid-template-columns: repeat(2, 1fr); gap: 0.4rem 1rem; }
+  .stat:nth-child(2)::after { display: none; }   /* no divider mid-row */
+}
+
+/* ════════════════════════════════════════════════════════════════════
+   #1d · RELATOS DO REINO — parchment testimonials slider
+   ════════════════════════════════════════════════════════════════════ */
+.relatos__stage {
+  position: relative;
+  max-width: 600px;
+  margin: clamp(1.8rem, 3.5vw, 2.6rem) auto 0;
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+}
+.relatos__track {
+  position: relative;
+  flex: 1;
+  min-height: 248px;
+}
+/* A leaf from the Royal Archive — aged parchment with a faint laid-paper
+   texture, a slim gilt frame and elven corner filigree. */
+.relato {
+  position: absolute;
+  inset: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0.9rem;
+  padding: clamp(1.6rem, 3.2vw, 2.2rem) clamp(1.6rem, 3.2vw, 2.4rem);
+  border-radius: 3px;
+  background:
+    repeating-linear-gradient(0deg, rgba(0,0,0,0.018) 0 2px, transparent 2px 4px),
+    linear-gradient(160deg, rgba(38, 32, 23, 0.86), rgba(22, 18, 12, 0.8));
+  box-shadow:
+    inset 0 0 0 1px rgba(201, 161, 95, 0.22),
+    inset 0 0 0 5px rgba(201, 161, 95, 0.07),
+    inset 0 0 50px rgba(201, 161, 95, 0.05),
+    0 14px 34px rgba(0, 0, 0, 0.42);
+  -webkit-backdrop-filter: blur(7px);
+  backdrop-filter: blur(7px);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(10px);
+  transition: opacity 0.6s var(--ease-out), transform 0.6s var(--ease-out), visibility 0s linear 0.6s;
+  pointer-events: none;
+}
+.relato.is-active {
+  opacity: 1;
+  visibility: visible;
+  transform: none;
+  pointer-events: auto;
+  transition: opacity 0.6s var(--ease-out), transform 0.6s var(--ease-out);
+}
+/* Elven corner filigree — small gilt right-angles at each corner */
+.relato__corner {
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  border: 1px solid rgba(201, 161, 95, 0.55);
+  pointer-events: none;
+}
+.relato__corner--tl { top: 9px;    left: 9px;    border-right: 0; border-bottom: 0; }
+.relato__corner--tr { top: 9px;    right: 9px;   border-left: 0;  border-bottom: 0; }
+.relato__corner--bl { bottom: 9px; left: 9px;    border-right: 0; border-top: 0; }
+.relato__corner--br { bottom: 9px; right: 9px;   border-left: 0;  border-top: 0; }
+.relato__quote-mark {
+  position: absolute;
+  top: 0.55rem;
+  left: 1.1rem;
+  font-family: var(--font-display);
+  font-size: 2.4rem;
+  line-height: 1;
+  color: var(--gold-aged, #c9a15f);
+  opacity: 0.28;
+}
+.relato__text {
+  margin: 0;
+  font-family: "Cormorant Garamond", "Libre Caslon Text", serif;
+  font-size: clamp(1.04rem, 2.2vw, 1.18rem);
+  line-height: 1.62;
+  font-style: italic;
+  color: #ece2cf;
+  text-wrap: pretty;
+}
+/* Gilt rule separating the chronicle from the signature */
+.relato__rule {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  color: rgba(201, 161, 95, 0.55);
+  font-size: 0.7rem;
+}
+.relato__rule::before,
+.relato__rule::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(201, 161, 95, 0.45), transparent);
+}
+.relato__by {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+}
+/* Wax-seal monogram — a round aged-gold sigil (no stock photo) */
+.relato__avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  flex: 0 0 42px;
+  border-radius: 50%;
+  font-family: var(--font-display);
+  font-size: 0.86rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: #2a1808;
+  background:
+    radial-gradient(circle at 38% 32%, rgba(255, 245, 220, 0.7), transparent 55%),
+    linear-gradient(160deg, #e9cf9f, #b88b48);
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 245, 220, 0.4),
+    inset 0 0 0 3px rgba(120, 80, 40, 0.3),
+    0 3px 10px rgba(0, 0, 0, 0.32);
+}
+.relato__who { display: flex; flex-direction: column; gap: 0.1rem; }
+.relato__name {
+  font-family: "Cinzel", "Cormorant Garamond", serif;
+  font-size: 0.96rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--gold-burning, #f2c879);
+}
+.relato__role {
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(201, 161, 95, 0.85);
+}
+/* Navigation — thin, discrete chevrons (no heavy filled circles) */
+.relatos__nav {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  cursor: pointer;
+  color: rgba(201, 161, 95, 0.75);
+  background: none;
+  border: 1px solid rgba(201, 161, 95, 0.28);
+  transition: color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
+}
+.relatos__nav svg { width: 15px; height: 15px; }
+.relatos__nav:hover,
+.relatos__nav:focus-visible {
+  outline: none;
+  color: var(--gold-burning, #f2c879);
+  border-color: rgba(242, 200, 121, 0.55);
+  box-shadow: 0 0 12px rgba(242, 200, 121, 0.18);
+}
+.relatos__nav:active { transform: scale(0.94); }
+.relatos__dots {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -1.7rem;
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+}
+.relatos__dot {
+  width: 6px;
+  height: 6px;
+  padding: 0;
+  border-radius: 50%;
+  cursor: pointer;
+  border: 1px solid rgba(201, 161, 95, 0.45);
+  background: transparent;
+  transition: background 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
+}
+.relatos__dot.is-active {
+  background: var(--gold-aged, #c9a15f);
+  box-shadow: 0 0 7px rgba(201, 161, 95, 0.45);
+  transform: scale(1.25);
+}
+.relatos__dot:focus-visible { outline: none; box-shadow: 0 0 0 2px rgba(242, 200, 121, 0.5); }
+
+html[data-theme="light"] .relato {
+  background:
+    repeating-linear-gradient(0deg, rgba(120,84,40,0.022) 0 2px, transparent 2px 4px),
+    linear-gradient(160deg, rgba(245, 234, 209, 0.96), rgba(232, 217, 184, 0.92));
+  box-shadow:
+    inset 0 0 0 1px rgba(120, 84, 40, 0.3),
+    inset 0 0 0 5px rgba(120, 84, 40, 0.08),
+    0 14px 34px rgba(74, 45, 20, 0.15);
+}
+html[data-theme="light"] .relato__corner { border-color: rgba(120, 84, 40, 0.5); }
+html[data-theme="light"] .relato__text { color: #2a1c0e; }
+html[data-theme="light"] .relato__name { color: #6b4316; }
+html[data-theme="light"] .relato__role { color: #8a5a1f; }
+html[data-theme="light"] .relatos__nav { color: #8a5a1f; border-color: rgba(120, 84, 40, 0.35); }
+@media (max-width: 560px) {
+  .relatos__stage { gap: 0.5rem; }
+  .relatos__nav { width: 28px; height: 28px; }
+  .relatos__track { min-height: 290px; }
+}
+
+/* ════════════════════════════════════════════════════════════════════
+   #1e · INVOCAÇÃO FINAL — the conversion close (most emphatic block)
+   ════════════════════════════════════════════════════════════════════ */
+/* INVOCAÇÃO FINAL · reframed as a compact, ornamented closing page —
+   a noble invitation, not a banner. Half the former height, smaller
+   title, framed by elven rules. */
+.invoke {
+  text-align: center;
+  overflow: hidden;
+  padding-top: clamp(2.6rem, 6vw, 4.4rem);
+  padding-bottom: clamp(2.6rem, 6vw, 4.4rem);
+}
+/* Soft focused veil — gentler than before so the page stays calm. */
+.invoke__veil {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 60% 55% at 50% 48%,
+      rgba(242, 200, 121, 0.09) 0%,
+      rgba(201, 161, 95, 0.04) 40%,
+      transparent 72%);
+}
+.invoke__inner {
+  position: relative;
+  max-width: 560px;
+  margin: 0 auto;
+}
+/* Elven decorative rules — gilt lines with a central glyph (top) and a
+   leaf tail (bottom), bracketing the invitation like a tome's last page. */
+.invoke__rule {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.85rem;
+  color: rgba(201, 161, 95, 0.7);
+}
+.invoke__rule-line {
+  flex: 1;
+  max-width: 130px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(201, 161, 95, 0.5), transparent);
+}
+.invoke__rule-glyph {
+  display: inline-flex;
+  color: var(--gold-aged, #c9a15f);
+  filter: drop-shadow(0 0 8px rgba(242, 200, 121, 0.22));
+}
+.invoke__rule--top { margin-bottom: 1.1rem; }
+.invoke__rule--bottom { margin-top: 1.6rem; }
+.invoke__rule-tail {
+  font-size: 1rem;
+  color: rgba(201, 161, 95, 0.7);
+  transform: translateY(-1px);
+}
+.invoke__eyebrow {
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.34em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 0.7rem;
+}
+.invoke__title {
+  font-family: var(--font-display);
+  font-size: clamp(1.5rem, 4.2vw, 2.5rem);
+  font-weight: 600;
+  line-height: 1.14;
+  color: var(--primary);
+  margin: 0 auto 0.85rem;
+  max-width: 18ch;
+  text-wrap: balance;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+}
+.invoke__lede {
+  font-family: "Cormorant Garamond", "Libre Caslon Text", serif;
+  font-style: italic;
+  font-size: clamp(0.98rem, 2.3vw, 1.12rem);
+  line-height: 1.55;
+  color: var(--on-surface-variant);
+  max-width: 42ch;
+  margin: 0 auto clamp(1.4rem, 3vw, 1.9rem);
+  text-wrap: pretty;
+}
+.invoke__actions {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.7rem 0.9rem;
+}
+/* CTAs styled as small royal seals — slimmer padding, refined finish,
+   restrained glow. Inscribed rather than inflated. */
+.invoke__cta {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.62rem 1.4rem;
+  border-radius: 4px;
+  font-family: var(--font-body);
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  cursor: pointer;
+  isolation: isolate;
+  transition: transform 0.35s var(--ease-out), box-shadow 0.45s ease,
+    background 0.45s ease, color 0.45s ease, border-color 0.45s ease;
+}
+.invoke__cta:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(255, 231, 160, 0.55);
+}
+.invoke__cta--primary {
+  color: #2a1808;
+  background: linear-gradient(160deg, #f1dcb8 0%, #d8b984 52%, #bc954f 100%);
+  border: 1px solid rgba(120, 80, 40, 0.6);
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 245, 220, 0.45),
+    0 4px 14px rgba(0, 0, 0, 0.34);
+}
+.invoke__cta--primary:hover {
+  transform: translateY(-1px);
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 245, 220, 0.55),
+    0 7px 20px rgba(0, 0, 0, 0.4),
+    0 0 18px rgba(255, 231, 160, 0.3);
+}
+.invoke__cta--ghost {
+  color: #e8dcc6;
+  background: linear-gradient(160deg, rgba(40, 34, 24, 0.45), rgba(20, 16, 11, 0.38));
+  border: 1px solid rgba(201, 161, 95, 0.45);
+}
+.invoke__cta--ghost:hover {
+  transform: translateY(-1px);
+  color: #fff6e6;
+  border-color: rgba(242, 200, 121, 0.65);
+  box-shadow: 0 5px 16px rgba(0, 0, 0, 0.36), 0 0 14px rgba(242, 200, 121, 0.2);
+}
+.invoke__cta--ghost .invoke__cta-icon { display: inline-flex; }
+html[data-theme="light"] .invoke__title { color: #3a2410; text-shadow: none; }
+html[data-theme="light"] .invoke__lede { color: #4f3c25; }
+html[data-theme="light"] .invoke__cta--ghost { color: #4a2e16; background: linear-gradient(160deg, rgba(244,232,205,0.7), rgba(232,216,182,0.6)); border-color: rgba(120,84,40,0.5); }
+html[data-theme="light"] .invoke__cta--ghost:hover { color: #2a1c0e; }
+
+/* ── Reduced-motion: keep the new layer calm but fully legible ──────── */
+@media (prefers-reduced-motion: reduce) {
+  .pillar,
+  .pillar__aura,
+  .pillar__glyph,
+  .pillar__spark,
+  .relato,
+  .relato.is-active,
+  .invoke__sigil,
+  .invoke__cta--primary::after {
+    animation: none !important;
+    transition: opacity 0.25s linear !important;
+    transform: none !important;
+  }
+  .pillar:hover, .pillar:focus-within { transform: none; }
+}
+
+/* ════════════════════════════════════════════════════════════════════
+   RELÍQUIA DO APRENDIZ · entry contract (data-entry="true")
+   --------------------------------------------------------------------
+   Same common-tier palette as the codex, but tuned to aged bronze/copper
+   and a quieter glow than rare/epic books. The "Primeiro Passo" seal
+   marks it as the gateway without shouting like a marketplace banner.
+   ════════════════════════════════════════════════════════════════════ */
+.contract--entry {
+  --rarity-accent:        #B87333;   /* aged copper */
+  --rarity-accent-bright: #D4A574;
+  --rarity-accent-deep:   #6B4423;
+  --rarity-glow:          rgba(184, 115, 51, 0.38);
+}
+
+/* Wax ribbon seal · top-right of the grimoire spread */
+.contract__entry-seal {
+  position: absolute;
+  top: 14px;
+  right: 18px;
+  z-index: 4;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.32rem 0.72rem 0.34rem;
+  border-radius: 4px 10px 4px 10px;
+  font-family: var(--font-display);
+  font-size: 0.58rem;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: #2a1808;
+  background: linear-gradient(160deg,
+    rgba(244, 221, 192, 0.96) 0%,
+    rgba(212, 165, 116, 0.92) 55%,
+    rgba(184, 115, 51, 0.9) 100%);
+  border: 1px solid rgba(107, 68, 35, 0.55);
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 245, 220, 0.35),
+    0 4px 14px rgba(0, 0, 0, 0.32),
+    0 0 16px rgba(184, 115, 51, 0.22);
+  pointer-events: none;
+}
+.contract__entry-seal-star {
+  font-size: 0.7rem;
+  opacity: 0.9;
+  animation: entry-seal-twinkle 3.2s ease-in-out infinite;
+}
+@keyframes entry-seal-twinkle {
+  0%, 100% { opacity: 0.65; transform: scale(0.92); }
+  50%      { opacity: 1;    transform: scale(1.08); }
+}
+
+/* Entry book · softer bronze aura, never competing with legendary */
+.contract--entry .contract__book {
+  box-shadow:
+    inset 0 0 0 1px rgba(184, 115, 51, 0.22),
+    0 18px 44px rgba(0, 0, 0, 0.42),
+    0 0 72px rgba(184, 115, 51, 0.18);
+}
+.contract--entry .contract__book::before {
+  /* Discrete motes — lighter than epic/legendary particle fields */
+  opacity: 0.35;
+}
+
+/* Entry price · legible emphasis without cheapening upper tiers.
+   Brightened (June 2026) — the soft copper read too dim; a warm
+   luminous gold keeps the bronze tier identity but stays readable. */
+.contract--entry .contract__price strong {
+  font-size: 1.12rem;
+  color: #f5cd86;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+/* Lore line · inscribed at the foot of the left page */
+.contract__lore {
+  margin: 1.1rem 0 0;
+  padding-top: 0.85rem;
+  border-top: 1px solid rgba(201, 161, 95, 0.2);
+  font-family: var(--font-display);
+  font-size: 0.82rem;
+  font-style: italic;
+  line-height: 1.55;
+  color: var(--gold-aged, #c9a15f);
+  opacity: 0.88;
+  text-wrap: pretty;
+}
+
+/* Entry CTA · "Invocar Relíquia" — copper-tinted seal button */
+.contract--entry .contract__cta {
+  background: linear-gradient(160deg,
+    rgba(212, 165, 116, 0.95) 0%,
+    rgba(184, 115, 51, 0.92) 100%);
+  border-color: rgba(107, 68, 35, 0.6);
+  color: #1a1008;
+}
+.contract--entry .contract__cta:hover,
+.contract--entry .contract__cta:focus-visible {
+  background: linear-gradient(160deg,
+    rgba(244, 221, 192, 0.98) 0%,
+    rgba(212, 165, 116, 0.95) 100%);
+  box-shadow:
+    0 8px 22px rgba(0, 0, 0, 0.38),
+    0 0 24px rgba(184, 115, 51, 0.42);
+  transform: translateY(-2px);
+}
+
+/* Hover on entry book · gentle pulse (less than rare+) */
+@media (prefers-reduced-motion: no-preference) {
+  .contract--entry .contract__book:hover,
+  .contract--entry .contract__book:focus-visible {
+    box-shadow:
+      inset 0 0 0 1px rgba(212, 165, 116, 0.32),
+      0 22px 50px rgba(0, 0, 0, 0.48),
+      0 0 90px rgba(184, 115, 51, 0.28);
+  }
+  .contract--entry .contract__book:hover .contract__entry-seal,
+  .contract--entry .contract__book:focus-visible .contract__entry-seal {
+    box-shadow:
+      inset 0 0 0 1px rgba(255, 245, 220, 0.45),
+      0 6px 18px rgba(0, 0, 0, 0.36),
+      0 0 22px rgba(184, 115, 51, 0.38);
+  }
+}
+
+html[data-theme="light"] .contract--entry .contract__book {
+  box-shadow:
+    inset 0 0 0 1px rgba(120, 84, 40, 0.28),
+    0 16px 36px rgba(74, 45, 20, 0.16),
+    0 0 48px rgba(184, 115, 51, 0.12);
+}
+html[data-theme="light"] .contract__entry-seal {
+  color: #2a1808;
+  background: linear-gradient(160deg, #f4e8c8, #d4a574);
+  border-color: rgba(120, 84, 40, 0.45);
+}
+html[data-theme="light"] .contract__lore { color: #7a4b1e; }
+html[data-theme="light"] .contract--entry .contract__price strong { color: #8a5a1f; text-shadow: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  .contract__entry-seal-star { animation: none; }
+}
+
+/* ════════════════════════════════════════════════════════════════════
+   SHARED BLESSINGS BAND · inherited by every contract
+   --------------------------------------------------------------------
+   A fixed inscription above the codex listing the six boons bound to
+   EVERY pact. Aged-gold, runic, intentionally not a marketplace banner.
+   ════════════════════════════════════════════════════════════════════ */
+.contract-blessings {
+  position: relative;
+  max-width: 880px;
+  margin: 0 auto clamp(2.2rem, 5vw, 3.4rem);
+  padding: clamp(1.4rem, 3vw, 2rem) clamp(1.2rem, 3.5vw, 2.6rem) clamp(1.5rem, 3vw, 2.1rem);
+  text-align: center;
+  border-radius: 14px;
+  background:
+    radial-gradient(120% 140% at 50% 0%, rgba(212, 175, 110, 0.07), transparent 60%),
+    linear-gradient(180deg, rgba(28, 20, 12, 0.42), rgba(20, 14, 9, 0.28));
+  isolation: isolate;
+}
+.contract-blessings__frame {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  border: 1px solid rgba(212, 175, 110, 0.28);
+  box-shadow:
+    inset 0 0 0 1px rgba(212, 175, 110, 0.1),
+    inset 0 0 38px rgba(212, 175, 110, 0.06),
+    0 18px 44px rgba(0, 0, 0, 0.32);
+}
+/* corner ✦ marks etched into the frame */
+.contract-blessings__frame::before,
+.contract-blessings__frame::after {
+  content: "✦";
+  position: absolute;
+  font-size: 0.7rem;
+  color: rgba(212, 175, 110, 0.5);
+  top: 8px;
+}
+.contract-blessings__frame::before { left: 12px; }
+.contract-blessings__frame::after  { right: 12px; }
+
+.contract-blessings__title {
+  margin: 0 0 0.45rem;
+  font-family: "Cinzel", "Cormorant Garamond", serif;
+  font-size: clamp(0.92rem, 2.1vw, 1.16rem);
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  line-height: 1.32;
+  color: #ecd29a;
+  /* glow tamed so the engraving stays crisp, not blurry */
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+}
+.contract-blessings__star {
+  color: rgba(212, 175, 110, 0.7);
+  margin: 0 0.5rem;
+  font-size: 0.8em;
+}
+.contract-blessings__sub {
+  margin: 0 auto clamp(1.2rem, 2.6vw, 1.7rem);
+  max-width: 48ch;
+  font-family: "Cormorant Garamond", "Libre Caslon Text", serif;
+  font-style: italic;
+  font-size: clamp(0.9rem, 1.9vw, 1.02rem);
+  color: rgba(222, 208, 184, 0.82);
+  line-height: 1.42;
+}
+.contract-blessings__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.55rem 1.6rem;
+}
+/* Left-aligned so the eye lands on the rune then the name — immediate
+   reading. The NAME is the dominant element; the rune is a quiet sigil. */
+.contract-blessing {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 0.6rem;
+  padding: 0.42rem 0.7rem;
+  font-family: "Cormorant Garamond", "Libre Caslon Text", serif;
+  font-size: clamp(0.98rem, 2vw, 1.08rem);
+  font-weight: 600;
+  color: #f1e7d4;
+  letter-spacing: 0.005em;
+  border-radius: 7px;
+  transition: background 0.4s ease, transform 0.35s ease;
+}
+.contract-blessing__name { flex: 1; }
+.contract-blessing:hover {
+  background: rgba(212, 175, 110, 0.06);
+  transform: translateX(2px);
+}
+/* Rune · secondary sigil — smaller, dimmer, no competing glow */
+.contract-blessing__rune {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 18px;
+  height: 18px;
+  font-size: 0.82rem;
+  font-weight: 400;
+  color: rgba(196, 158, 102, 0.7);
+  text-shadow: none;
+}
+
+@media (max-width: 620px) {
+  .contract-blessings__list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 380px) {
+  .contract-blessings__list { grid-template-columns: 1fr; }
+}
+
+html[data-theme="light"] .contract-blessings {
+  background:
+    radial-gradient(120% 140% at 50% 0%, rgba(150, 110, 50, 0.08), transparent 60%),
+    linear-gradient(180deg, rgba(245, 235, 215, 0.7), rgba(238, 226, 202, 0.55));
+}
+html[data-theme="light"] .contract-blessings__frame { border-color: rgba(150, 110, 50, 0.3); }
+html[data-theme="light"] .contract-blessings__title { color: #7a4f1a; text-shadow: none; }
+html[data-theme="light"] .contract-blessing { color: #3a2a18; }
+html[data-theme="light"] .contract-blessing__rune { color: rgba(140, 96, 36, 0.7); text-shadow: none; }
+
+/* ════════════════════════════════════════════════════════════════════
+   IDEAL-FOR + ESTIMATED TIME · the "who is this for / how long" block
+   sits directly under the price specs so value is instantly legible.
+   ════════════════════════════════════════════════════════════════════ */
+.contract__fit {
+  position: relative;
+  margin: 0.7rem 0 0.2rem;
+  padding: 0.6rem 0.7rem;
+  border-radius: 8px;
+  background: linear-gradient(180deg,
+    var(--rarity-glow, rgba(229, 190, 174, 0.12)) -120%,
+    rgba(0, 0, 0, 0.02) 90%);
+  border: 1px dashed rgba(140, 90, 47, 0.3);
+}
+.contract__fit-row {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  margin: 0;
+  flex-wrap: wrap;
+}
+.contract__fit-key {
+  flex: none;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.56rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--rarity-accent-deep, var(--gold-deep));
+}
+.contract__fit-val {
+  font-family: "Cormorant Garamond", "Libre Caslon Text", serif;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--ink, #ece2cf);
+  line-height: 1.25;
+}
+.contract__fit-eta {
+  margin: 0.4rem 0 0;
+  font-family: "Cormorant Garamond", "Libre Caslon Text", serif;
+  font-style: italic;
+  font-size: 0.84rem;
+  color: var(--ink-soft, rgba(225, 210, 185, 0.78));
+  letter-spacing: 0.02em;
+}
+
+html[data-theme="light"] .contract__fit { border-color: rgba(150, 110, 50, 0.32); }
+html[data-theme="light"] .contract__fit-val { color: #3a2a18; }
+
+/* ════════════════════════════════════════════════════════════════════
+   POWER LIST · the EXCLUSIVE powers each rarity adds (single column).
+   Reuses .contract__enchant base styling; the ✓ check is tinted by the
+   card's rarity accent, and the "Tudo do contrato X" row is gilded.
+   ════════════════════════════════════════════════════════════════════ */
+.contract__enchants--powers .contract__enchant-list.contract__power-list {
+  grid-template-columns: 1fr;
+  gap: 0.3rem;
+  max-width: 34ch;
+  margin: 0 auto;
+}
+.contract__power-check {
+  position: relative;
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 17px;
+  height: 17px;
+  font-size: 0.78rem;
+  line-height: 1;
+  color: var(--rarity-accent, var(--gold));
+  text-shadow: 0 0 5px var(--rarity-glow, rgba(229, 190, 174, 0.5));
+  transition: color 0.35s ease, text-shadow 0.35s ease, transform 0.35s ease;
+}
+.contract__enchant:hover .contract__power-check {
+  color: #b9f4cf;
+  text-shadow: 0 0 9px rgba(120, 205, 150, 0.7);
+  transform: scale(1.12);
+}
+/* "Tudo do contrato anterior" — gilded inheritance row */
+.contract__enchant--inherit {
+  margin-bottom: 0.15rem;
+  padding-bottom: 0.32rem;
+  border-bottom: 1px dashed rgba(140, 90, 47, 0.3);
+}
+.contract__enchant--inherit .contract__enchant-name {
+  font-style: italic;
+  font-weight: 600;
+  color: var(--rarity-accent-bright, var(--gold));
+}
+.contract__enchant--inherit .contract__power-check {
+  color: var(--rarity-accent-bright, var(--gold));
+}
+
+html[data-theme="light"] .contract__enchant--inherit .contract__enchant-name {
+  color: var(--rarity-accent-deep, #8a5a1f);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .contract[data-rarity="mythic"] .contract__book::after { animation: none; opacity: 0.7; }
 }

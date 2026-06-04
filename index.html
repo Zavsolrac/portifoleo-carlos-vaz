@@ -282,25 +282,36 @@
           <p class="hero__lede" data-i18n="hero.lede">
             Onde storytelling, front-end e IA convergem em experiências vivas.
           </p>
+          <!-- HERO SUBTITLE · plain-language professional positioning.
+               Sits below the poetic lede so a recruiter understands the
+               role in one read, without diluting the arcane voice. -->
+          <p class="hero__role hero__role--inscription" data-i18n="hero.role">
+            Desenvolvedor Front-End especializado em experiências digitais imersivas,
+            storytelling interativo e interfaces modernas orientadas à experiência do usuário.
+          </p>
 
-          <!-- HERO ACTIONS · two CTAs that bridge the user into the
-               next act. The labels are short on purpose — they read
-               as ritual invitations ("explore the tree", "see the
-               crystals") rather than UI verbs. Both link to in-page
-               anchors so the existing smooth-anchor handler (in
-               main.js) carries the visitor there. -->
-          <nav class="hero__actions" aria-label="Atalhos da jornada">
-            <a class="hero__cta hero__cta--primary" href="#knowledge" id="hero-explore-tree" data-ktree-open>
+          <!-- HERO ACTIONS · conversion-first.
+               · PRIMARY  → "Solicitar Projeto" (jumps to the Codex of
+                 Contracts, the request/quote surface).
+               · SECONDARY→ "Ver Projetos" (the Memory Crystals).
+               · TERTIARY → understated text link that still opens the
+                 living Knowledge Tree, so the signature experience is
+                 never lost. All use the smooth-anchor handler. -->
+          <nav class="hero__actions" aria-label="Ações principais">
+            <a class="hero__cta hero__cta--primary" href="#contracts" id="hero-cta-request">
               <span class="hero__cta-icon" aria-hidden="true">
                 <svg viewBox="0 0 24 24" width="14" height="14">
-                  <path d="M12 3 L12 21 M5 8 L12 3 L19 8 M5 16 L12 21 L19 16"
+                  <path d="M4 20 L4 5 A1 1 0 0 1 5 4 L15 4 L20 9 L20 20 A1 1 0 0 1 19 21 L5 21 A1 1 0 0 1 4 20 Z"
                     fill="none" stroke="currentColor" stroke-width="1.5"
+                    stroke-linejoin="round" />
+                  <path d="M15 4 L15 9 L20 9 M8 13 L16 13 M8 16.5 L14 16.5"
+                    fill="none" stroke="currentColor" stroke-width="1.4"
                     stroke-linecap="round" stroke-linejoin="round" />
                 </svg>
               </span>
-              <span class="hero__cta-label" data-i18n="hero.cta.tree">Explorar Árvore</span>
+              <span class="hero__cta-label" data-i18n="hero.cta.request">Solicitar Projeto</span>
             </a>
-            <a class="hero__cta hero__cta--ghost" href="#memories" id="hero-cta-crystals">
+            <a class="hero__cta hero__cta--ghost" href="#memories" id="hero-cta-projects">
               <span class="hero__cta-icon" aria-hidden="true">
                 <svg viewBox="0 0 24 24" width="14" height="14">
                   <path d="M12 3 L19 8 L19 16 L12 21 L5 16 L5 8 Z"
@@ -310,12 +321,163 @@
                     fill="none" stroke="currentColor" stroke-width="1" opacity="0.6" />
                 </svg>
               </span>
-              <span class="hero__cta-label" data-i18n="hero.cta.crystals">Ver Cristais</span>
+              <span class="hero__cta-label" data-i18n="hero.cta.projects">Ver Projetos</span>
+            </a>
+            <a class="hero__cta hero__cta--text" href="#knowledge" id="hero-explore-tree" data-ktree-open>
+              <span class="hero__cta-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" width="14" height="14">
+                  <path d="M12 3 L12 21 M5 8 L12 3 L19 8 M5 16 L12 21 L19 16"
+                    fill="none" stroke="currentColor" stroke-width="1.5"
+                    stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+              </span>
+              <span class="hero__cta-label" data-i18n="hero.cta.tree">Explorar a Árvore</span>
             </a>
           </nav>
         </div>
       </div>
 
+    </section>
+
+    <!-- ======================================================
+         SECTION · DIFERENCIAIS — "Por que trabalhar comigo?"
+         Five professional pillars rendered as inscribed runestones.
+         Pure CSS hover (aura glow + 1px lift + drifting spark); no JS.
+         data-i18n only on leaf text so I18n.apply() never wipes markup.
+    ====================================================== -->
+    <section id="differentials" class="differentials" aria-labelledby="differentials-title">
+      <header class="section-head section-head--center differentials__head">
+        <p class="section-head__eyebrow" data-i18n="diff.eyebrow">O DIFERENCIAL DO ARQUITETO</p>
+        <h2 id="differentials-title" class="section-head__title" data-i18n="diff.title">Por que trabalhar comigo?</h2>
+        <p class="section-head__lede" data-i18n="diff.lede">
+          Cinco pilares que transformam um site comum em uma experiência com identidade própria.
+        </p>
+      </header>
+
+      <ul class="differentials__grid" role="list">
+        <li class="pillar">
+          <span class="pillar__aura" aria-hidden="true"></span>
+          <span class="pillar__spark" aria-hidden="true"></span>
+          <span class="pillar__glyph" aria-hidden="true">
+            <svg viewBox="0 0 32 32" width="26" height="26">
+              <path d="M16 7 C12 4 7 4 4 6 L4 25 C7 23 12 23 16 26 C20 23 25 23 28 25 L28 6 C25 4 20 4 16 7 Z M16 7 L16 26"
+                fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" />
+            </svg>
+          </span>
+          <h3 class="pillar__name" data-i18n="diff.p1.name">Storytelling Digital</h3>
+          <p class="pillar__desc" data-i18n="diff.p1.desc">
+            Transformo páginas em jornadas: cada seção avança um capítulo e cada interação revela o próximo trecho da história.
+          </p>
+        </li>
+
+        <li class="pillar">
+          <span class="pillar__aura" aria-hidden="true"></span>
+          <span class="pillar__spark" aria-hidden="true"></span>
+          <span class="pillar__glyph" aria-hidden="true">
+            <svg viewBox="0 0 32 32" width="26" height="26">
+              <circle cx="16" cy="16" r="11" fill="none" stroke="currentColor" stroke-width="1.5" />
+              <path d="M16 5 L18.6 13.4 L27 16 L18.6 18.6 L16 27 L13.4 18.6 L5 16 L13.4 13.4 Z"
+                fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" />
+            </svg>
+          </span>
+          <h3 class="pillar__name" data-i18n="diff.p2.name">Direção Artística</h3>
+          <p class="pillar__desc" data-i18n="diff.p2.desc">
+            Paleta, tipografia e luz orquestradas em uma só voz, para que a marca tenha identidade reconhecível à primeira vista.
+          </p>
+        </li>
+
+        <li class="pillar">
+          <span class="pillar__aura" aria-hidden="true"></span>
+          <span class="pillar__spark" aria-hidden="true"></span>
+          <span class="pillar__glyph" aria-hidden="true">
+            <svg viewBox="0 0 32 32" width="26" height="26">
+              <circle cx="7" cy="9" r="2.4" fill="none" stroke="currentColor" stroke-width="1.5" />
+              <circle cx="25" cy="9" r="2.4" fill="none" stroke="currentColor" stroke-width="1.5" />
+              <circle cx="16" cy="24" r="2.4" fill="none" stroke="currentColor" stroke-width="1.5" />
+              <path d="M9 10.4 L23 10.4 M8.2 11 L15 22 M23.8 11 L17 22"
+                fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" />
+            </svg>
+          </span>
+          <h3 class="pillar__name" data-i18n="diff.p3.name">Experiência do Usuário (UX)</h3>
+          <p class="pillar__desc" data-i18n="diff.p3.desc">
+            Hierarquia clara e gestos previsíveis: o visitante encontra o que procura antes mesmo de perguntar.
+          </p>
+        </li>
+
+        <li class="pillar">
+          <span class="pillar__aura" aria-hidden="true"></span>
+          <span class="pillar__spark" aria-hidden="true"></span>
+          <span class="pillar__glyph" aria-hidden="true">
+            <svg viewBox="0 0 32 32" width="26" height="26">
+              <path d="M11 9 L4 16 L11 23 M21 9 L28 16 L21 23 M18 6 L14 26"
+                fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+          </span>
+          <h3 class="pillar__name" data-i18n="diff.p4.name">Desenvolvimento Front-End</h3>
+          <p class="pillar__desc" data-i18n="diff.p4.desc">
+            Interfaces responsivas e acessíveis em HTML, CSS e JavaScript — com código limpo e atenção à performance.
+          </p>
+        </li>
+
+        <li class="pillar">
+          <span class="pillar__aura" aria-hidden="true"></span>
+          <span class="pillar__spark" aria-hidden="true"></span>
+          <span class="pillar__glyph" aria-hidden="true">
+            <svg viewBox="0 0 32 32" width="26" height="26">
+              <circle cx="16" cy="16" r="4" fill="none" stroke="currentColor" stroke-width="1.5" />
+              <circle cx="16" cy="5" r="1.8" fill="currentColor" />
+              <circle cx="26" cy="11" r="1.8" fill="currentColor" />
+              <circle cx="26" cy="22" r="1.8" fill="currentColor" />
+              <circle cx="6" cy="22" r="1.8" fill="currentColor" />
+              <circle cx="6" cy="11" r="1.8" fill="currentColor" />
+              <path d="M16 9 L16 7 M19.4 14 L24.6 11.4 M19 19 L24.6 21.4 M13 19 L7.4 21.4 M13 14 L7.4 11.4"
+                fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" />
+            </svg>
+          </span>
+          <h3 class="pillar__name" data-i18n="diff.p5.name">Integração com IA</h3>
+          <p class="pillar__desc" data-i18n="diff.p5.desc">
+            Assistentes, automações e fluxos inteligentes que dão vida ao produto sem perder o toque humano.
+          </p>
+        </li>
+      </ul>
+    </section>
+
+    <!-- ======================================================
+         SECTION · CONQUISTAS E MARCOS — animated count-up stats.
+         Numbers live in data-count-to (easy to edit); the optional
+         data-count-prefix prepends a glyph (e.g. "+"). enhancements.js
+         animates them once on scroll-in and respects reduced-motion.
+         The label carries data-i18n; the number span never does, so
+         the count-up value is never overwritten by I18n.apply().
+    ====================================================== -->
+    <section id="milestones" class="milestones" aria-labelledby="milestones-title">
+      <header class="section-head section-head--center">
+        <p class="section-head__eyebrow" data-i18n="stats.eyebrow">MARCAS GRAVADAS NA PEDRA</p>
+        <h2 id="milestones-title" class="section-head__title" data-i18n="stats.title">Conquistas e Marcos</h2>
+      </header>
+
+      <ul class="milestones__grid" role="list">
+        <li class="stat">
+          <span class="stat__rune" aria-hidden="true">✦</span>
+          <span class="stat__num" data-count-to="12" data-count-prefix="+">+12</span>
+          <span class="stat__label" data-i18n="stats.projects">Projetos Desenvolvidos</span>
+        </li>
+        <li class="stat">
+          <span class="stat__rune" aria-hidden="true">✶</span>
+          <span class="stat__num" data-count-to="30" data-count-prefix="+">+30</span>
+          <span class="stat__label" data-i18n="stats.tech">Tecnologias Estudadas</span>
+        </li>
+        <li class="stat">
+          <span class="stat__rune" aria-hidden="true">❂</span>
+          <span class="stat__num" data-count-to="1500" data-count-prefix="+">+1500</span>
+          <span class="stat__label" data-i18n="stats.hours">Horas de Aprendizado</span>
+        </li>
+        <li class="stat">
+          <span class="stat__rune" aria-hidden="true">✧</span>
+          <span class="stat__num" data-count-to="25" data-count-prefix="+">+25</span>
+          <span class="stat__label" data-i18n="stats.interfaces">Interfaces Criadas</span>
+        </li>
+      </ul>
     </section>
 
     <!-- ======================================================
@@ -719,6 +881,7 @@
     <section id="contracts" class="contracts" aria-labelledby="contracts-title">
       <header class="contracts__head section-head section-head--center">
         <p class="contracts__eyebrow" data-i18n="contracts.eyebrow">CAPITVLVM · IV · MMXXVI</p>
+        <p class="contracts__kicker" data-i18n="contracts.kicker">Serviços Profissionais</p>
         <h2 class="contracts__title section-head__title" id="contracts-title" data-i18n="contracts.title">Codex dos
           Contratos Arcanos</h2>
         <p class="contracts__subtitle section-head__lede" data-i18n="contracts.subtitle">
@@ -740,7 +903,165 @@
         </div>
       </header>
 
+      <!-- ============================================================
+           SHARED BLESSINGS · inherited by EVERY contract
+           ------------------------------------------------------------
+           A fixed band above the codex. These six runic boons are
+           bound to every pact, so they're no longer repeated inside
+           each contract — each contract now lists only its EXCLUSIVE
+           powers, making the value progression instantly legible.
+      ============================================================ -->
+      <section class="contract-blessings" aria-labelledby="blessings-title">
+        <div class="contract-blessings__frame" aria-hidden="true"></div>
+        <h3 class="contract-blessings__title" id="blessings-title">
+          <span class="contract-blessings__star" aria-hidden="true">✦</span>
+          <span data-i18n="contracts.blessings.title">Bênçãos Presentes em Todo Contrato Arcano</span>
+          <span class="contract-blessings__star" aria-hidden="true">✦</span>
+        </h3>
+        <p class="contract-blessings__sub" data-i18n="contracts.blessings.sub">
+          Toda relíquia forjada neste atelier já nasce selada com estas bênçãos.
+        </p>
+        <ul class="contract-blessings__list" role="list">
+          <li class="contract-blessing"><span class="contract-blessing__rune" aria-hidden="true">ᛉ</span><span class="contract-blessing__name" data-i18n="contracts.blessings.responsive">Responsividade Mobile</span></li>
+          <li class="contract-blessing"><span class="contract-blessing__rune" aria-hidden="true">ᛊ</span><span class="contract-blessing__name" data-i18n="contracts.blessings.ssl">Certificado SSL (HTTPS)</span></li>
+          <li class="contract-blessing"><span class="contract-blessing__rune" aria-hidden="true">ᚲ</span><span class="contract-blessing__name" data-i18n="contracts.blessings.deploy">Deploy Profissional</span></li>
+          <li class="contract-blessing"><span class="contract-blessing__rune" aria-hidden="true">ᚷ</span><span class="contract-blessing__name" data-i18n="contracts.blessings.seo">SEO Inicial</span></li>
+          <li class="contract-blessing"><span class="contract-blessing__rune" aria-hidden="true">ᚾ</span><span class="contract-blessing__name" data-i18n="contracts.blessings.support">Suporte Inicial</span></li>
+          <li class="contract-blessing"><span class="contract-blessing__rune" aria-hidden="true">ᛟ</span><span class="contract-blessing__name" data-i18n="contracts.blessings.domain">Configuração de Domínio</span></li>
+        </ul>
+      </section>
+
       <ol class="contracts__list" role="list">
+
+        <!-- ============================================
+             ✦ · RELÍQUIA DO APRENDIZ · COMMON · ENTRY RELIC
+             The gateway contract — visually first, common tier
+             (bronze/copper), marked with a "Primeiro Passo" seal.
+             Same grimoire structure as every other contract; the
+             entry styling lives behind data-entry="true".
+        ============================================ -->
+        <li class="contract contract--entry" data-rarity="common" data-entry="true">
+          <article class="contract__book" tabindex="0" aria-label="Contrato de Entrada — Relíquia do Aprendiz · Primeiro Passo">
+            <span class="contract__corner contract__corner--tl" aria-hidden="true"></span>
+            <span class="contract__corner contract__corner--tr" aria-hidden="true"></span>
+            <span class="contract__corner contract__corner--bl" aria-hidden="true"></span>
+            <span class="contract__corner contract__corner--br" aria-hidden="true"></span>
+
+            <!-- Entry seal · "Primeiro Passo" wax ribbon -->
+            <span class="contract__entry-seal">
+              <span class="contract__entry-seal-star" aria-hidden="true">✦</span>
+              <span data-i18n="contracts.s0.seal">Primeiro Passo</span>
+            </span>
+
+            <div class="contract__spread">
+              <!-- LEFT PAGE — Description -->
+              <section class="contract__page contract__page--left">
+                <div class="contract__watermark" aria-hidden="true"></div>
+
+                <p class="contract__rarity">
+                  <span class="contract__gem" aria-hidden="true">
+                    <!-- Exclusive icon · chave antiga (the gateway key) -->
+                    <svg viewBox="0 0 24 24" width="14" height="14">
+                      <circle cx="8" cy="8" r="4.4" fill="none" stroke="currentColor" stroke-width="1.7" />
+                      <circle cx="8" cy="8" r="1.4" fill="currentColor" />
+                      <path d="M11 11 L19 19 M16 16 L18.5 13.5 M19 19 L21 17"
+                        fill="none" stroke="currentColor" stroke-width="1.7"
+                        stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                  </span>
+                  <span class="contract__rarity-label" data-i18n="contracts.rarity.apprentice">COMUM · PRIMEIRO PASSO</span>
+                </p>
+
+                <h3 class="contract__name" data-i18n="contracts.s0.name">Relíquia do Aprendiz</h3>
+                <p class="contract__class" data-i18n="contracts.s0.class">O primeiro artefato para transformar uma ideia em presença digital.</p>
+
+                <div class="contract__divider" aria-hidden="true"><span class="contract__divider-mark">✦</span></div>
+
+                <dl class="contract__meta">
+                  <div>
+                    <dt data-i18n="contracts.purpose">Propósito</dt>
+                    <dd data-i18n="contracts.s0.purpose">Para quem deseja atravessar os portões do reino digital pela primeira vez — artesãos, pequenos negócios e projetos pessoais em busca da sua primeira presença online.</dd>
+                  </div>
+                  <div>
+                    <dt data-i18n="contracts.tech">Tecnologias</dt>
+                    <dd data-i18n="contracts.s0.tech">HTML · CSS · JavaScript · Responsivo</dd>
+                  </div>
+                </dl>
+
+                <p class="contract__lore" data-i18n="contracts.s0.lore">"Toda grande lenda começou com uma única relíquia."</p>
+
+                <p class="contract__page-num">— ✦ —</p>
+              </section>
+
+              <span class="contract__spine" aria-hidden="true"></span>
+
+              <!-- RIGHT PAGE — Pricing & specs -->
+              <section class="contract__page contract__page--right">
+                <div class="contract__watermark contract__watermark--alt" aria-hidden="true"></div>
+
+                <section class="contract__specs">
+                  <h4 data-i18n="contracts.specs.title">Especificações do Contrato</h4>
+                  <ul>
+                    <li>
+                      <span class="contract__spec-name" data-i18n="contracts.spec.rarity">Raridade</span>
+                      <span class="contract__spec-val" data-i18n="contracts.rarity.common.short">COMUM</span>
+                    </li>
+                    <li class="contract__spec--invest">
+                      <span class="contract__spec-name" data-i18n="contracts.spec.invest">Investimento</span>
+                      <span class="contract__spec-val contract__price">
+                        <strong>€149</strong>
+                        <em>R$ 890</em>
+                      </span>
+                    </li>
+                    <li>
+                      <span class="contract__spec-name" data-i18n="contracts.spec.diff">Dificuldade</span>
+                      <span class="contract__spec-val contract__stars" aria-label="1 de 5">★<span
+                          class="off">★★★★</span></span>
+                    </li>
+                    <li>
+                      <span class="contract__spec-name" data-i18n="contracts.spec.power">Poder</span>
+                      <span class="contract__power-bar"><span class="contract__power-fill"
+                          style="--w:26%"></span></span>
+                    </li>
+                  </ul>
+                </section>
+
+                <div class="contract__fit">
+                  <p class="contract__fit-row">
+                    <span class="contract__fit-key" data-i18n="contracts.fit">Ideal para</span>
+                    <span class="contract__fit-val" data-i18n="contracts.s0.fit">Projetos pessoais · Autônomos · Pequenos negócios</span>
+                  </p>
+                  <p class="contract__fit-eta" data-i18n="contracts.s0.eta">⧖ 3–7 dias</p>
+                </div>
+
+                <div class="contract__divider" aria-hidden="true"><span class="contract__divider-mark">✦</span></div>
+
+                <section class="contract__enchants contract__enchants--powers" aria-label="Poderes Exclusivos">
+                  <h4 class="contract__enchants-title" data-i18n="contracts.exclusive">Poderes Exclusivos</h4>
+                  <p class="contract__enchants-sub" data-i18n="contracts.s0.psub">O primeiro passo rumo ao reino digital.</p>
+                  <ul class="contract__enchant-list contract__power-list">
+                    <li class="contract__enchant"><span class="contract__power-check" aria-hidden="true">✓</span><span class="contract__enchant-name" data-i18n="contracts.s0.p1">Landing Page Profissional</span></li>
+                    <li class="contract__enchant"><span class="contract__power-check" aria-hidden="true">✓</span><span class="contract__enchant-name" data-i18n="contracts.s0.p2">Até 5 Seções</span></li>
+                    <li class="contract__enchant"><span class="contract__power-check" aria-hidden="true">✓</span><span class="contract__enchant-name" data-i18n="contracts.s0.p3">Formulário de Contato</span></li>
+                    <li class="contract__enchant"><span class="contract__power-check" aria-hidden="true">✓</span><span class="contract__enchant-name" data-i18n="contracts.s0.p4">Integração WhatsApp</span></li>
+                    <li class="contract__enchant"><span class="contract__power-check" aria-hidden="true">✓</span><span class="contract__enchant-name" data-i18n="contracts.s0.p5">Design Limpo e Funcional</span></li>
+                    <li class="contract__enchant"><span class="contract__power-check" aria-hidden="true">✓</span><span class="contract__enchant-name" data-i18n="contracts.s0.p6">1 Rodada de Ajustes</span></li>
+                  </ul>
+                </section>
+
+                <a class="contract__cta" href="#portal">
+                  <span data-i18n="contracts.s0.cta">Invocar Relíquia</span>
+                  <svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true">
+                    <path d="M3 8 H13 M9 4 L13 8 L9 12" fill="none" stroke="currentColor" stroke-width="1.4"
+                      stroke-linecap="round" />
+                  </svg>
+                </a>
+
+                <p class="contract__page-num">— ✦ —</p>
+              </section>
+            </div>
+          </article>
+        </li>
 
         <!-- ============================================
              I · LANDING PAGE ARCANA · COMMON
@@ -781,10 +1102,6 @@
                   <div>
                     <dt data-i18n="contracts.tech">Tecnologias</dt>
                     <dd data-i18n="contracts.s1.tech">HTML · CSS · JavaScript · Animações</dd>
-                  </div>
-                  <div>
-                    <dt data-i18n="contracts.delivery">Prazo Estimado</dt>
-                    <dd data-i18n="contracts.s1.delivery">VII a XV dias · ☾</dd>
                   </div>
                 </dl>
 
@@ -848,33 +1165,27 @@
                   </ul>
                 </section>
 
+                <div class="contract__fit">
+                  <p class="contract__fit-row">
+                    <span class="contract__fit-key" data-i18n="contracts.fit">Ideal para</span>
+                    <span class="contract__fit-val" data-i18n="contracts.s1.fit">Campanhas · Lançamentos · Produtos</span>
+                  </p>
+                  <p class="contract__fit-eta" data-i18n="contracts.s1.eta">⧖ 1–2 semanas</p>
+                </div>
+
                 <div class="contract__divider" aria-hidden="true"><span class="contract__divider-mark">✦</span></div>
 
-                <section class="contract__enchants" aria-label="Encantamentos Vinculados">
-                  <h4 class="contract__enchants-title" data-i18n="contracts.perks.title">Encantamentos Vinculados</h4>
-                  <p class="contract__enchants-sub" data-i18n="contracts.perks.sub">Selados neste pacto — um artefato digital completo, não apenas um site.</p>
-                  <div class="contract__enchant-grid">
-                    <div class="contract__enchant-col">
-                      <h5 class="contract__enchant-cat"><span class="contract__enchant-cat-glyph" aria-hidden="true">✦</span><span data-i18n="contracts.perks.cat.exp">Experiência</span></h5>
-                      <ul class="contract__enchant-list">
-                        <li class="contract__enchant"><span class="contract__enchant-rune" aria-hidden="true">ᛟ</span><span class="contract__enchant-name" data-i18n="contracts.perks.exp.story">Storytelling Visual</span></li>
-                        <li class="contract__enchant"><span class="contract__enchant-rune" aria-hidden="true">ᚹ</span><span class="contract__enchant-name" data-i18n="contracts.perks.exp.anim">Animações Cinemáticas</span></li>
-                        <li class="contract__enchant"><span class="contract__enchant-rune" aria-hidden="true">ᛞ</span><span class="contract__enchant-name" data-i18n="contracts.perks.exp.theme">Modo Claro/Escuro</span></li>
-                        <li class="contract__enchant"><span class="contract__enchant-rune" aria-hidden="true">ᛗ</span><span class="contract__enchant-name" data-i18n="contracts.perks.exp.gallery">Galeria de Projetos</span></li>
-                      </ul>
-                    </div>
-                    <div class="contract__enchant-col">
-                      <h5 class="contract__enchant-cat"><span class="contract__enchant-cat-glyph" aria-hidden="true">✦</span><span data-i18n="contracts.perks.cat.delivery">Entrega Profissional</span></h5>
-                      <ul class="contract__enchant-list">
-                        <li class="contract__enchant"><span class="contract__enchant-rune" aria-hidden="true">ᚱ</span><span class="contract__enchant-name" data-i18n="contracts.perks.del.deploy">Deploy Profissional</span></li>
-                        <li class="contract__enchant"><span class="contract__enchant-rune" aria-hidden="true">ᛉ</span><span class="contract__enchant-name" data-i18n="contracts.perks.del.ssl">Certificado SSL (HTTPS)</span></li>
-                        <li class="contract__enchant"><span class="contract__enchant-rune" aria-hidden="true">ᛊ</span><span class="contract__enchant-name" data-i18n="contracts.perks.del.responsive">Responsividade Mobile</span></li>
-                        <li class="contract__enchant"><span class="contract__enchant-rune" aria-hidden="true">ᚲ</span><span class="contract__enchant-name" data-i18n="contracts.perks.del.seo">SEO Inicial</span></li>
-                        <li class="contract__enchant"><span class="contract__enchant-rune" aria-hidden="true">ᚷ</span><span class="contract__enchant-name" data-i18n="contracts.perks.del.domain">Configuração de Domínio</span></li>
-                        <li class="contract__enchant"><span class="contract__enchant-rune" aria-hidden="true">ᚾ</span><span class="contract__enchant-name" data-i18n="contracts.perks.del.support">Suporte Inicial</span></li>
-                      </ul>
-                    </div>
-                  </div>
+                <section class="contract__enchants contract__enchants--powers" aria-label="Poderes Exclusivos">
+                  <h4 class="contract__enchants-title" data-i18n="contracts.exclusive">Poderes Exclusivos</h4>
+                  <p class="contract__enchants-sub" data-i18n="contracts.s1.psub">Presença digital impactante para campanhas e lançamentos.</p>
+                  <ul class="contract__enchant-list contract__power-list">
+                    <li class="contract__enchant"><span class="contract__power-check" aria-hidden="true">✓</span><span class="contract__enchant-name" data-i18n="contracts.s1.p1">Landing Page de Alta Conversão</span></li>
+                    <li class="contract__enchant"><span class="contract__power-check" aria-hidden="true">✓</span><span class="contract__enchant-name" data-i18n="contracts.s1.p2">Seções Ilimitadas</span></li>
+                    <li class="contract__enchant"><span class="contract__power-check" aria-hidden="true">✓</span><span class="contract__enchant-name" data-i18n="contracts.s1.p3">Animações de Entrada</span></li>
+                    <li class="contract__enchant"><span class="contract__power-check" aria-hidden="true">✓</span><span class="contract__enchant-name" data-i18n="contracts.s1.p4">Copywriting Orientado à Ação</span></li>
+                    <li class="contract__enchant"><span class="contract__power-check" aria-hidden="true">✓</span><span class="contract__enchant-name" data-i18n="contracts.s1.p5">Otimização de Conversão</span></li>
+                    <li class="contract__enchant"><span class="contract__power-check" aria-hidden="true">✓</span><span class="contract__enchant-name" data-i18n="contracts.s1.p6">2 Rodadas de Ajustes</span></li>
+                  </ul>
                 </section>
 
                 <a class="contract__cta" href="#portal">
@@ -930,10 +1241,6 @@
                   <div>
                     <dt data-i18n="contracts.tech">Tecnologias</dt>
                     <dd data-i18n="contracts.s2.tech">HTML · CSS · JS · CMS Leve · SEO</dd>
-                  </div>
-                  <div>
-                    <dt data-i18n="contracts.delivery">Prazo Estimado</dt>
-                    <dd data-i18n="contracts.s2.delivery">XV a XXX dias · ☾☾</dd>
                   </div>
                 </dl>
 
@@ -996,33 +1303,27 @@
                   </ul>
                 </section>
 
+                <div class="contract__fit">
+                  <p class="contract__fit-row">
+                    <span class="contract__fit-key" data-i18n="contracts.fit">Ideal para</span>
+                    <span class="contract__fit-val" data-i18n="contracts.s2.fit">Empresas · Marcas · Organizações</span>
+                  </p>
+                  <p class="contract__fit-eta" data-i18n="contracts.s2.eta">⧖ 2–3 semanas</p>
+                </div>
+
                 <div class="contract__divider" aria-hidden="true"><span class="contract__divider-mark">✦</span></div>
 
-                <section class="contract__enchants" aria-label="Encantamentos Vinculados">
-                  <h4 class="contract__enchants-title" data-i18n="contracts.perks.title">Encantamentos Vinculados</h4>
-                  <p class="contract__enchants-sub" data-i18n="contracts.perks.sub">Selados neste pacto — um artefato digital completo, não apenas um site.</p>
-                  <div class="contract__enchant-grid">
-                    <div class="contract__enchant-col">
-                      <h5 class="contract__enchant-cat"><span class="contract__enchant-cat-glyph" aria-hidden="true">✦</span><span data-i18n="contracts.perks.cat.exp">Experiência</span></h5>
-                      <ul class="contract__enchant-list">
-                        <li class="contract__enchant"><span class="contract__enchant-rune" aria-hidden="true">ᛟ</span><span class="contract__enchant-name" data-i18n="contracts.perks.exp.story">Storytelling Visual</span></li>
-                        <li class="contract__enchant"><span class="contract__enchant-rune" aria-hidden="true">ᚹ</span><span class="contract__enchant-name" data-i18n="contracts.perks.exp.anim">Animações Cinemáticas</span></li>
-                        <li class="contract__enchant"><span class="contract__enchant-rune" aria-hidden="true">ᛞ</span><span class="contract__enchant-name" data-i18n="contracts.perks.exp.theme">Modo Claro/Escuro</span></li>
-                        <li class="contract__enchant"><span class="contract__enchant-rune" aria-hidden="true">ᛗ</span><span class="contract__enchant-name" data-i18n="contracts.perks.exp.gallery">Galeria de Projetos</span></li>
-                      </ul>
-                    </div>
-                    <div class="contract__enchant-col">
-                      <h5 class="contract__enchant-cat"><span class="contract__enchant-cat-glyph" aria-hidden="true">✦</span><span data-i18n="contracts.perks.cat.delivery">Entrega Profissional</span></h5>
-                      <ul class="contract__enchant-list">
-                        <li class="contract__enchant"><span class="contract__enchant-rune" aria-hidden="true">ᚱ</span><span class="contract__enchant-name" data-i18n="contracts.perks.del.deploy">Deploy Profissional</span></li>
-                        <li class="contract__enchant"><span class="contract__enchant-rune" aria-hidden="true">ᛉ</span><span class="contract__enchant-name" data-i18n="contracts.perks.del.ssl">Certificado SSL (HTTPS)</span></li>
-                        <li class="contract__enchant"><span class="contract__enchant-rune" aria-hidden="true">ᛊ</span><span class="contract__enchant-name" data-i18n="contracts.perks.del.responsive">Responsividade Mobile</span></li>
-                        <li class="contract__enchant"><span class="contract__enchant-rune" aria-hidden="true">ᚲ</span><span class="contract__enchant-name" data-i18n="contracts.perks.del.seo">SEO Inicial</span></li>
-                        <li class="contract__enchant"><span class="contract__enchant-rune" aria-hidden="true">ᚷ</span><span class="contract__enchant-name" data-i18n="contracts.perks.del.domain">Configuração de Domínio</span></li>
-                        <li class="contract__enchant"><span class="contract__enchant-rune" aria-hidden="true">ᚾ</span><span class="contract__enchant-name" data-i18n="contracts.perks.del.support">Suporte Inicial</span></li>
-                      </ul>
-                    </div>
-                  </div>
+                <section class="contract__enchants contract__enchants--powers" aria-label="Poderes Exclusivos">
+                  <h4 class="contract__enchants-title" data-i18n="contracts.exclusive">Poderes Exclusivos</h4>
+                  <p class="contract__enchants-sub" data-i18n="contracts.s2.psub">Autoridade e confiança para empresas e marcas.</p>
+                  <ul class="contract__enchant-list contract__power-list">
+                    <li class="contract__enchant"><span class="contract__power-check" aria-hidden="true">✓</span><span class="contract__enchant-name" data-i18n="contracts.s2.p1">Site Multipágina (até 5 páginas)</span></li>
+                    <li class="contract__enchant"><span class="contract__power-check" aria-hidden="true">✓</span><span class="contract__enchant-name" data-i18n="contracts.s2.p2">Estrutura Institucional Completa</span></li>
+                    <li class="contract__enchant"><span class="contract__power-check" aria-hidden="true">✓</span><span class="contract__enchant-name" data-i18n="contracts.s2.p3">Painel de Conteúdo Leve</span></li>
+                    <li class="contract__enchant"><span class="contract__power-check" aria-hidden="true">✓</span><span class="contract__enchant-name" data-i18n="contracts.s2.p4">Blog ou Notícias (opcional)</span></li>
+                    <li class="contract__enchant"><span class="contract__power-check" aria-hidden="true">✓</span><span class="contract__enchant-name" data-i18n="contracts.s2.p5">SEO Aprimorado</span></li>
+                    <li class="contract__enchant"><span class="contract__power-check" aria-hidden="true">✓</span><span class="contract__enchant-name" data-i18n="contracts.s2.p6">Multi-idioma Básico</span></li>
+                  </ul>
                 </section>
 
                 <a class="contract__cta" href="#portal">
@@ -1078,10 +1379,6 @@
                   <div>
                     <dt data-i18n="contracts.tech">Tecnologias</dt>
                     <dd data-i18n="contracts.s3.tech">HTML · CSS · JS · GSAP · Three.js (opcional)</dd>
-                  </div>
-                  <div>
-                    <dt data-i18n="contracts.delivery">Prazo Estimado</dt>
-                    <dd data-i18n="contracts.s3.delivery">X a XX dias · ☾</dd>
                   </div>
                 </dl>
 
@@ -1144,33 +1441,28 @@
                   </ul>
                 </section>
 
+                <div class="contract__fit">
+                  <p class="contract__fit-row">
+                    <span class="contract__fit-key" data-i18n="contracts.fit">Ideal para</span>
+                    <span class="contract__fit-val" data-i18n="contracts.s3.fit">Profissionais criativos · Freelancers · Marcas pessoais</span>
+                  </p>
+                  <p class="contract__fit-eta" data-i18n="contracts.s3.eta">⧖ 3–4 semanas</p>
+                </div>
+
                 <div class="contract__divider" aria-hidden="true"><span class="contract__divider-mark">✦</span></div>
 
-                <section class="contract__enchants" aria-label="Encantamentos Vinculados">
-                  <h4 class="contract__enchants-title" data-i18n="contracts.perks.title">Encantamentos Vinculados</h4>
-                  <p class="contract__enchants-sub" data-i18n="contracts.perks.sub">Selados neste pacto — um artefato digital completo, não apenas um site.</p>
-                  <div class="contract__enchant-grid">
-                    <div class="contract__enchant-col">
-                      <h5 class="contract__enchant-cat"><span class="contract__enchant-cat-glyph" aria-hidden="true">✦</span><span data-i18n="contracts.perks.cat.exp">Experiência</span></h5>
-                      <ul class="contract__enchant-list">
-                        <li class="contract__enchant"><span class="contract__enchant-rune" aria-hidden="true">ᛟ</span><span class="contract__enchant-name" data-i18n="contracts.perks.exp.story">Storytelling Visual</span></li>
-                        <li class="contract__enchant"><span class="contract__enchant-rune" aria-hidden="true">ᚹ</span><span class="contract__enchant-name" data-i18n="contracts.perks.exp.anim">Animações Cinemáticas</span></li>
-                        <li class="contract__enchant"><span class="contract__enchant-rune" aria-hidden="true">ᛞ</span><span class="contract__enchant-name" data-i18n="contracts.perks.exp.theme">Modo Claro/Escuro</span></li>
-                        <li class="contract__enchant"><span class="contract__enchant-rune" aria-hidden="true">ᛗ</span><span class="contract__enchant-name" data-i18n="contracts.perks.exp.gallery">Galeria de Projetos</span></li>
-                      </ul>
-                    </div>
-                    <div class="contract__enchant-col">
-                      <h5 class="contract__enchant-cat"><span class="contract__enchant-cat-glyph" aria-hidden="true">✦</span><span data-i18n="contracts.perks.cat.delivery">Entrega Profissional</span></h5>
-                      <ul class="contract__enchant-list">
-                        <li class="contract__enchant"><span class="contract__enchant-rune" aria-hidden="true">ᚱ</span><span class="contract__enchant-name" data-i18n="contracts.perks.del.deploy">Deploy Profissional</span></li>
-                        <li class="contract__enchant"><span class="contract__enchant-rune" aria-hidden="true">ᛉ</span><span class="contract__enchant-name" data-i18n="contracts.perks.del.ssl">Certificado SSL (HTTPS)</span></li>
-                        <li class="contract__enchant"><span class="contract__enchant-rune" aria-hidden="true">ᛊ</span><span class="contract__enchant-name" data-i18n="contracts.perks.del.responsive">Responsividade Mobile</span></li>
-                        <li class="contract__enchant"><span class="contract__enchant-rune" aria-hidden="true">ᚲ</span><span class="contract__enchant-name" data-i18n="contracts.perks.del.seo">SEO Inicial</span></li>
-                        <li class="contract__enchant"><span class="contract__enchant-rune" aria-hidden="true">ᚷ</span><span class="contract__enchant-name" data-i18n="contracts.perks.del.domain">Configuração de Domínio</span></li>
-                        <li class="contract__enchant"><span class="contract__enchant-rune" aria-hidden="true">ᚾ</span><span class="contract__enchant-name" data-i18n="contracts.perks.del.support">Suporte Inicial</span></li>
-                      </ul>
-                    </div>
-                  </div>
+                <section class="contract__enchants contract__enchants--powers" aria-label="Poderes Exclusivos">
+                  <h4 class="contract__enchants-title" data-i18n="contracts.exclusive">Poderes Exclusivos</h4>
+                  <p class="contract__enchants-sub" data-i18n="contracts.s3.psub">Para aventureiros que desejam mais do que apenas presença digital — a primeira experiência verdadeiramente personalizada.</p>
+                  <ul class="contract__enchant-list contract__power-list">
+                    <li class="contract__enchant"><span class="contract__power-check" aria-hidden="true">✓</span><span class="contract__enchant-name" data-i18n="contracts.s3.p1">Storytelling Visual</span></li>
+                    <li class="contract__enchant"><span class="contract__power-check" aria-hidden="true">✓</span><span class="contract__enchant-name" data-i18n="contracts.s3.p2">Identidade Visual Personalizada</span></li>
+                    <li class="contract__enchant"><span class="contract__power-check" aria-hidden="true">✓</span><span class="contract__enchant-name" data-i18n="contracts.s3.p3">Galeria de Projetos</span></li>
+                    <li class="contract__enchant"><span class="contract__power-check" aria-hidden="true">✓</span><span class="contract__enchant-name" data-i18n="contracts.s3.p4">Modo Claro/Escuro</span></li>
+                    <li class="contract__enchant"><span class="contract__power-check" aria-hidden="true">✓</span><span class="contract__enchant-name" data-i18n="contracts.s3.p5">Microinterações</span></li>
+                    <li class="contract__enchant"><span class="contract__power-check" aria-hidden="true">✓</span><span class="contract__enchant-name" data-i18n="contracts.s3.p6">Efeitos Visuais Leves</span></li>
+                    <li class="contract__enchant"><span class="contract__power-check" aria-hidden="true">✓</span><span class="contract__enchant-name" data-i18n="contracts.s3.p7">Experiência mais imersiva</span></li>
+                  </ul>
                 </section>
 
                 <a class="contract__cta" href="#portal">
@@ -1225,10 +1517,6 @@
                   <div>
                     <dt data-i18n="contracts.tech">Tecnologias</dt>
                     <dd data-i18n="contracts.s4.tech">Node.js · Python · n8n · LLMs · APIs</dd>
-                  </div>
-                  <div>
-                    <dt data-i18n="contracts.delivery">Prazo Estimado</dt>
-                    <dd data-i18n="contracts.s4.delivery">VII a XX dias · ☾</dd>
                   </div>
                 </dl>
 
@@ -1291,33 +1579,28 @@
                   </ul>
                 </section>
 
+                <div class="contract__fit">
+                  <p class="contract__fit-row">
+                    <span class="contract__fit-key" data-i18n="contracts.fit">Ideal para</span>
+                    <span class="contract__fit-val" data-i18n="contracts.s4.fit">Marcas em crescimento · Startups · Produtos digitais</span>
+                  </p>
+                  <p class="contract__fit-eta" data-i18n="contracts.s4.eta">⧖ 4–6 semanas</p>
+                </div>
+
                 <div class="contract__divider" aria-hidden="true"><span class="contract__divider-mark">✦</span></div>
 
-                <section class="contract__enchants" aria-label="Encantamentos Vinculados">
-                  <h4 class="contract__enchants-title" data-i18n="contracts.perks.title">Encantamentos Vinculados</h4>
-                  <p class="contract__enchants-sub" data-i18n="contracts.perks.sub">Selados neste pacto — um artefato digital completo, não apenas um site.</p>
-                  <div class="contract__enchant-grid">
-                    <div class="contract__enchant-col">
-                      <h5 class="contract__enchant-cat"><span class="contract__enchant-cat-glyph" aria-hidden="true">✦</span><span data-i18n="contracts.perks.cat.exp">Experiência</span></h5>
-                      <ul class="contract__enchant-list">
-                        <li class="contract__enchant"><span class="contract__enchant-rune" aria-hidden="true">ᛟ</span><span class="contract__enchant-name" data-i18n="contracts.perks.exp.story">Storytelling Visual</span></li>
-                        <li class="contract__enchant"><span class="contract__enchant-rune" aria-hidden="true">ᚹ</span><span class="contract__enchant-name" data-i18n="contracts.perks.exp.anim">Animações Cinemáticas</span></li>
-                        <li class="contract__enchant"><span class="contract__enchant-rune" aria-hidden="true">ᛞ</span><span class="contract__enchant-name" data-i18n="contracts.perks.exp.theme">Modo Claro/Escuro</span></li>
-                        <li class="contract__enchant"><span class="contract__enchant-rune" aria-hidden="true">ᛗ</span><span class="contract__enchant-name" data-i18n="contracts.perks.exp.gallery">Galeria de Projetos</span></li>
-                      </ul>
-                    </div>
-                    <div class="contract__enchant-col">
-                      <h5 class="contract__enchant-cat"><span class="contract__enchant-cat-glyph" aria-hidden="true">✦</span><span data-i18n="contracts.perks.cat.delivery">Entrega Profissional</span></h5>
-                      <ul class="contract__enchant-list">
-                        <li class="contract__enchant"><span class="contract__enchant-rune" aria-hidden="true">ᚱ</span><span class="contract__enchant-name" data-i18n="contracts.perks.del.deploy">Deploy Profissional</span></li>
-                        <li class="contract__enchant"><span class="contract__enchant-rune" aria-hidden="true">ᛉ</span><span class="contract__enchant-name" data-i18n="contracts.perks.del.ssl">Certificado SSL (HTTPS)</span></li>
-                        <li class="contract__enchant"><span class="contract__enchant-rune" aria-hidden="true">ᛊ</span><span class="contract__enchant-name" data-i18n="contracts.perks.del.responsive">Responsividade Mobile</span></li>
-                        <li class="contract__enchant"><span class="contract__enchant-rune" aria-hidden="true">ᚲ</span><span class="contract__enchant-name" data-i18n="contracts.perks.del.seo">SEO Inicial</span></li>
-                        <li class="contract__enchant"><span class="contract__enchant-rune" aria-hidden="true">ᚷ</span><span class="contract__enchant-name" data-i18n="contracts.perks.del.domain">Configuração de Domínio</span></li>
-                        <li class="contract__enchant"><span class="contract__enchant-rune" aria-hidden="true">ᚾ</span><span class="contract__enchant-name" data-i18n="contracts.perks.del.support">Suporte Inicial</span></li>
-                      </ul>
-                    </div>
-                  </div>
+                <section class="contract__enchants contract__enchants--powers" aria-label="Poderes Exclusivos">
+                  <h4 class="contract__enchants-title" data-i18n="contracts.exclusive">Poderes Exclusivos</h4>
+                  <p class="contract__enchants-sub" data-i18n="contracts.s4.psub">Projetado para marcas que desejam causar impacto memorável.</p>
+                  <ul class="contract__enchant-list contract__power-list">
+                    <li class="contract__enchant contract__enchant--inherit"><span class="contract__power-check" aria-hidden="true">✦</span><span class="contract__enchant-name" data-i18n="contracts.s4.p1">Tudo do Contrato Raro</span></li>
+                    <li class="contract__enchant"><span class="contract__power-check" aria-hidden="true">✓</span><span class="contract__enchant-name" data-i18n="contracts.s4.p2">Animações Cinemáticas</span></li>
+                    <li class="contract__enchant"><span class="contract__power-check" aria-hidden="true">✓</span><span class="contract__enchant-name" data-i18n="contracts.s4.p3">Seções Interativas</span></li>
+                    <li class="contract__enchant"><span class="contract__power-check" aria-hidden="true">✓</span><span class="contract__enchant-name" data-i18n="contracts.s4.p4">Automações e Integrações</span></li>
+                    <li class="contract__enchant"><span class="contract__power-check" aria-hidden="true">✓</span><span class="contract__enchant-name" data-i18n="contracts.s4.p5">Componentes Personalizados</span></li>
+                    <li class="contract__enchant"><span class="contract__power-check" aria-hidden="true">✓</span><span class="contract__enchant-name" data-i18n="contracts.s4.p6">Experiência Narrativa Avançada</span></li>
+                    <li class="contract__enchant"><span class="contract__power-check" aria-hidden="true">✓</span><span class="contract__enchant-name" data-i18n="contracts.s4.p7">Design Exclusivo</span></li>
+                  </ul>
                 </section>
 
                 <a class="contract__cta" href="#portal">
@@ -1372,10 +1655,6 @@
                   <div>
                     <dt data-i18n="contracts.tech">Tecnologias</dt>
                     <dd data-i18n="contracts.s5.tech">Stack escolhida sob medida para o desafio</dd>
-                  </div>
-                  <div>
-                    <dt data-i18n="contracts.delivery">Prazo Estimado</dt>
-                    <dd data-i18n="contracts.s5.delivery">A combinar · ☾☾☾</dd>
                   </div>
                 </dl>
 
@@ -1437,33 +1716,28 @@
                   </ul>
                 </section>
 
+                <div class="contract__fit">
+                  <p class="contract__fit-row">
+                    <span class="contract__fit-key" data-i18n="contracts.fit">Ideal para</span>
+                    <span class="contract__fit-val" data-i18n="contracts.s5.fit">Empresas premium · Projetos de marca · Visões únicas</span>
+                  </p>
+                  <p class="contract__fit-eta" data-i18n="contracts.s5.eta">⧖ 6–8 semanas</p>
+                </div>
+
                 <div class="contract__divider" aria-hidden="true"><span class="contract__divider-mark">✦</span></div>
 
-                <section class="contract__enchants" aria-label="Encantamentos Vinculados">
-                  <h4 class="contract__enchants-title" data-i18n="contracts.perks.title">Encantamentos Vinculados</h4>
-                  <p class="contract__enchants-sub" data-i18n="contracts.perks.sub">Selados neste pacto — um artefato digital completo, não apenas um site.</p>
-                  <div class="contract__enchant-grid">
-                    <div class="contract__enchant-col">
-                      <h5 class="contract__enchant-cat"><span class="contract__enchant-cat-glyph" aria-hidden="true">✦</span><span data-i18n="contracts.perks.cat.exp">Experiência</span></h5>
-                      <ul class="contract__enchant-list">
-                        <li class="contract__enchant"><span class="contract__enchant-rune" aria-hidden="true">ᛟ</span><span class="contract__enchant-name" data-i18n="contracts.perks.exp.story">Storytelling Visual</span></li>
-                        <li class="contract__enchant"><span class="contract__enchant-rune" aria-hidden="true">ᚹ</span><span class="contract__enchant-name" data-i18n="contracts.perks.exp.anim">Animações Cinemáticas</span></li>
-                        <li class="contract__enchant"><span class="contract__enchant-rune" aria-hidden="true">ᛞ</span><span class="contract__enchant-name" data-i18n="contracts.perks.exp.theme">Modo Claro/Escuro</span></li>
-                        <li class="contract__enchant"><span class="contract__enchant-rune" aria-hidden="true">ᛗ</span><span class="contract__enchant-name" data-i18n="contracts.perks.exp.gallery">Galeria de Projetos</span></li>
-                      </ul>
-                    </div>
-                    <div class="contract__enchant-col">
-                      <h5 class="contract__enchant-cat"><span class="contract__enchant-cat-glyph" aria-hidden="true">✦</span><span data-i18n="contracts.perks.cat.delivery">Entrega Profissional</span></h5>
-                      <ul class="contract__enchant-list">
-                        <li class="contract__enchant"><span class="contract__enchant-rune" aria-hidden="true">ᚱ</span><span class="contract__enchant-name" data-i18n="contracts.perks.del.deploy">Deploy Profissional</span></li>
-                        <li class="contract__enchant"><span class="contract__enchant-rune" aria-hidden="true">ᛉ</span><span class="contract__enchant-name" data-i18n="contracts.perks.del.ssl">Certificado SSL (HTTPS)</span></li>
-                        <li class="contract__enchant"><span class="contract__enchant-rune" aria-hidden="true">ᛊ</span><span class="contract__enchant-name" data-i18n="contracts.perks.del.responsive">Responsividade Mobile</span></li>
-                        <li class="contract__enchant"><span class="contract__enchant-rune" aria-hidden="true">ᚲ</span><span class="contract__enchant-name" data-i18n="contracts.perks.del.seo">SEO Inicial</span></li>
-                        <li class="contract__enchant"><span class="contract__enchant-rune" aria-hidden="true">ᚷ</span><span class="contract__enchant-name" data-i18n="contracts.perks.del.domain">Configuração de Domínio</span></li>
-                        <li class="contract__enchant"><span class="contract__enchant-rune" aria-hidden="true">ᚾ</span><span class="contract__enchant-name" data-i18n="contracts.perks.del.support">Suporte Inicial</span></li>
-                      </ul>
-                    </div>
-                  </div>
+                <section class="contract__enchants contract__enchants--powers" aria-label="Poderes Exclusivos">
+                  <h4 class="contract__enchants-title" data-i18n="contracts.exclusive">Poderes Exclusivos</h4>
+                  <p class="contract__enchants-sub" data-i18n="contracts.s5.psub">Uma verdadeira relíquia digital criada especificamente para a sua identidade.</p>
+                  <ul class="contract__enchant-list contract__power-list">
+                    <li class="contract__enchant contract__enchant--inherit"><span class="contract__power-check" aria-hidden="true">✦</span><span class="contract__enchant-name" data-i18n="contracts.s5.p1">Tudo do Contrato Épico</span></li>
+                    <li class="contract__enchant"><span class="contract__power-check" aria-hidden="true">✓</span><span class="contract__enchant-name" data-i18n="contracts.s5.p2">Direção Artística Dedicada</span></li>
+                    <li class="contract__enchant"><span class="contract__power-check" aria-hidden="true">✓</span><span class="contract__enchant-name" data-i18n="contracts.s5.p3">Storytelling Completo da Marca</span></li>
+                    <li class="contract__enchant"><span class="contract__power-check" aria-hidden="true">✓</span><span class="contract__enchant-name" data-i18n="contracts.s5.p4">UX Personalizada</span></li>
+                    <li class="contract__enchant"><span class="contract__power-check" aria-hidden="true">✓</span><span class="contract__enchant-name" data-i18n="contracts.s5.p5">Consultoria Estratégica</span></li>
+                    <li class="contract__enchant"><span class="contract__power-check" aria-hidden="true">✓</span><span class="contract__enchant-name" data-i18n="contracts.s5.p6">Componentes Exclusivos</span></li>
+                    <li class="contract__enchant"><span class="contract__power-check" aria-hidden="true">✓</span><span class="contract__enchant-name" data-i18n="contracts.s5.p7">Estrutura Visual Sob Medida</span></li>
+                  </ul>
                 </section>
 
                 <a class="contract__cta" href="#portal">
@@ -1518,10 +1792,6 @@
                     <dt data-i18n="contracts.tech">Tecnologias</dt>
                     <dd data-i18n="contracts.s6.tech">HTML · CSS · JS · GSAP · Three.js (opcional)</dd>
                   </div>
-                  <div>
-                    <dt data-i18n="contracts.delivery">Prazo Estimado</dt>
-                    <dd data-i18n="contracts.s6.delivery">X a XV dias · ☾</dd>
-                  </div>
                 </dl>
 
                 <aside class="contract__relic" aria-label="Artefato Exemplar — O Arquivo Arcano">
@@ -1572,44 +1842,39 @@
                     </li>
                     <li>
                       <span class="contract__spec-name" data-i18n="contracts.spec.diff">Dificuldade</span>
-                      <span class="contract__spec-val contract__stars" aria-label="3 de 5">★★★<span
-                          class="off">★★</span></span>
+                      <span class="contract__spec-val contract__stars" aria-label="5 de 5">★★★★★</span>
                     </li>
                     <li>
                       <span class="contract__spec-name" data-i18n="contracts.spec.power">Poder</span>
                       <span class="contract__power-bar"><span class="contract__power-fill"
-                          style="--w:68%"></span></span>
+                          style="--w:100%"></span></span>
                     </li>
                   </ul>
                 </section>
 
+                <div class="contract__fit">
+                  <p class="contract__fit-row">
+                    <span class="contract__fit-key" data-i18n="contracts.fit">Ideal para</span>
+                    <span class="contract__fit-val" data-i18n="contracts.s6.fit">Marcas visionárias · Experiências de marca · Lançamentos lendários</span>
+                  </p>
+                  <p class="contract__fit-eta" data-i18n="contracts.s6.eta">⧖ 6–10 semanas</p>
+                </div>
+
                 <div class="contract__divider" aria-hidden="true"><span class="contract__divider-mark">✦</span></div>
 
-                <section class="contract__enchants" aria-label="Encantamentos Vinculados">
-                  <h4 class="contract__enchants-title" data-i18n="contracts.perks.title">Encantamentos Vinculados</h4>
-                  <p class="contract__enchants-sub" data-i18n="contracts.perks.sub">Selados neste pacto — um artefato digital completo, não apenas um site.</p>
-                  <div class="contract__enchant-grid">
-                    <div class="contract__enchant-col">
-                      <h5 class="contract__enchant-cat"><span class="contract__enchant-cat-glyph" aria-hidden="true">✦</span><span data-i18n="contracts.perks.cat.exp">Experiência</span></h5>
-                      <ul class="contract__enchant-list">
-                        <li class="contract__enchant"><span class="contract__enchant-rune" aria-hidden="true">ᛟ</span><span class="contract__enchant-name" data-i18n="contracts.perks.exp.story">Storytelling Visual</span></li>
-                        <li class="contract__enchant"><span class="contract__enchant-rune" aria-hidden="true">ᚹ</span><span class="contract__enchant-name" data-i18n="contracts.perks.exp.anim">Animações Cinemáticas</span></li>
-                        <li class="contract__enchant"><span class="contract__enchant-rune" aria-hidden="true">ᛞ</span><span class="contract__enchant-name" data-i18n="contracts.perks.exp.theme">Modo Claro/Escuro</span></li>
-                        <li class="contract__enchant"><span class="contract__enchant-rune" aria-hidden="true">ᛗ</span><span class="contract__enchant-name" data-i18n="contracts.perks.exp.gallery">Galeria de Projetos</span></li>
-                      </ul>
-                    </div>
-                    <div class="contract__enchant-col">
-                      <h5 class="contract__enchant-cat"><span class="contract__enchant-cat-glyph" aria-hidden="true">✦</span><span data-i18n="contracts.perks.cat.delivery">Entrega Profissional</span></h5>
-                      <ul class="contract__enchant-list">
-                        <li class="contract__enchant"><span class="contract__enchant-rune" aria-hidden="true">ᚱ</span><span class="contract__enchant-name" data-i18n="contracts.perks.del.deploy">Deploy Profissional</span></li>
-                        <li class="contract__enchant"><span class="contract__enchant-rune" aria-hidden="true">ᛉ</span><span class="contract__enchant-name" data-i18n="contracts.perks.del.ssl">Certificado SSL (HTTPS)</span></li>
-                        <li class="contract__enchant"><span class="contract__enchant-rune" aria-hidden="true">ᛊ</span><span class="contract__enchant-name" data-i18n="contracts.perks.del.responsive">Responsividade Mobile</span></li>
-                        <li class="contract__enchant"><span class="contract__enchant-rune" aria-hidden="true">ᚲ</span><span class="contract__enchant-name" data-i18n="contracts.perks.del.seo">SEO Inicial</span></li>
-                        <li class="contract__enchant"><span class="contract__enchant-rune" aria-hidden="true">ᚷ</span><span class="contract__enchant-name" data-i18n="contracts.perks.del.domain">Configuração de Domínio</span></li>
-                        <li class="contract__enchant"><span class="contract__enchant-rune" aria-hidden="true">ᚾ</span><span class="contract__enchant-name" data-i18n="contracts.perks.del.support">Suporte Inicial</span></li>
-                      </ul>
-                    </div>
-                  </div>
+                <section class="contract__enchants contract__enchants--powers" aria-label="Poderes Exclusivos">
+                  <h4 class="contract__enchants-title" data-i18n="contracts.exclusive">Poderes Exclusivos</h4>
+                  <p class="contract__enchants-sub" data-i18n="contracts.s6.psub">Não é apenas um site. É uma obra digital construída para deixar um legado.</p>
+                  <ul class="contract__enchant-list contract__power-list">
+                    <li class="contract__enchant contract__enchant--inherit"><span class="contract__power-check" aria-hidden="true">✦</span><span class="contract__enchant-name" data-i18n="contracts.s6.p1">Tudo do Contrato Lendário</span></li>
+                    <li class="contract__enchant"><span class="contract__power-check" aria-hidden="true">✓</span><span class="contract__enchant-name" data-i18n="contracts.s6.p2">Projeto 100% Sob Medida</span></li>
+                    <li class="contract__enchant"><span class="contract__power-check" aria-hidden="true">✓</span><span class="contract__enchant-name" data-i18n="contracts.s6.p3">Integrações com IA</span></li>
+                    <li class="contract__enchant"><span class="contract__power-check" aria-hidden="true">✓</span><span class="contract__enchant-name" data-i18n="contracts.s6.p4">Recursos Premium Exclusivos</span></li>
+                    <li class="contract__enchant"><span class="contract__power-check" aria-hidden="true">✓</span><span class="contract__enchant-name" data-i18n="contracts.s6.p5">Prioridade Máxima</span></li>
+                    <li class="contract__enchant"><span class="contract__power-check" aria-hidden="true">✓</span><span class="contract__enchant-name" data-i18n="contracts.s6.p6">Suporte Estendido</span></li>
+                    <li class="contract__enchant"><span class="contract__power-check" aria-hidden="true">✓</span><span class="contract__enchant-name" data-i18n="contracts.s6.p7">Sessões de Planejamento</span></li>
+                    <li class="contract__enchant"><span class="contract__power-check" aria-hidden="true">✓</span><span class="contract__enchant-name" data-i18n="contracts.s6.p8">Arquitetura Visual Única</span></li>
+                  </ul>
                 </section>
 
                 <a class="contract__cta" href="#portal">
@@ -1649,6 +1914,162 @@
         <p class="contracts__seal-text" data-i18n="contracts.seal">Selo do Atelier · Forjado em MMXXVI</p>
         <span class="contracts__seal-line" aria-hidden="true"></span>
       </footer>
+    </section>
+
+    <!-- ======================================================
+         SECTION · RELATOS DO REINO — testimonials (parchment slider)
+         ────────────────────────────────────────────────────────────
+         A single rotating parchment quote (not a 3-card carousel) with
+         prev/next runes + dots, driven by enhancements.js. Avatars are
+         wax-seal monograms (no stock faces). The three slides below are
+         ⚠ PLACEHOLDERS — replace text/name/role with real relatos.
+         The component already works with 1..n slides (nav/dots auto-
+         hide when there is a single slide).
+    ====================================================== -->
+    <section id="testimonials" class="relatos" aria-labelledby="relatos-title">
+      <header class="section-head section-head--center">
+        <p class="section-head__eyebrow" data-i18n="relatos.eyebrow">VOZES DOS QUE CRUZARAM O REINO</p>
+        <h2 id="relatos-title" class="section-head__title" data-i18n="relatos.title">Relatos do Reino</h2>
+        <p class="section-head__lede" data-i18n="relatos.lede">
+          Pergaminhos deixados por quem já forjou um pacto com o Arquiteto.
+        </p>
+      </header>
+
+      <div class="relatos__stage" data-relatos>
+        <button class="relatos__nav relatos__nav--prev" type="button"
+                data-relatos-prev data-i18n-aria="relatos.prev" aria-label="Relato anterior">
+          <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+            <path d="M15 5 L8 12 L15 19" fill="none" stroke="currentColor" stroke-width="1.6"
+              stroke-linecap="round" stroke-linejoin="round" />
+          </svg>
+        </button>
+
+        <div class="relatos__track" data-relatos-track aria-live="polite">
+          <!-- ⚠ PLACEHOLDER RELATOS — substitua por depoimentos reais.
+               Each relato is styled as a leaf from the Royal Archive:
+               elven corner filigree, a gilt rule and a wax-seal monogram. -->
+          <figure class="relato is-active" data-relato role="group" aria-roledescription="depoimento" aria-label="1 de 3">
+            <span class="relato__corner relato__corner--tl" aria-hidden="true"></span>
+            <span class="relato__corner relato__corner--tr" aria-hidden="true"></span>
+            <span class="relato__corner relato__corner--bl" aria-hidden="true"></span>
+            <span class="relato__corner relato__corner--br" aria-hidden="true"></span>
+            <span class="relato__quote-mark" aria-hidden="true">“</span>
+            <blockquote class="relato__text" data-i18n="relatos.t1.text">
+              Precisávamos de um site que não se parecesse com nenhum outro. Carlos transformou a nossa marca
+              numa experiência que os clientes realmente lembram.
+            </blockquote>
+            <div class="relato__rule" aria-hidden="true"><span>✦</span></div>
+            <figcaption class="relato__by">
+              <span class="relato__avatar" aria-hidden="true">MA</span>
+              <span class="relato__who">
+                <span class="relato__name" data-i18n="relatos.t1.name">Marina Alvares</span>
+                <span class="relato__role" data-i18n="relatos.t1.role">Fundadora · Estúdio Criativo</span>
+              </span>
+            </figcaption>
+          </figure>
+
+          <figure class="relato" data-relato role="group" aria-roledescription="depoimento" aria-label="2 de 3">
+            <span class="relato__corner relato__corner--tl" aria-hidden="true"></span>
+            <span class="relato__corner relato__corner--tr" aria-hidden="true"></span>
+            <span class="relato__corner relato__corner--bl" aria-hidden="true"></span>
+            <span class="relato__corner relato__corner--br" aria-hidden="true"></span>
+            <span class="relato__quote-mark" aria-hidden="true">“</span>
+            <blockquote class="relato__text" data-i18n="relatos.t2.text">
+              Organizado, comunicativo e obcecado por detalhe. A interface ficou rápida, acessível e com uma
+              direção de arte impecável do início ao fim.
+            </blockquote>
+            <div class="relato__rule" aria-hidden="true"><span>✦</span></div>
+            <figcaption class="relato__by">
+              <span class="relato__avatar" aria-hidden="true">TB</span>
+              <span class="relato__who">
+                <span class="relato__name" data-i18n="relatos.t2.name">Tiago Bernardes</span>
+                <span class="relato__role" data-i18n="relatos.t2.role">Product Manager</span>
+              </span>
+            </figcaption>
+          </figure>
+
+          <figure class="relato" data-relato role="group" aria-roledescription="depoimento" aria-label="3 de 3">
+            <span class="relato__corner relato__corner--tl" aria-hidden="true"></span>
+            <span class="relato__corner relato__corner--tr" aria-hidden="true"></span>
+            <span class="relato__corner relato__corner--bl" aria-hidden="true"></span>
+            <span class="relato__corner relato__corner--br" aria-hidden="true"></span>
+            <span class="relato__quote-mark" aria-hidden="true">“</span>
+            <blockquote class="relato__text" data-i18n="relatos.t3.text">
+              O storytelling do projeto aumentou o tempo de permanência e as conversões. Recomendo trabalhar
+              com ele sem hesitar.
+            </blockquote>
+            <div class="relato__rule" aria-hidden="true"><span>✦</span></div>
+            <figcaption class="relato__by">
+              <span class="relato__avatar" aria-hidden="true">HQ</span>
+              <span class="relato__who">
+                <span class="relato__name" data-i18n="relatos.t3.name">Helena Quintela</span>
+                <span class="relato__role" data-i18n="relatos.t3.role">Coordenadora de Marketing</span>
+              </span>
+            </figcaption>
+          </figure>
+        </div>
+
+        <button class="relatos__nav relatos__nav--next" type="button"
+                data-relatos-next data-i18n-aria="relatos.next" aria-label="Próximo relato">
+          <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+            <path d="M9 5 L16 12 L9 19" fill="none" stroke="currentColor" stroke-width="1.6"
+              stroke-linecap="round" stroke-linejoin="round" />
+          </svg>
+        </button>
+
+        <div class="relatos__dots" role="tablist" aria-label="Selecionar relato" data-relatos-dots></div>
+      </div>
+    </section>
+
+    <!-- ======================================================
+         SECTION · INVOCAÇÃO FINAL — noble closing invitation.
+         Reframed (June 2026) as the final page of an epic tome:
+         compact, ornamented with elven rules, placed right before
+         the contact portal so the journey closes into the call.
+    ====================================================== -->
+    <section id="invoke" class="invoke" aria-labelledby="invoke-title">
+      <div class="invoke__veil" aria-hidden="true"></div>
+      <div class="invoke__inner">
+        <div class="invoke__rule invoke__rule--top" aria-hidden="true">
+          <span class="invoke__rule-line"></span>
+          <span class="invoke__rule-glyph">
+            <svg viewBox="0 0 40 40" width="30" height="30">
+              <circle cx="20" cy="20" r="15" fill="none" stroke="currentColor" stroke-width="0.8" opacity="0.6" />
+              <path d="M20 6 L22.4 17.6 L34 20 L22.4 22.4 L20 34 L17.6 22.4 L6 20 L17.6 17.6 Z"
+                fill="currentColor" opacity="0.82" />
+            </svg>
+          </span>
+          <span class="invoke__rule-line"></span>
+        </div>
+        <p class="invoke__eyebrow" data-i18n="invoke.eyebrow">O PACTO FINAL</p>
+        <h2 id="invoke-title" class="invoke__title" data-i18n="invoke.title">Vamos construir algo memorável?</h2>
+        <p class="invoke__lede" data-i18n="invoke.lede">
+          Transformo ideias em experiências digitais com identidade própria.
+        </p>
+        <nav class="invoke__actions" aria-label="Conversão final">
+          <a class="invoke__cta invoke__cta--primary" href="#contracts" id="invoke-cta-start">
+            <span class="invoke__cta-label" data-i18n="invoke.cta.start">Iniciar Projeto</span>
+            <svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true">
+              <path d="M3 8 H13 M9 4 L13 8 L9 12" fill="none" stroke="currentColor" stroke-width="1.5"
+                stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+          </a>
+          <a class="invoke__cta invoke__cta--ghost" href="#portal" id="invoke-cta-contact">
+            <span class="invoke__cta-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="13" height="13">
+                <path d="M3 6 L21 6 L21 18 L3 18 Z M3 6 L12 13 L21 6" fill="none"
+                  stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" />
+              </svg>
+            </span>
+            <span class="invoke__cta-label" data-i18n="invoke.cta.contact">Entrar em Contato</span>
+          </a>
+        </nav>
+        <div class="invoke__rule invoke__rule--bottom" aria-hidden="true">
+          <span class="invoke__rule-line"></span>
+          <span class="invoke__rule-tail">❦</span>
+          <span class="invoke__rule-line"></span>
+        </div>
+      </div>
     </section>
 
     <!-- ======================================================
@@ -3149,6 +3570,7 @@
   <script src="src/js/knowledgetree.js" defer></script>
   <script src="src/js/codex.js" defer></script>
   <script src="src/js/convergence.js" defer></script>
+  <script src="src/js/enhancements.js" defer></script>
   <script src="src/js/welcome.js" defer></script>
   <script src="src/js/main.js" defer></script>
 
