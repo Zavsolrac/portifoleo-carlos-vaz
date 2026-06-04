@@ -1368,19 +1368,11 @@ const SkillTree = (() => {
   function armAwakening() {
     if (reducedMotion) { markAllRevealed(); return false; }
 
-    // In dev we always replay so the sequence can be witnessed on every
-    // reload; in production it runs once per browser session.
-    const dev = isLocalDev();
-    let firstThisSession = dev;
-    try {
-      if (dev) {
-        sessionStorage.setItem(AWAKEN_SESSION_KEY, "1");
-      } else if (!sessionStorage.getItem(AWAKEN_SESSION_KEY)) {
-        sessionStorage.setItem(AWAKEN_SESSION_KEY, "1");
-        firstThisSession = true;
-      }
-    } catch (_e) { firstThisSession = dev; }
-    if (!firstThisSession) { markAllRevealed(); return false; }
+    // Product direction (June 2026): the Arcane Core awakening now plays
+    // on EVERY load — first visit and every refresh alike — so it is no
+    // longer gated behind a once-per-session flag. (isLocalDev /
+    // AWAKEN_SESSION_KEY are kept only for the replay helper API.)
+    try { sessionStorage.setItem(AWAKEN_SESSION_KEY, "1"); } catch (_e) { /* ignore */ }
 
     // Cinematic timing (ms). Total settle ≈ 2.8s.
     const P1         = 540;   // Phase I — the core awakens

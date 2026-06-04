@@ -255,44 +255,30 @@
     templateCache = el.cloneNode(true);
 
     const intent = readURLIntent();
-    const dev = isLocalDev();
 
     if (intent === "reset" && store) {
       try { store.removeItem(STORAGE_KEY); } catch (_e) { /* ignore */ }
     }
 
-    // Returning visitor (no explicit force/reset, and NOT in local
-    // dev): silently remove the node and exit.
-    if (intent !== "force" && intent !== "reset" && !dev &&
-        store && store.getItem(STORAGE_KEY)) {
-      el.remove();
-      // No welcome to wait for: release the awakening at once so the
-      // skill-tree (which armed a dormant seed and is already listening)
-      // plays it on a clear screen rather than stalling on the safety net.
-      window.dispatchEvent(new CustomEvent("cv-welcome-awaken"));
-      return;
-    }
-
-    // In local dev we do NOT persist the seen-flag, so every reload
-    // replays the welcome until the site is deployed to a real host.
-    const persist = !dev && intent !== "force";
-
+    // Product direction (June 2026): the welcome message and the Arcane
+    // Core awakening now play on EVERY visit AND every page refresh — not
+    // just the first time. We therefore no longer skip returning visitors
+    // and no longer persist a "seen" flag (persist:false). The localStorage
+    // helpers stay only for the ArcaneWelcome.reset()/isSeen() dev API.
     if (window.console && console.info) {
       console.info(
         "%c✦ Arcane Welcome",
         "color:#FFD089;font-weight:600;letter-spacing:0.08em",
-        dev
-          ? "(local dev mode · always replaying)"
-          : (store && store.getItem(STORAGE_KEY) ? "(forced replay)" : "(first visit)")
+        "(plays on every load)"
       );
       console.info(
         "%c   Replay anytime:",
         "color:#C9986A",
-        "ArcaneWelcome.show()  ·  ArcaneWelcome.reset()  ·  ?welcome=show"
+        "ArcaneWelcome.show()  ·  ?welcome=show"
       );
     }
 
-    play({ persist });
+    play({ persist: false });
   }
 
   /** Public dev/test API on the global scope.
