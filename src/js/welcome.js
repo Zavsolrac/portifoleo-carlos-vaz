@@ -35,12 +35,21 @@
     }
   }
 
+  /** Touch / narrow viewports — per-char lava CSS costs ~2 FPS on device. */
+  function isMobileWelcome() {
+    return window.matchMedia("(hover: none) and (pointer: coarse)").matches ||
+      window.matchMedia("(max-width: 767px)").matches;
+  }
+
   /** Phase durations tuned for the active motion preference. */
   function getTimings() {
     const reduce = window.matchMedia &&
       window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     if (reduce) {
       return { materialize: 250, idle: 7500, dissolve: 600 };
+    }
+    if (isMobileWelcome()) {
+      return { materialize: 450, idle: 3200, dissolve: 700 };
     }
     // Bumped to 2s to comfortably cover the char-by-char cascade
     // (last char of the title finishes ~1.85s in).
@@ -188,7 +197,7 @@
     }
     if (templateCache) {
       const clone = templateCache.cloneNode(true);
-      clone.classList.remove("is-active", "is-leaving", "is-done");
+      clone.classList.remove("is-active", "is-leaving", "is-done", "welcome--mobile-lite");
       clone.setAttribute("aria-hidden", "true");
       document.body.appendChild(clone);
       return clone;
@@ -201,9 +210,14 @@
     const el = getOrRestoreElement();
     if (!el) return false;
 
-    // Split text into per-character spans for the cascading
-    // animations. Idempotent — safe to call on a restored clone.
-    splitLinesIntoChars(el);
+    // Mobile: line-level fade only — ~80 `background-clip:text` spans
+    // each repainting every frame was the proven ~2 FPS bottleneck.
+    const mobileLite = isMobileWelcome();
+    if (mobileLite) {
+      el.classList.add("welcome--mobile-lite");
+    } else {
+      splitLinesIntoChars(el);
+    }
 
     const store = safeLocalStorage();
     const t = getTimings();

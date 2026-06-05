@@ -95,7 +95,10 @@ const Portal = {
       ? this.canvas.parentElement.offsetWidth
       : 480;
     const size = Math.max(280, Math.min(parentW * 0.92, 560));
-    const dpr = window.devicePixelRatio || 1;
+    const isMobile = window.matchMedia("(hover: none) and (pointer: coarse)").matches ||
+      window.matchMedia("(max-width: 767px)").matches;
+    this._mobileLite = isMobile;
+    const dpr = isMobile ? 1 : (window.devicePixelRatio || 1);
     this.canvas.width = size * dpr;
     this.canvas.height = size * dpr;
     this.canvas.style.width = size + "px";
@@ -458,7 +461,21 @@ const Portal = {
 
   animate() {
     if (document.body.classList.contains("ktree-open") || !this._inView) return;
+    const welcomeEl = document.getElementById("arcane-welcome");
+    if (this._mobileLite && welcomeEl &&
+        (welcomeEl.classList.contains("is-active") ||
+          welcomeEl.classList.contains("is-leaving"))) {
+      requestAnimationFrame(() => this.animate());
+      return;
+    }
     const now = performance.now();
+    if (this._mobileLite) {
+      this._animFrame = (this._animFrame || 0) + 1;
+      if (this._animFrame % 3 !== 0) {
+        requestAnimationFrame(() => this.animate());
+        return;
+      }
+    }
     let dt = (now - this.last) / 1000;
     this.last = now;
     if (dt > 0.1) dt = 0.1;                  // clamp after tab-switch

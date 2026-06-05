@@ -146,6 +146,7 @@ const KnowledgeTree = (() => {
   let interactUntil = 0;       // timestamp — lite render tier while panning/zooming
   let interactLite = false;    // set each frame from interactUntil / ptr.drag / desktopLite
   let desktopLite = false;     // permanent lite tier on large desktop screens (logs: full idle ≈15fps, lite ≈75fps)
+  let _scrollLockY = 0;        // preserved while body is position:fixed (ktree open)
 
   function markInteracting(ms) {
     interactUntil = Date.now() + (ms || 380);
@@ -635,6 +636,10 @@ const KnowledgeTree = (() => {
   }
 
   function drawAtmosphere() {
+    /* Opaque base so panning the camera never reveals transparent
+       canvas holes (or the main page) at the viewport edges. */
+    ctx.fillStyle = "#050a0c";
+    ctx.fillRect(0, 0, W, H);
     // base astral wash
     const cx = W * 0.46, cy = H * 0.44;
     const bg = ctx.createRadialGradient(cx, cy, 0, cx, cy, Math.hypot(W, H) * 0.6);
@@ -911,6 +916,8 @@ const KnowledgeTree = (() => {
     hovered = null; selected = null; hintDismissed = false; spores.length = 0;
     ptr.nx = 0; ptr.ny = 0; ptr.inside = false; ptr.down = false; ptr.drag = false;
     reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    _scrollLockY = window.scrollY || 0;
+    document.body.style.top = `-${_scrollLockY}px`;
     document.body.classList.add("ktree-open");
     overlay.classList.add("is-open"); overlay.setAttribute("aria-hidden", "false");
     hintEl?.classList.remove("is-dismissed"); closePanel();
@@ -932,7 +939,10 @@ const KnowledgeTree = (() => {
   }
   function finishClose() {
     open = false; closing = false;
-    overlay.setAttribute("aria-hidden", "true"); document.body.classList.remove("ktree-open", "ktree-interacting");
+    overlay.setAttribute("aria-hidden", "true");
+    document.body.classList.remove("ktree-open", "ktree-interacting");
+    document.body.style.top = "";
+    window.scrollTo(0, _scrollLockY);
     if (rafId) cancelAnimationFrame(rafId); rafId = null;
     ctx && ctx.clearRect(0, 0, W, H); spores.length = 0;
     document.querySelector("[data-ktree-open]")?.focus?.({ preventScroll: true });

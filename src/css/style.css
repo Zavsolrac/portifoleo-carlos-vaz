@@ -11619,7 +11619,16 @@ html[data-theme="light"] {
 
 /* Mobile tweaks */
 @media (max-width: 640px) {
-  .welcome__panel { top: clamp(64px, 7vh, 100px); max-width: 94vw; }
+  .welcome__panel {
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    max-width: min(94vw, 22rem);
+    max-height: min(72dvh, calc(100dvh - env(safe-area-inset-top) - env(safe-area-inset-bottom) - 2rem));
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    padding: 0.35rem 0.65rem;
+  }
   .welcome__line { font-size: clamp(0.95rem, 4vw, 1.15rem); }
   /* Keep the headline on one line on phones too: a slightly steeper
      vw slope still fits the full title across narrow viewports while
@@ -12666,6 +12675,8 @@ main {
 .ktree.is-open {
   opacity: 1;
   pointer-events: auto;
+  touch-action: none;
+  overscroll-behavior: none;
 }
 
 /* Backdrop — blurs + darkens the living page behind. The
@@ -12691,6 +12702,12 @@ main {
 
 body.ktree-open {
   overflow: hidden;
+  /* Prevent the page underneath from rubber-banding while panning
+     the Knowledge Tree — the "blanket being pulled up" effect. */
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
 }
 
 /* Suspend the body-wide skill-tree + crystal wallpaper while the
@@ -14433,14 +14450,52 @@ html[data-theme="light"] .ambience__volume-label { color: #8a5a1f; }
         mode and shrink the shadow on phones.
    ============================================================ */
 @media (hover: none) and (pointer: coarse), (max-width: 767px) {
-  /* — Welcome: cheap entrance/exit, static molten fill — */
+  /* — Welcome LITE (welcome.js adds .welcome--mobile-lite): no per-char
+     spans, no lava sweep, no motes — line-level fade only. — */
+  .welcome--mobile-lite .welcome__motes { display: none !important; }
+  .welcome--mobile-lite .welcome__veil {
+    animation: none !important;
+    opacity: 1 !important;
+  }
+  .welcome--mobile-lite.is-active .welcome__panel {
+    animation: none !important;
+    transform: translate(-50%, -50%) !important;
+  }
+  .welcome--mobile-lite .welcome__line {
+    opacity: 0;
+    color: #f4e8c6 !important;
+    -webkit-text-fill-color: #f4e8c6 !important;
+    background: none !important;
+    filter: none !important;
+    text-shadow: 0 0 8px rgba(255, 150, 70, 0.35) !important;
+    animation: cv-welcome-line-in-m 0.45s ease forwards !important;
+    animation-delay: var(--line-delay, 0s) !important;
+    will-change: auto !important;
+  }
+  .welcome--mobile-lite .welcome__title {
+    color: #ffe49a !important;
+    -webkit-text-fill-color: #ffe49a !important;
+    background: none !important;
+    white-space: normal !important;
+  }
+  .welcome--mobile-lite .welcome__star {
+    animation: cv-welcome-line-in-m 0.45s ease forwards !important;
+    animation-delay: var(--line-delay, 0s) !important;
+    filter: none !important;
+  }
+  .welcome--mobile-lite.is-leaving .welcome__line,
+  .welcome--mobile-lite.is-leaving .welcome__star {
+    animation: cv-welcome-line-out-m 0.4s ease forwards !important;
+    animation-delay: var(--leave-delay, 0s) !important;
+  }
+
+  /* Fallback if char spans exist from a cached DOM clone */
   .welcome__char {
     animation: cv-welcome-char-in-m 0.5s ease forwards !important;
     animation-delay: calc(var(--line-delay, 0s) + var(--ci, 0) * 0.02s) !important;
     filter: none !important;
     will-change: auto !important;
-    background-position: 50% 50% !important;
-    text-shadow: 0 0 5px rgba(255, 150, 70, 0.45) !important;
+    background: none !important;
   }
   .welcome.is-leaving .welcome__char,
   .welcome.is-leaving .welcome__star {
@@ -14448,7 +14503,16 @@ html[data-theme="light"] .ambience__volume-label { color: #8a5a1f; }
     animation-delay: calc(var(--leave-delay, 0s) + var(--ci, 0) * 0.015s) !important;
     filter: none !important;
   }
-  .welcome__mote { will-change: auto !important; }
+  .welcome__mote { display: none !important; will-change: auto !important; }
+
+  /* — Portal / contact: drop glass blur + blend on scroll — */
+  .portal__stage::before { mix-blend-mode: normal !important; opacity: 0.5 !important; }
+  .portal__link {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    will-change: auto !important;
+  }
+  .portal__link::before { filter: none !important; }
 
   /* — Contracts / Codex parchment: no per-frame backdrop blend — */
   .contract__book::before,
@@ -14461,6 +14525,14 @@ html[data-theme="light"] .ambience__volume-label { color: #8a5a1f; }
   .contract__book {
     box-shadow: 0 6px 18px rgba(0, 0, 0, 0.4) !important;
   }
+}
+@keyframes cv-welcome-line-in-m {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: none; }
+}
+@keyframes cv-welcome-line-out-m {
+  from { opacity: 1; transform: none; }
+  to   { opacity: 0; transform: translateY(-8px); }
 }
 @keyframes cv-welcome-char-in-m {
   from { opacity: 0; transform: translateY(8px); }

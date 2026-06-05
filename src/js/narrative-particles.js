@@ -424,6 +424,18 @@ window.NarrativeParticles = (() => {
     if (hidden) { rafId = null; return; }
     if (document.body.classList.contains("ktree-open")) { rafId = null; return; }
     rafId = requestAnimationFrame(loop);
+
+    /* Mobile: freeze the particle field while the welcome overlay is
+       on screen — form-text + near-lines still cost fill-rate on top
+       of the welcome DOM paint budget. */
+    const __welcomeEl = document.getElementById("arcane-welcome");
+    const __welcomeBusy = __welcomeEl &&
+      (__welcomeEl.classList.contains("is-active") ||
+        __welcomeEl.classList.contains("is-leaving"));
+    const __touchWall = window.matchMedia("(hover: none) and (pointer: coarse)").matches ||
+      window.matchMedia("(max-width: 767px)").matches;
+    if (__welcomeBusy && __touchWall) return;
+
     // #region agent log
     const __dbgN0 = performance.now();
     window.__npCalls = (window.__npCalls || 0) + 1;
