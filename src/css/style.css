@@ -2884,42 +2884,13 @@ html[data-theme="light"] .craft__stage[data-active="ambience"]  .craft__line[dat
 }
 
 @media (max-width: 767px) {
-  /* MOBILE TREE-HUD · compact bottom-right badge
+  /* MOBILE TREE-HUD · hidden entirely.
      -----------------------------------------------
-     Reduces the desktop panel to a slim pill that only shows the
-     mastery count + progress bar (the cluster legend, action
-     buttons and floating hint are hidden to save screen real-
-     estate). Tap-to-interact is preserved on the buttons that
-     remain — only visual chrome is removed. */
-  .tree-hud {
-    top: 4.5rem;
-    right: 0.75rem;
-    bottom: auto;
-    left: auto;
-    max-width: 220px;
-    align-items: flex-end;
-    gap: 0;
-  }
-  .tree-hud__panel {
-    padding: 0.55rem 0.85rem 0.6rem;
-    gap: 0.4rem;
-    border-radius: var(--radius-full);
-    min-width: 170px;
-    background: rgba(9, 22, 9, 0.86);
-  }
-  .tree-hud__row { gap: 0.55rem; }
-  .tree-hud__label {
-    font-size: 0.5rem;
-    letter-spacing: 0.14em;
-  }
-  .tree-hud__count { font-size: 0.7rem; }
-  .tree-hud__count strong { font-size: 0.95rem; }
-  .tree-hud__bar { height: 1.5px; }
-  /* Hide the dense pieces — they don't add value on a small screen
-     and would push the badge back into a full-width panel. */
-  .tree-hud__clusters,
-  .tree-hud__actions,
-  .tree-hud__hint { display: none; }
+     The "DOMINADO" mastery panel has no interaction on touch (its
+     hover legend / actions are desktop-only), so on phones it was
+     just chrome cluttering the top-right corner. Remove it. The
+     mastery count still tracks internally; it simply isn't shown. */
+  .tree-hud { display: none; }
 
   .tree-vault__header { padding: 0.85rem 1rem; }
 }
@@ -4447,6 +4418,14 @@ body.vault-open .merlin {
      when present (each column paints its own halo). Default falls
      back to the warm cream tone. */
   --channel-glow: var(--col-glow, rgba(229, 190, 174, 0.62));
+  /* Resting glow — each of the contact cards now carries a soft,
+     always-on halo in its region's hue so the six boxes read as lit
+     runes at rest, not flat plates. Static (no animation); hover
+     intensifies it below. */
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--channel-glow) 22%, transparent),
+    0 0 18px color-mix(in srgb, var(--channel-glow) 26%, transparent),
+    0 6px 16px rgba(0, 0, 0, 0.30);
   transition:
     transform 0.5s cubic-bezier(.16, 1, .3, 1),
     border-color 0.35s ease,
@@ -6068,7 +6047,10 @@ html.merlin-burning * { cursor: none !important; }
    ───────────────────────────────────────────────────────────── */
 .merlin__quill {
   position: relative;
-  display: inline-flex;
+  /* Hidden until the visitor taps/clicks Merlin (is-asking). Kept out
+     of flow when closed so the avatar never carries an empty gap.
+     Quotes (.merlin__scroll) are independent of this and still play. */
+  display: none;
   align-items: center;
   gap: 0.3rem;
   padding: 0.26rem 0.34rem 0.26rem 0.42rem;
@@ -6089,10 +6071,17 @@ html.merlin-burning * { cursor: none !important; }
   pointer-events: all;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
-/* When Merlin is mounted, the quill cascades in shortly after */
-.merlin.is-visible .merlin__quill {
+/* The quill is summoned only when the visitor taps/clicks Merlin.
+   It then fades up into place; closing simply removes the class. */
+.merlin.is-asking .merlin__quill {
+  display: inline-flex;
   opacity: 1;
   transform: translateY(0);
+  animation: merlin-quill-in 0.32s cubic-bezier(.16, 1, .3, 1) both;
+}
+@keyframes merlin-quill-in {
+  from { opacity: 0; transform: translateY(10px) scale(0.96); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
 }
 
 .merlin__quill:hover,
@@ -14430,11 +14419,11 @@ html[data-theme="light"] .ambience__volume-label { color: #8a5a1f; }
 }
 
 /* ============================================================
-   MOBILE PERFORMANCE OVERRIDES  (debug session bc6917)
+   MOBILE PERFORMANCE OVERRIDES
    ------------------------------------------------------------
-   On-device profiling (the diagnostic overlay) showed the page
-   dropping to ~2 FPS during the welcome and while scrolling the
-   contracts, WHILE the canvas loops were idle (ST/CR = 0 frames).
+   On-device profiling showed the page dropping to ~2 FPS during
+   the welcome and while scrolling the contracts, WHILE the canvas
+   loops were idle (the 2D/WebGL wallpapers drew 0 frames).
    That isolates the cost to DOM paint / compositing, not the
    WebGL/2D wallpaper. Two culprits, fixed below for touch devices:
 
@@ -14518,14 +14507,76 @@ html[data-theme="light"] .ambience__volume-label { color: #8a5a1f; }
   }
   .welcome__mote { display: none !important; will-change: auto !important; }
 
-  /* — Portal / contact: drop glass blur + blend on scroll — */
-  .portal__stage::before { mix-blend-mode: normal !important; opacity: 0.5 !important; }
+  /* — Portal / contact: blur/blend dropped for scroll perf, replaced
+     with STATIC depth so the section still feels crafted and alive.
+     Everything here composites once (no animated blur, no backdrop
+     read per frame); the galaxy canvas still provides the motion. — */
+  .portal__stage::before {
+    mix-blend-mode: normal !important;
+    opacity: 0.85 !important;
+    background: radial-gradient(circle at 50% 50%,
+      rgba(255, 228, 170, 0.16) 0%,
+      rgba(120, 80, 170, 0.16) 32%,
+      rgba(70, 44, 120, 0.10) 56%,
+      transparent 76%) !important;
+  }
   .portal__link {
     backdrop-filter: none !important;
     -webkit-backdrop-filter: none !important;
     will-change: auto !important;
+    background:
+      linear-gradient(180deg,
+        rgba(32, 30, 26, 0.94) 0%,
+        rgba(18, 17, 15, 0.96) 100%) !important;
+    border: 1px solid color-mix(in srgb, var(--channel-glow) 42%, rgba(194, 164, 107, 0.38)) !important;
+    border-radius: 14px !important;
+    /* Resting glow — region-tinted outer halo so each of the six
+       contact boxes is visibly lit even with no hover on touch. */
+    box-shadow:
+      inset 0 1px 0 rgba(255, 238, 205, 0.16),
+      inset 0 0 20px color-mix(in srgb, var(--channel-glow) 14%, transparent),
+      0 0 0 1px color-mix(in srgb, var(--channel-glow) 26%, transparent),
+      0 0 18px color-mix(in srgb, var(--channel-glow) 30%, transparent),
+      0 5px 16px rgba(0, 0, 0, 0.45) !important;
+    overflow: hidden !important;
   }
-  .portal__link::before { filter: none !important; }
+  /* Static aura → a soft fixed halo seated behind the plate (no blur
+     animation). Reusing ::before keeps the markup untouched. */
+  .portal__link::before {
+    filter: none !important;
+    opacity: 0.55 !important;
+    transform: none !important;
+    inset: 0 !important;
+    border-radius: 14px !important;
+    background: radial-gradient(120% 140% at 12% 0%,
+      color-mix(in srgb, var(--channel-glow) 28%, transparent) 0%,
+      transparent 60%) !important;
+    animation: none !important;
+  }
+  /* Crisp inner gold edge + a thin region-tinted accent bar at the
+     left, so each card reads as a lit rune plate even at rest. */
+  .portal__link::after {
+    content: "" !important;
+    position: absolute !important;
+    inset: 0 !important;
+    border-radius: 14px !important;
+    box-shadow:
+      inset 0 0 0 1px color-mix(in srgb, var(--channel-glow) 30%, transparent) !important;
+    background:
+      linear-gradient(90deg,
+        color-mix(in srgb, var(--col-accent, var(--gold)) 90%, transparent) 0%,
+        transparent 3px) !important;
+    opacity: 0.9 !important;
+    pointer-events: none !important;
+    z-index: 0 !important;
+  }
+  .portal__link svg { color: color-mix(in srgb, var(--col-accent, var(--gold)) 80%, #fff 20%) !important; }
+  .portal__link-label { color: #F3E4C4 !important; }
+  /* Tap feedback only (no hover on touch): a quick press-in. */
+  .portal__link:active {
+    transform: scale(0.98) !important;
+    border-color: color-mix(in srgb, var(--col-accent, var(--gold)) 70%, transparent) !important;
+  }
 
   /* — Contracts / Codex parchment: no per-frame backdrop blend — */
   .contract__book::before,
@@ -14554,4 +14605,73 @@ html[data-theme="light"] .ambience__volume-label { color: #8a5a1f; }
 @keyframes cv-welcome-char-out-m {
   from { opacity: 1; transform: none; }
   to   { opacity: 0; transform: translateY(-8px); }
+}
+
+/* ============================================================
+   MOBILE VISUAL POLISH  (static-only, no extra render cost)
+   ------------------------------------------------------------
+   De-clutters the floating overlays that, on phones, wandered
+   over body copy and made the layout read as busy / "pitoresco":
+     · Merlin docks to a single bottom-right corner (the JS still
+       reassigns data-pos every ~30s, but every anchor now resolves
+       to the same spot, so the companion stops drifting across the
+       text mid-section).
+     · The "Domínios" pull-tab collapses to a compact corner rune
+       so it no longer clips the hero subtitle as it scrolls past.
+     · The Memories intro gets a soft dark vignette so the crystal
+       captions behind it stop bleeding through the prose.
+   Placed last so source order wins over earlier mobile blocks.
+   ============================================================ */
+@media (max-width: 767px) {
+  /* — Merlin · pin to one bottom-right corner — */
+  .merlin,
+  .merlin[data-pos="bottom-right"],
+  .merlin[data-pos="bottom-left"],
+  .merlin[data-pos="middle-right"],
+  .merlin[data-pos="middle-left"],
+  .merlin[data-pos="top-right"],
+  .merlin[data-pos="top-left"] {
+    top: auto;
+    bottom: max(0.85rem, env(safe-area-inset-bottom));
+    right: max(0.6rem, env(safe-area-inset-right));
+    left: auto;
+    align-items: flex-end;
+  }
+  .merlin .merlin__scroll { transform-origin: bottom right; }
+
+  /* — Domínios · compact corner rune instead of a tall side-tab — */
+  .domains {
+    bottom: max(0.85rem, env(safe-area-inset-bottom));
+    left: max(0.55rem, env(safe-area-inset-left));
+  }
+  .domains__handle {
+    padding: 0.5rem;
+    border-radius: 12px;
+    gap: 0;
+  }
+  .domains__handle-rune { font-size: 1.05rem; }
+  /* Keep the word for screen readers, drop it visually so the
+     handle reads as a discreet sigil button. */
+  .domains__handle-label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  /* — Memories · seat the intro on a soft dark halo so the
+       crystal captions behind it no longer collide with the text — */
+  .memories__head {
+    background: radial-gradient(ellipse 124% 102% at 50% 44%,
+      rgba(6, 11, 12, 0.94) 0%,
+      rgba(6, 11, 12, 0.86) 42%,
+      rgba(6, 11, 12, 0.45) 68%,
+      rgba(6, 11, 12, 0) 84%);
+    border-radius: 26px;
+  }
 }

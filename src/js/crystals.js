@@ -968,10 +968,6 @@ const Crystals = {
       /* Do not keep an idle RAF while paused — frees the GPU/CPU for
          the Knowledge Tree overlay. Restart via _resumeWallpaper(). */
       if (!t.running) return;
-      // #region agent log
-      const __dbgC0 = performance.now();
-      window.__crCalls = (window.__crCalls || 0) + 1;
-      // #endregion
 
       const vaultOpen = !!document.querySelector(".crystal-vault.is-open");
       const ktreeOpen = document.body.classList.contains("ktree-open");
@@ -1052,20 +1048,6 @@ const Crystals = {
 
       renderer.render(scene, camera);
       this.updateCaptionPositions(t);
-
-      // #region agent log
-      window.__crHeavy = (window.__crHeavy || 0) + 1;
-      window.__crTime = (window.__crTime || 0) + (performance.now() - __dbgC0);
-      window.__dbgCR = (window.__dbgCR || 0) + 1;
-      window.__dbgCRms = (window.__dbgCRms || 0) + (performance.now() - __dbgC0);
-      window.__dbgCRtouch = this._mobileWallpaper;
-      if (!window.__crLast || performance.now() - window.__crLast > 1000) {
-        const dt = window.__crLast ? (performance.now() - window.__crLast) / 1000 : 1;
-        const info = renderer.info ? renderer.info.render : null;
-        fetch('http://127.0.0.1:7279/ingest/89c13b11-4c60-49a0-81e3-64782c804124',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'bc6917'},body:JSON.stringify({sessionId:'bc6917',runId:'run1',hypothesisId:'H2',location:'crystals.js:animate',message:'crystals webgl per-sec',data:{rafFps:Math.round((window.__crCalls||0)/dt),heavyFps:Math.round((window.__crHeavy||0)/dt),avgHeavyMs:+((window.__crTime||0)/Math.max(1,window.__crHeavy)).toFixed(2),crystals:t.crystals.length,drawCalls:info?info.calls:-1,triangles:info?info.triangles:-1,innerW:window.innerWidth,dpr:Math.min(window.devicePixelRatio||1,2)},timestamp:Date.now()})}).catch(()=>{});
-        window.__crLast = performance.now(); window.__crCalls = 0; window.__crHeavy = 0; window.__crTime = 0;
-      }
-      // #endregion
 
       // Mobile: once settled, stop the loop entirely (static backdrop).
       if (this._mobileWallpaper && performance.now() > t._settleUntil &&

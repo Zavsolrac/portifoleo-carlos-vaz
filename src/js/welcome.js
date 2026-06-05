@@ -274,6 +274,20 @@
 
     const intent = readURLIntent();
 
+    // Mobile (touch / narrow viewports): the welcome cinematic is
+    // disabled entirely. The per-letter lava text + full-viewport veil
+    // over the fixed canvases tanked the first-impression framerate on
+    // phones, so the visitor now lands straight on the page. A forced
+    // ?welcome=show still works for QA on any device.
+    const isMobile = (window.matchMedia &&
+      (window.matchMedia("(hover: none) and (pointer: coarse)").matches ||
+        window.matchMedia("(max-width: 767px)").matches));
+    if (isMobile && intent !== "force") {
+      el.parentNode && el.parentNode.removeChild(el);
+      document.body.classList.remove("cv-welcome-active");
+      return;
+    }
+
     if (intent === "reset" && store) {
       try { store.removeItem(STORAGE_KEY); } catch (_e) { /* ignore */ }
     }

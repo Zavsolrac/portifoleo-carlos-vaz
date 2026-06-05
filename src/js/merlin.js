@@ -667,11 +667,15 @@ const Merlin = {
     this.el.setAttribute("aria-hidden", "false");
     this.el.classList.add("is-visible");
 
-    /* Avatar click — speak a random pearl of wisdom + cast spell. */
+    /* Avatar click — speak a random pearl of wisdom + cast spell, and
+       summon the quill (question bar). The quill is now hidden by
+       default on BOTH desktop and mobile; tapping Merlin reveals it.
+       Quote behaviour (the parchment scroll) is unchanged. */
     this.avatar?.addEventListener("click", () => {
       this._lastInteraction = Date.now();
       this.castSpell();
       this.speakIdle();
+      this._toggleAsk();
     });
 
     /* Quill input — visitor question routing. */
@@ -682,6 +686,21 @@ const Merlin = {
       this._lastInteraction = Date.now();
       this.input.value = "";
       this.ask(q);
+    });
+
+    /* Dismiss the quill when the visitor taps/clicks anywhere outside
+       Merlin, or presses Escape — so the question bar never lingers
+       over the page once they've moved on. */
+    document.addEventListener("click", (e) => {
+      if (!this.el?.classList.contains("is-asking")) return;
+      if (this.el.contains(e.target)) return;
+      this._toggleAsk(false);
+    });
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && this.el?.classList.contains("is-asking")) {
+        this._toggleAsk(false);
+        this.avatar?.focus();
+      }
     });
     /* Tracking pointer/keyboard activity to defer idle ticker. */
     ["pointermove", "pointerdown", "keydown", "wheel", "touchstart"].forEach((ev) => {
@@ -2296,6 +2315,26 @@ const Merlin = {
   _isMobile() {
     return window.matchMedia("(max-width: 767px)").matches ||
            window.matchMedia("(hover: none) and (pointer: coarse)").matches;
+  },
+
+  /** Open / close the quill (question bar). Hidden by default on every
+   *  device; revealed when the visitor taps/clicks Merlin. Focusing the
+   *  input on open pops the mobile keyboard within the tap gesture. */
+  _toggleAsk(force) {
+    if (!this.el) return;
+    const open = typeof force === "boolean"
+      ? force
+      : !this.el.classList.contains("is-asking");
+    this.el.classList.toggle("is-asking", open);
+    this.avatar?.setAttribute("aria-expanded", open ? "true" : "false");
+    if (open) {
+      setTimeout(() => {
+        try { this.input?.focus({ preventScroll: true }); }
+        catch (_e) { this.input?.focus(); }
+      }, 60);
+    } else if (this.input) {
+      this.input.blur();
+    }
   },
 
   /** True when a proactive line would intrude: the visitor is actively
