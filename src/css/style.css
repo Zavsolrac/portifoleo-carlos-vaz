@@ -14411,3 +14411,62 @@ html[data-theme="light"] .ambience__volume-label { color: #8a5a1f; }
   }
   .ambience__crystal { transition: none; }
 }
+
+/* ============================================================
+   MOBILE PERFORMANCE OVERRIDES  (debug session bc6917)
+   ------------------------------------------------------------
+   On-device profiling (the diagnostic overlay) showed the page
+   dropping to ~2 FPS during the welcome and while scrolling the
+   contracts, WHILE the canvas loops were idle (ST/CR = 0 frames).
+   That isolates the cost to DOM paint / compositing, not the
+   WebGL/2D wallpaper. Two culprits, fixed below for touch devices:
+
+     1. .welcome__char — ~80 letter spans each animating
+        `background-position` on a `background-clip:text` gradient
+        (CPU repaint of every glyph per frame) PLUS per-letter
+        `filter: blur()` + 4-layer text-shadow + will-change. We
+        swap to a cheap fade (static lava fill, no blur sweep).
+
+     2. .contract__book ::before/::after used `mix-blend-mode:
+        multiply` full-bleed layers + large blurred box-shadows
+        that recomposite on every scroll frame. We drop the blend
+        mode and shrink the shadow on phones.
+   ============================================================ */
+@media (hover: none) and (pointer: coarse), (max-width: 767px) {
+  /* — Welcome: cheap entrance/exit, static molten fill — */
+  .welcome__char {
+    animation: cv-welcome-char-in-m 0.5s ease forwards !important;
+    animation-delay: calc(var(--line-delay, 0s) + var(--ci, 0) * 0.02s) !important;
+    filter: none !important;
+    will-change: auto !important;
+    background-position: 50% 50% !important;
+    text-shadow: 0 0 5px rgba(255, 150, 70, 0.45) !important;
+  }
+  .welcome.is-leaving .welcome__char,
+  .welcome.is-leaving .welcome__star {
+    animation: cv-welcome-char-out-m 0.45s ease forwards !important;
+    animation-delay: calc(var(--leave-delay, 0s) + var(--ci, 0) * 0.015s) !important;
+    filter: none !important;
+  }
+  .welcome__mote { will-change: auto !important; }
+
+  /* — Contracts / Codex parchment: no per-frame backdrop blend — */
+  .contract__book::before,
+  .contract__book::after,
+  .codex__book::before,
+  .codex__book::after {
+    mix-blend-mode: normal !important;
+    opacity: 0.45 !important;
+  }
+  .contract__book {
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.4) !important;
+  }
+}
+@keyframes cv-welcome-char-in-m {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: none; }
+}
+@keyframes cv-welcome-char-out-m {
+  from { opacity: 1; transform: none; }
+  to   { opacity: 0; transform: translateY(-8px); }
+}
