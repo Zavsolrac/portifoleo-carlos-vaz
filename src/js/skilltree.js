@@ -1588,6 +1588,10 @@ const SkillTree = (() => {
     // #region agent log
     window.__stHeavy = (window.__stHeavy || 0) + 1;
     window.__stTime = (window.__stTime || 0) + (performance.now() - __dbgT0);
+    window.__dbgST = (window.__dbgST || 0) + 1;
+    window.__dbgSTms = (window.__dbgSTms || 0) + (performance.now() - __dbgT0);
+    window.__dbgCamDrift = +Math.hypot(cam.x - CX, cam.y - CY).toFixed(1);
+    window.__dbgIntro = introElapsed;
     if (!window.__stLast || performance.now() - window.__stLast > 1000) {
       const dt = window.__stLast ? (performance.now() - window.__stLast) / 1000 : 1;
       fetch('http://127.0.0.1:7279/ingest/89c13b11-4c60-49a0-81e3-64782c804124',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'bc6917'},body:JSON.stringify({sessionId:'bc6917',runId:'run1',hypothesisId:'H6',location:'skilltree.js:render',message:'skilltree wallpaper per-sec',data:{rafFps:Math.round((window.__stCalls||0)/dt),heavyFps:Math.round((window.__stHeavy||0)/dt),avgHeavyMs:+((window.__stTime||0)/Math.max(1,window.__stHeavy)).toFixed(2),innerW:window.innerWidth,dpr:Math.min(window.devicePixelRatio||1,isWallpaperTouch?1:2),canvasPx:canvasBg.width*canvasBg.height,nodes:nodes.length,camDrift:+Math.hypot(cam.x-CX,cam.y-CY).toFixed(1),isWallpaperTouch,touchDragBlocked:window.__stTouchDragBlocked||0},timestamp:Date.now()})}).catch(()=>{});
@@ -1979,6 +1983,9 @@ const SkillTree = (() => {
     reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     isWallpaperTouch = window.matchMedia("(hover: none) and (pointer: coarse)").matches ||
       window.matchMedia("(max-width: 767px)").matches;
+    // #region agent log
+    window.__dbgTouch = isWallpaperTouch;
+    // #endregion
 
     initAudio();
     buildTree();

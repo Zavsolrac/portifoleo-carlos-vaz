@@ -1040,6 +1040,9 @@ const Crystals = {
       // #region agent log
       window.__crHeavy = (window.__crHeavy || 0) + 1;
       window.__crTime = (window.__crTime || 0) + (performance.now() - __dbgC0);
+      window.__dbgCR = (window.__dbgCR || 0) + 1;
+      window.__dbgCRms = (window.__dbgCRms || 0) + (performance.now() - __dbgC0);
+      window.__dbgCRtouch = this._mobileWallpaper;
       if (!window.__crLast || performance.now() - window.__crLast > 1000) {
         const dt = window.__crLast ? (performance.now() - window.__crLast) / 1000 : 1;
         const info = renderer.info ? renderer.info.render : null;
