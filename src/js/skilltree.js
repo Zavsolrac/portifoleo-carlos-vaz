@@ -474,6 +474,7 @@ const SkillTree = (() => {
         color,
       });
     }
+    scheduleRender(); // wake the on-demand loop (mobile static stop)
   }
 
   /** Magical click feedback. Fires for any node click (active, blocked,
@@ -1320,6 +1321,16 @@ const SkillTree = (() => {
     renderRaf = requestAnimationFrame(render);
   }
 
+  /** Any ongoing animation that requires the canvas to keep redrawing.
+   *  When all of these are quiet on a mobile wallpaper, the tree is a
+   *  static image and the rAF loop can stop entirely (no more 60ms
+   *  full-viewport redraws competing with scroll compositing). */
+  function hasTransientActivity() {
+    return particles.length > 0 || bursts.length > 0 ||
+      clickFlashes.length > 0 || lightWaves.length > 0 ||
+      coreField.strength > 0.01;
+  }
+
   function pauseForKtree() {
     ktreePaused = true;
     if (renderRaf != null) {
@@ -1370,7 +1381,11 @@ const SkillTree = (() => {
   }
 
   function armAwakening() {
-    if (reducedMotion) { markAllRevealed(); return false; }
+    // On touch/mobile the awakening played at ~2fps (the full-viewport
+    // two-canvas redraw can't keep up), so it read as broken jank at the
+    // very first impression. Treat mobile like reduced-motion: jump
+    // straight to the fully-revealed static tree.
+    if (reducedMotion || isWallpaperTouch) { markAllRevealed(); return false; }
 
     // Product direction (June 2026): the Arcane Core awakening now plays
     // on EVERY load — first visit and every refresh alike — so it is no
@@ -1585,6 +1600,23 @@ const SkillTree = (() => {
     drawParticles();
     drawMouseAura();
 
+    // MOBILE STATIC STOP — the touch wallpaper has a locked camera, no
+    // parallax and no core field, so once the awakening is done and no
+    // transient effect is playing, the image never changes. Stop the
+    // loop instead of repainting an identical full-viewport frame 60×/s
+    // (the dominant scroll-jank cost on phones). Re-armed by pointer
+    // interaction and effect spawns via scheduleRender().
+    if (isWallpaperTouch && introElapsed < 0 && !mouse.down &&
+        !hovered && !hasTransientActivity()) {
+      // #region agent log
+      window.__dbgST = (window.__dbgST || 0) + 1;
+      window.__dbgSTms = (window.__dbgSTms || 0) + (performance.now() - __dbgT0);
+      window.__dbgCamDrift = +Math.hypot(cam.x - CX, cam.y - CY).toFixed(1);
+      window.__dbgIntro = introElapsed;
+      // #endregion
+      return;
+    }
+
     // #region agent log
     window.__stHeavy = (window.__stHeavy || 0) + 1;
     window.__stTime = (window.__stTime || 0) + (performance.now() - __dbgT0);
@@ -1790,6 +1822,7 @@ const SkillTree = (() => {
 
   function spawnBlockedRipple(x, y) {
     bursts.push({ x, y, r: 0, life: 1, color: "#A13E1E", blocked: true });
+    scheduleRender(); // wake the on-demand loop (mobile static stop)
   }
 
   function isOverUI(target) {
@@ -1820,6 +1853,7 @@ const SkillTree = (() => {
       mouse.drag = false;
       mouse.dx = e.clientX;
       mouse.dy = e.clientY;
+      scheduleRender(); // wake the on-demand loop (mobile static stop)
     };
 
     const onPointerMove = (e) => {
@@ -1921,6 +1955,7 @@ const SkillTree = (() => {
       mouse.down = false;
       mouse.drag = false;
       document.body.style.cursor = hovered ? "pointer" : "";
+      scheduleRender(); // wake the on-demand loop (mobile static stop)
     };
 
     window.addEventListener("pointerdown", onPointerDown);

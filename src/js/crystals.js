@@ -790,6 +790,11 @@ const Crystals = {
       captions: [],
       clock: new THREE.Clock(),
       envMap: this.createEnvMap(),
+      // Mobile: render only long enough for the nebula/crystals to appear
+      // and settle, then STOP the rAF loop. A WebGL canvas keeps showing
+      // its last frame, so the backdrop stays visible at zero ongoing GPU
+      // cost. Re-armed briefly on resize / ktree-close.
+      _settleUntil: performance.now() + 3000,
     };
 
     const scene = new THREE.Scene();
@@ -900,6 +905,12 @@ const Crystals = {
 
     const onWindowPointerMove = (e) => {
       if (document.body.classList.contains("ktree-open")) return;
+      // Mobile wallpaper: no hover/raycast. Tracking the pointer here kept
+      // `_crystalPointerActive` true during finger-scroll, which defeated
+      // the scroll-freeze and idle throttle → WebGL re-rendered (up to
+      // 123ms/frame) on every scroll frame. The "Explorar Relíquias"
+      // button is the mobile entry point, so direct hover isn't needed.
+      if (this._mobileWallpaper) return;
       if (!this.isInCrystalField(e.clientX, e.clientY) || this.isOverMemoriesUI(e.target)) {
         if (this._hovered) {
           const prev = this._hovered;
@@ -938,6 +949,11 @@ const Crystals = {
       camera.aspect = w / h;
       camera.updateProjectionMatrix();
       renderer.setSize(w, h, false);
+      // Mobile: a fresh size needs one more render burst, then re-settle.
+      if (this._mobileWallpaper && this._three) {
+        this._three._settleUntil = performance.now() + 1200;
+        this._three._resumeWallpaper?.();
+      }
     };
     resize();
     window.addEventListener("resize", resize);
@@ -1050,6 +1066,12 @@ const Crystals = {
         window.__crLast = performance.now(); window.__crCalls = 0; window.__crHeavy = 0; window.__crTime = 0;
       }
       // #endregion
+
+      // Mobile: once settled, stop the loop entirely (static backdrop).
+      if (this._mobileWallpaper && performance.now() > t._settleUntil &&
+          !document.querySelector(".crystal-vault.is-open")) {
+        return;
+      }
 
       requestAnimationFrame(animate);
     };
