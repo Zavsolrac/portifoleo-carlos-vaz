@@ -814,6 +814,10 @@ const Crystals = {
       canvas: this.canvas,
       alpha: true,
       antialias: !isMobileWallpaper,
+      /* iOS Safari can clear a stopped WebGL layer during scroll
+         compositing; preserving the buffer keeps the last frame
+         visible until the next deliberate repaint. */
+      preserveDrawingBuffer: isMobileWallpaper,
       powerPreference: "high-performance",
     });
     renderer.setPixelRatio(isMobileWallpaper ? 1 : Math.min(window.devicePixelRatio || 1, 2));
@@ -952,11 +956,20 @@ const Crystals = {
       // Mobile: a fresh size needs one more render burst, then re-settle.
       if (this._mobileWallpaper && this._three) {
         this._three._settleUntil = performance.now() + 1200;
+        /* Repaint the GL buffer in the SAME task as the resize so the
+           just-reallocated (blank) buffer is never shown for a frame —
+           avoids the wallpaper blinking on URL-bar resize. */
+        try { renderer.render(scene, camera); } catch (_e) { /* not ready */ }
         this._three._resumeWallpaper?.();
       }
     };
     resize();
     window.addEventListener("resize", resize);
+    window.addEventListener("cv-scroll-end", () => {
+      if (!this._mobileWallpaper || !this._three) return;
+      this._three._settleUntil = performance.now() + 900;
+      this._three._resumeWallpaper?.();
+    }, { passive: true });
 
     t.scene = scene;
     t.camera = camera;

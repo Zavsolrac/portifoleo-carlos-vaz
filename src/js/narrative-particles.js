@@ -93,6 +93,16 @@ window.NarrativeParticles = (() => {
   let isReducedMotion = false;
   let hidden = false;
 
+  function isTouchWallpaper() {
+    return window.matchMedia("(hover: none) and (pointer: coarse)").matches ||
+      window.matchMedia("(max-width: 767px)").matches;
+  }
+
+  function wakeLoop() {
+    if (hidden || isReducedMotion) return;
+    if (rafId === null) rafId = requestAnimationFrame(loop);
+  }
+
   /* ── public api ──────────────────────────────────────────────── */
   function init() {
     canvas = document.getElementById("narrative-particles");
@@ -110,6 +120,7 @@ window.NarrativeParticles = (() => {
     window.addEventListener("resize", debouncedResize, { passive: true });
     document.addEventListener("visibilitychange", onVisibility);
     window.addEventListener("pointermove", onPointerMove, { passive: true });
+    window.addEventListener("cv-scroll-end", wakeLoop, { passive: true });
 
     /* React to act changes — the only contract with narrative.js. */
     setMode(modeForAct(document.documentElement.dataset.narrativeAct || "1"));
@@ -158,6 +169,7 @@ window.NarrativeParticles = (() => {
     if (next === mode) return;
     mode = next;
     modeStart = performance.now();
+    wakeLoop();
     /* Per-mode entry hooks. Each populates `modeData` with whatever
        its render branch needs — usually a target rect or anchor. */
     switch (mode) {
@@ -223,7 +235,11 @@ window.NarrativeParticles = (() => {
   let resizeTimer = null;
   function debouncedResize() {
     if (resizeTimer) clearTimeout(resizeTimer);
-    resizeTimer = setTimeout(resize, 120);
+    resizeTimer = setTimeout(() => {
+      resize();
+      renderOnce();   // repaint synchronously — no blank frame after clear
+      wakeLoop();
+    }, 120);
   }
   function resize() {
     const isTouchWallpaper = window.matchMedia("(hover: none) and (pointer: coarse)").matches ||
@@ -402,6 +418,7 @@ window.NarrativeParticles = (() => {
   /* ── mouse / visibility ──────────────────────────────────────── */
   function onPointerMove(e) {
     lastPointerAt = performance.now();
+    wakeLoop();
     mouse.x = e.clientX;
     mouse.y = e.clientY;
     mouse.active = true;
@@ -423,7 +440,8 @@ window.NarrativeParticles = (() => {
   function loop(now) {
     if (hidden) { rafId = null; return; }
     if (document.body.classList.contains("ktree-open")) { rafId = null; return; }
-    rafId = requestAnimationFrame(loop);
+
+    const __touchWall = isTouchWallpaper();
 
     /* Mobile: freeze the particle field while the welcome overlay is
        on screen — form-text + near-lines still cost fill-rate on top
@@ -432,27 +450,49 @@ window.NarrativeParticles = (() => {
     const __welcomeBusy = __welcomeEl &&
       (__welcomeEl.classList.contains("is-active") ||
         __welcomeEl.classList.contains("is-leaving"));
-    const __touchWall = window.matchMedia("(hover: none) and (pointer: coarse)").matches ||
-      window.matchMedia("(max-width: 767px)").matches;
-    if (__welcomeBusy && __touchWall) return;
+    if (__welcomeBusy && __touchWall) {
+      rafId = null;
+      return;
+    }
 
     narrativeFrame++;
     const narrIdle = performance.now() - lastPointerAt > 2000;
-    if (narrIdle && (narrativeFrame & 1) === 1) return;
+
+    /* Desktop-only half-rate when idle; touch uses static stop below. */
+    if (!__touchWall && narrIdle && (narrativeFrame & 1) === 1) {
+      rafId = requestAnimationFrame(loop);
+      return;
+    }
 
     // Freeze the ambient field while the page is being scrolled — its
     // fixed full-viewport canvas then composites from cache instead of
     // re-uploading a texture every frame. Only the always-on "idle"
     // wash is frozen; scripted narrative beats keep playing.
-    if (mode === "idle" && window.__cvScrolling) return;
+    if (mode === "idle" && window.__cvScrolling) {
+      rafId = requestAnimationFrame(loop);
+      return;
+    }
 
+    paint(now);
+
+    /* Mobile static stop — once idle and not scrolling, stop the loop
+       so we don't fight iOS scroll compositing. Wake via scroll-end,
+       resize, pointer, or act change (setMode). */
+    if (__touchWall && mode === "idle" && narrIdle && !window.__cvScrolling) {
+      rafId = null;
+      return;
+    }
+
+    rafId = requestAnimationFrame(loop);
+  }
+
+  /* Clear + draw a single frame for the current mode. Shared by the
+     loop and by renderOnce() (the synchronous repaint after a resize,
+     which must run in the SAME task so the cleared canvas is never
+     shown blank for a frame — the cause of the hero "double blink"). */
+  function paint(now) {
     ctx.clearRect(0, 0, width, height);
-
-    /* Light wash that softens previous frame trails. Drawing a
-       translucent rect over the cleared canvas is a no-op visually
-       but ensures we never accumulate banding from compositing. */
     const baseAlpha = mode === "trail" ? 0.85 : 0.78;
-
     switch (mode) {
       case "form-text": renderFormText(now, baseAlpha); break;
       case "pulse-out": renderPulseOut(now, baseAlpha); break;
@@ -461,6 +501,13 @@ window.NarrativeParticles = (() => {
       case "converge":  renderConverge(now, baseAlpha); break;
       default:          renderIdle(baseAlpha);
     }
+  }
+
+  /* Synchronous one-off repaint (after a resize cleared the canvas). */
+  function renderOnce() {
+    if (hidden || isReducedMotion || !P) return;
+    if (document.body.classList.contains("ktree-open")) return;
+    paint(performance.now());
   }
 
   /* ── render branches ─────────────────────────────────────────── */

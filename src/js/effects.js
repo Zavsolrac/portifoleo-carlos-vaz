@@ -226,7 +226,16 @@ window.Effects = Effects;
     () => {
       window.__cvScrolling = true;
       if (releaseTimer) clearTimeout(releaseTimer);
-      releaseTimer = setTimeout(() => { window.__cvScrolling = false; }, 120);
+      releaseTimer = setTimeout(() => {
+        window.__cvScrolling = false;
+        /* Mobile: after scroll settles, wake the wallpaper layers once.
+           Resize from the URL bar and iOS compositor drops can leave
+           on-demand canvases blank until the next touch — this keeps
+           the background from "blinking out" mid-scroll. */
+        try {
+          window.dispatchEvent(new CustomEvent("cv-scroll-end"));
+        } catch (_e) { /* ignore */ }
+      }, 120);
     },
     { passive: true }
   );

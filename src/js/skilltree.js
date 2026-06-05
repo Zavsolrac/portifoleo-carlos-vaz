@@ -1321,6 +1321,8 @@ const SkillTree = (() => {
   let renderRaf = null;
   let ktreePaused = false;
   let welcomePaused = false;
+  let firstPaintDone = false;   // true after the first full canvas paint
+  let inRender = false;         // reentrancy guard (scroll + resize sync calls)
 
   function isWelcomeShowing() {
     const el = document.getElementById("arcane-welcome");
@@ -1569,13 +1571,17 @@ const SkillTree = (() => {
   }
 
   function render() {
+    if (inRender) return;
+    inRender = true;
     renderRaf = null;
     if (isWallpaperTouch && isWelcomeShowing()) {
+      inRender = false;
       welcomePaused = true;
       return;
     }
     if (document.body.classList.contains("ktree-open")) {
       pauseForKtree();
+      inRender = false;
       return;
     }
     ktreePaused = false;
@@ -1614,23 +1620,25 @@ const SkillTree = (() => {
     const isIdle = introElapsed < 0 && !mouse.down && !hovered &&
       performance.now() - lastInteractAt > 1500 &&
       coreField.targetStrength < 0.05;
-    if (isIdle && (time & 1) === 1) {
+    /* Half-rate idle skip is desktop-only; on touch it fought the
+       static-stop + scroll-freeze logic and could leave a blank frame
+       between skipped draws after a viewport resize. */
+    if (!isWallpaperTouch && isIdle && (time & 1) === 1) {
       scheduleRender();
+      inRender = false;
       return;
     }
 
-    // SCROLL FREEZE — while the page is being scrolled (and the visitor
-    // isn't interacting with the tree), skip the two-canvas redraw so the
-    // fixed wallpaper composites from its cached GPU texture. Since the
-    // wallpaper no longer parallaxes, the frozen frame is identical to
-    // what scroll would show → perfectly smooth, with no jump. Never
-    // freeze during the awakening intro (introElapsed >= 0).
-    // On touch devices a finger-down scroll still counts as scrolling,
-    // not tree interaction — otherwise mobile scroll never freezes.
+    // SCROLL FREEZE (desktop only) — skip redraws while scrolling so the
+    // compositor reuses the cached texture. On touch the loop already
+    // static-stops when idle; freezing during scroll left a BLANK tree
+    // after the first scroll because the URL-bar resize clears both
+    // canvases and the frozen render() returned without painting.
     const blockScrollFreeze = mouse.down && !isWallpaperTouch;
-    if (introElapsed < 0 && window.__cvScrolling &&
+    if (!isWallpaperTouch && introElapsed < 0 && window.__cvScrolling &&
         !blockScrollFreeze && !hovered && coreField.targetStrength < 0.05) {
       scheduleRender();
+      inRender = false;
       return;
     }
 
@@ -1642,6 +1650,7 @@ const SkillTree = (() => {
     drawClickFlashes();
     drawParticles();
     drawMouseAura();
+    firstPaintDone = true;  // a full frame is now on the canvas
 
     // MOBILE STATIC STOP — the touch wallpaper has a locked camera, no
     // parallax and no core field, so once the awakening is done and no
@@ -1651,16 +1660,27 @@ const SkillTree = (() => {
     // interaction and effect spawns via scheduleRender().
     if (isWallpaperTouch && introElapsed < 0 && !mouse.down &&
         !hovered && !hasTransientActivity()) {
+      inRender = false;
       return;
     }
 
     scheduleRender();
+    inRender = false;
   }
 
   function resize() {
     const dpr = Math.min(window.devicePixelRatio || 1, isWallpaperTouch ? 1 : 2);
     const w = window.innerWidth;
     const h = window.innerHeight;
+    const pw = Math.round(w * dpr);
+    const ph = Math.round(h * dpr);
+    /* Setting canvas.width clears the bitmap even at the same size — skip
+       no-op resizes so the first scroll does not blank an identical buffer. */
+    if (canvasBg.width === pw && canvasBg.height === ph &&
+        canvasBg.style.width === w + "px" &&
+        canvasBg.style.height === h + "px") {
+      return;
+    }
     [canvasBg, canvasFg].forEach((c) => {
       c.width = w * dpr;
       c.height = h * dpr;
@@ -1670,6 +1690,29 @@ const SkillTree = (() => {
     });
     ctxBg = canvasBg.getContext("2d");
     ctxFg = canvasFg.getContext("2d");
+    /* Resizing clears both canvases; on mobile the rAF loop may be
+       stopped (static stop), so schedule a repaint. The SYNCHRONOUS
+       repaint (no blank frame) is handled by onWindowResize once the
+       tree has painted at least once; this is the safe initial path. */
+    if (isWallpaperTouch) scheduleRender();
+  }
+
+  let resizeDebounce = null;
+  function onWindowResize() {
+    if (!isWallpaperTouch) {
+      resize();
+      return;
+    }
+    /* Debounce mobile resize storms (URL bar / visual viewport) so we
+       paint once per settle. Repaint SYNCHRONOUSLY in the same task as
+       the resize so the just-cleared canvas is never shown blank for a
+       frame — that one-frame gap was the hero "double blink" on load
+       (the URL bar collapse fires a resize while the loop is stopped). */
+    if (resizeDebounce) clearTimeout(resizeDebounce);
+    resizeDebounce = setTimeout(() => {
+      resize();
+      if (firstPaintDone) render();
+    }, 100);
   }
 
   function updateHUD() {
@@ -2050,7 +2093,22 @@ const SkillTree = (() => {
       masteredTotalEl.textContent = nodes.filter((n) => n.notable).length;
     }
 
-    window.addEventListener("resize", resize);
+    window.addEventListener("resize", onWindowResize);
+
+    /* Mobile: when the static-stopped loop wakes on the first finger
+       scroll, repaint immediately so iOS does not show an empty compositor
+       layer for the skill-tree canvases (nucleus / nodes blink). */
+    let touchScrollBurst = false;
+    window.addEventListener("scroll", () => {
+      if (!isWallpaperTouch || !firstPaintDone || touchScrollBurst) return;
+      touchScrollBurst = true;
+      if (renderRaf == null) render();
+    }, { passive: true });
+
+    window.addEventListener("cv-scroll-end", () => {
+      touchScrollBurst = false;
+      if (isWallpaperTouch) scheduleRender();
+    }, { passive: true });
 
     /* Pause the wallpaper loop entirely while the Knowledge Tree is
        open (not just skip draws — cancel RAF so the main thread stays
