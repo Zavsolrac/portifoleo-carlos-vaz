@@ -1081,7 +1081,28 @@ const Crystals = {
       if (document.body.classList.contains("ktree-open")) return;
       requestAnimationFrame(animate);
     };
-    animate();
+    const startWallpaperLoop = () => { animate(); };
+    if (this._mobileWallpaper) {
+      const welcomeEl = document.getElementById("arcane-welcome");
+      const welcomeBusy = welcomeEl &&
+        (welcomeEl.classList.contains("is-active") ||
+          welcomeEl.classList.contains("is-leaving"));
+      if (welcomeBusy) {
+        const go = () => startWallpaperLoop();
+        const mo = new MutationObserver(() => {
+          if (!welcomeEl.classList.contains("is-active") &&
+              !welcomeEl.classList.contains("is-leaving")) {
+            mo.disconnect();
+            go();
+          }
+        });
+        mo.observe(welcomeEl, { attributes: true, attributeFilter: ["class"] });
+      } else {
+        startWallpaperLoop();
+      }
+    } else {
+      startWallpaperLoop();
+    }
     if (!this._ktreeWallpaperObs) {
       this._ktreeWallpaperObs = new MutationObserver(() => {
         if (!document.body.classList.contains("ktree-open")) t._resumeWallpaper?.();

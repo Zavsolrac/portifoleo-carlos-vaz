@@ -224,6 +224,9 @@
 
     // Begin materialization on the next paint frame so the
     // opacity transition is observed by the browser.
+    // The body flag lets CSS suspend the full-viewport canvas
+    // wallpaper while the overlay is up — :has() isn't relied upon.
+    document.body.classList.add("cv-welcome-active");
     requestAnimationFrame(() => {
       el.setAttribute("aria-hidden", "false");
       el.classList.add("is-active");
@@ -251,6 +254,7 @@
 
     window.setTimeout(() => {
       el.classList.add("is-done");
+      document.body.classList.remove("cv-welcome-active");
       if (persist && store) {
         try { store.setItem(STORAGE_KEY, "1"); } catch (_e) { /* ignore */ }
       }

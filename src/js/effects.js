@@ -281,7 +281,7 @@ window.Effects = Effects;
         "CR  " + crF + "f " + crMs + "ms\n" +
         "NP  " + npF + "f " + npMs + "ms\n" +
         "scroll " + (window.__cvScrolling ? "YES" : "no") + "  touch " + (window.__dbgTouch ? "Y" : "n") + "\n" +
-        "camDrift " + (window.__dbgCamDrift || 0) + "\n" +
+        "camDrift " + (window.__dbgCamDrift || 0) + "  wPause " + (window.__dbgWPaused ? "Y" : "n") + "\n" +
         "welcome " + wstate + "  " + phase + "\n" +
         "canvas " + cv.length + " " + (mpx / 1e6).toFixed(2) + "Mpx dpr" + (window.devicePixelRatio || 1);
       fetch('http://127.0.0.1:7279/ingest/89c13b11-4c60-49a0-81e3-64782c804124', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Debug-Session-Id': 'bc6917' }, body: JSON.stringify({ sessionId: 'bc6917', runId: 'run2', hypothesisId: 'H7', location: 'effects.js:overlay', message: 'frame budget snapshot', data: { fps, fpsMin: Math.round(fpsMin), stF, stMs: +stMs, crF, crMs: +crMs, npF, npMs: +npMs, scrolling: !!window.__cvScrolling, touch: !!window.__dbgTouch, camDrift: window.__dbgCamDrift || 0, welcome: wstate, phase, canvases: cv.length, mpx: +(mpx / 1e6).toFixed(2), dpr: window.devicePixelRatio || 1 }, timestamp: Date.now() }) }).catch(() => {});

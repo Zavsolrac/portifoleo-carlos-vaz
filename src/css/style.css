@@ -14450,6 +14450,19 @@ html[data-theme="light"] .ambience__volume-label { color: #8a5a1f; }
         mode and shrink the shadow on phones.
    ============================================================ */
 @media (hover: none) and (pointer: coarse), (max-width: 767px) {
+  /* Hide the multi-canvas wallpaper while the welcome DOM is on screen —
+     compositing ~2.75Mpx of fixed canvases under the overlay was still
+     costing ~2 FPS even with JS loops paused (proven by overlay logs). */
+  body.cv-welcome-active .tree-wall,
+  body.cv-welcome-active #narrative-particles,
+  body:has(#arcane-welcome.is-active) .tree-wall,
+  body:has(#arcane-welcome.is-leaving) .tree-wall,
+  body:has(#arcane-welcome.is-active) #narrative-particles,
+  body:has(#arcane-welcome.is-leaving) #narrative-particles {
+    visibility: hidden !important;
+    pointer-events: none !important;
+  }
+
   /* — Welcome LITE (welcome.js adds .welcome--mobile-lite): no per-char
      spans, no lava sweep, no motes — line-level fade only. — */
   .welcome--mobile-lite .welcome__motes { display: none !important; }

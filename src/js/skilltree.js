@@ -829,8 +829,13 @@ const SkillTree = (() => {
       ctxFg.quadraticCurveTo(cx, cy, p2.x, p2.y);
 
       if (both) {
-        e.flow = Math.min(1, e.flow + 0.025);
-        const flowT = (time * 0.004 + e.flow) % 1;
+        // Mobile wallpaper renders on-demand (loop stops at rest), so a
+        // time-driven flow would visibly "jump one step" each time a
+        // touch wakes a single frame. Pin the flow to a steady phase on
+        // touch devices: the edges stay lit, just without the animated
+        // aurora sweep that can't run smoothly anyway.
+        e.flow = Math.min(1, e.flow + (isWallpaperTouch ? 1 : 0.025));
+        const flowT = isWallpaperTouch ? 0.5 : (time * 0.004 + e.flow) % 1;
         if (light) {
           // Codex Arcano · gradiente dourado animado para "tinta de
           // ouro líquida" sobre o pergaminho. Vívido mas calmo.
@@ -1315,10 +1320,54 @@ const SkillTree = (() => {
 
   let renderRaf = null;
   let ktreePaused = false;
+  let welcomePaused = false;
+
+  function isWelcomeShowing() {
+    const el = document.getElementById("arcane-welcome");
+    return !!(el && (el.classList.contains("is-active") ||
+      el.classList.contains("is-leaving")));
+  }
 
   function scheduleRender() {
-    if (renderRaf != null || ktreePaused) return;
+    if (renderRaf != null || ktreePaused ||
+        (isWallpaperTouch && welcomePaused)) return;
     renderRaf = requestAnimationFrame(render);
+  }
+
+  function pauseForWelcome() {
+    if (!isWallpaperTouch) return;
+    welcomePaused = true;
+    // #region agent log
+    window.__dbgWPaused = true;
+    // #endregion
+    if (renderRaf != null) {
+      cancelAnimationFrame(renderRaf);
+      renderRaf = null;
+    }
+  }
+
+  function resumeFromWelcome() {
+    if (!welcomePaused) return;
+    welcomePaused = false;
+    // #region agent log
+    window.__dbgWPaused = false;
+    // #endregion
+    scheduleRender();
+  }
+
+  function watchWelcomePause() {
+    if (!isWallpaperTouch) return;
+    const el = document.getElementById("arcane-welcome");
+    if (!el) return;
+    if (isWelcomeShowing()) pauseForWelcome();
+    const mo = new MutationObserver(() => {
+      if (isWelcomeShowing()) pauseForWelcome();
+      else resumeFromWelcome();
+    });
+    mo.observe(el, { attributes: true, attributeFilter: ["class"] });
+    window.addEventListener("cv-welcome-awaken", () => {
+      if (!isWelcomeShowing()) resumeFromWelcome();
+    }, { once: true });
   }
 
   /** Any ongoing animation that requires the canvas to keep redrawing.
@@ -1527,6 +1576,10 @@ const SkillTree = (() => {
 
   function render() {
     renderRaf = null;
+    if (isWallpaperTouch && isWelcomeShowing()) {
+      welcomePaused = true;
+      return;
+    }
     // #region agent log
     const __dbgT0 = performance.now();
     window.__stCalls = (window.__stCalls || 0) + 1;
@@ -2050,7 +2103,8 @@ const SkillTree = (() => {
       // frame the visitor sees is the sleeping cosmos — never a flash of
       // the fully-lit tree that then snaps dark.
       const armed = armAwakening();
-      scheduleRender();
+      watchWelcomePause();
+      if (!welcomePaused) scheduleRender();
 
       if (armed) {
         // The awakening only matters if it is SEEN. On a first visit the
