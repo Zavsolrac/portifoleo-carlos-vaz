@@ -76,6 +76,7 @@
       <a href="#knowledge" data-ktree-open data-i18n="nav.tree">Árvore</a>
       <a href="#memories" data-i18n="nav.crystals">Cristais</a>
       <a href="#contracts" data-i18n="nav.contracts">Contratos</a>
+      <a href="#top" data-codex-open data-i18n="nav.codex">Codex do Arquiteto</a>
       <a href="#portal" data-i18n="nav.portal">Portal</a>
     </nav>
 
@@ -836,6 +837,13 @@
     ====================================================== -->
     <section id="memories" class="memories" aria-labelledby="memories-headline">
       <header class="memories__head">
+        <div class="memories__waves" aria-hidden="true">
+          <span class="memories__wave"></span>
+          <span class="memories__wave"></span>
+          <span class="memories__wave"></span>
+          <span class="memories__wave"></span>
+          <span class="memories__wave"></span>
+        </div>
         <p class="memories__eyebrow" data-i18n="crystal.eyebrow">RELÍQUIAS DA JORNADA</p>
         <h2 id="memories-headline" class="memories__title" data-i18n="crystal.title">Cristais de Memória</h2>
         <p class="memories__lede" data-i18n="crystal.lede">
@@ -2690,6 +2698,19 @@
   </div>
 
   <!-- ======================================================
+       CONSELHO DE MERLIN · Microevento antes do Codex.
+  ====================================================== -->
+  <div class="council" id="merlin-council" aria-hidden="true">
+    <canvas class="council__canvas" id="council-canvas" aria-hidden="true"></canvas>
+    <div class="council__stage" role="status" aria-live="polite">
+      <p class="council__title">✦ Conselho de Merlin ✦</p>
+      <p class="council__intro"></p>
+      <blockquote class="council__phrase"></blockquote>
+      <p class="council__seal"></p>
+    </div>
+  </div>
+
+  <!-- ======================================================
        CODEX DO ARQUITETO · Lendário registro do personagem.
        Acessado clicando na foto do perfil_carlos no núcleo.
   ====================================================== -->
@@ -3640,8 +3661,10 @@
   <script src="src/js/merlin.js" defer></script>
   <script src="src/js/domains.js" defer></script>
   <script src="src/js/knowledgetree.js" defer></script>
+  <script src="src/js/merlin-council.js" defer></script>
   <script src="src/js/codex.js" defer></script>
   <script src="src/js/convergence.js" defer></script>
+  <script src="src/js/dice30.js" defer></script>
   <script src="src/js/enhancements.js" defer></script>
   <script src="src/js/welcome.js" defer></script>
   <script src="src/js/main.js" defer></script>

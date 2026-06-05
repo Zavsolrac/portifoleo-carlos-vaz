@@ -1579,7 +1579,7 @@ const SkillTree = (() => {
       welcomePaused = true;
       return;
     }
-    if (document.body.classList.contains("ktree-open")) {
+    if ((document.body.classList.contains("ktree-open") || document.body.classList.contains("oracle-open"))) {
       pauseForKtree();
       inRender = false;
       return;
@@ -1670,22 +1670,33 @@ const SkillTree = (() => {
 
   function resize() {
     const dpr = Math.min(window.devicePixelRatio || 1, isWallpaperTouch ? 1 : 2);
-    const w = window.innerWidth;
-    const h = window.innerHeight;
+    /* On mobile the wallpaper plane is pinned to 100lvh via CSS, so read
+       the CSS-driven size (constant across URL-bar show/hide) instead of
+       window.innerHeight — otherwise the tree, centred on h/2, would jump
+       on the first scroll. Desktop keeps using the live window size. */
+    const w = isWallpaperTouch
+      ? (canvasBg.clientWidth || window.innerWidth)
+      : window.innerWidth;
+    const h = isWallpaperTouch
+      ? (canvasBg.clientHeight || window.innerHeight)
+      : window.innerHeight;
     const pw = Math.round(w * dpr);
     const ph = Math.round(h * dpr);
     /* Setting canvas.width clears the bitmap even at the same size — skip
        no-op resizes so the first scroll does not blank an identical buffer. */
-    if (canvasBg.width === pw && canvasBg.height === ph &&
-        canvasBg.style.width === w + "px" &&
-        canvasBg.style.height === h + "px") {
+    if (canvasBg.width === pw && canvasBg.height === ph) {
       return;
     }
     [canvasBg, canvasFg].forEach((c) => {
-      c.width = w * dpr;
-      c.height = h * dpr;
-      c.style.width = w + "px";
-      c.style.height = h + "px";
+      c.width = pw;
+      c.height = ph;
+      /* On mobile let the CSS (100% of the 100lvh .tree-wall) drive the
+         element size — setting an explicit px height would re-introduce
+         the URL-bar-dependent value we are trying to avoid. */
+      if (!isWallpaperTouch) {
+        c.style.width = w + "px";
+        c.style.height = h + "px";
+      }
       c.getContext("2d").setTransform(dpr, 0, 0, dpr, 0, 0);
     });
     ctxBg = canvasBg.getContext("2d");
@@ -1900,7 +1911,7 @@ const SkillTree = (() => {
 
   /** Block tree input only on real UI or when a crystal is under the cursor. */
   function blocksTreeInput(e) {
-    if (document.body.classList.contains("ktree-open")) return true;
+    if ((document.body.classList.contains("ktree-open") || document.body.classList.contains("oracle-open"))) return true;
     if (isOverUI(e.target)) return true;
     const C = window.Crystals;
     if (!C) return false;
@@ -1913,7 +1924,7 @@ const SkillTree = (() => {
     const onPointerDown = (e) => {
       lastInteractAt = performance.now();
       if (e.button !== 0) return;
-      if (document.body.classList.contains("ktree-open")) return;
+      if ((document.body.classList.contains("ktree-open") || document.body.classList.contains("oracle-open"))) return;
       if (blocksTreeInput(e)) return;
       mouse.down = true;
       mouse.drag = false;
@@ -1924,7 +1935,7 @@ const SkillTree = (() => {
 
     const onPointerMove = (e) => {
       lastInteractAt = performance.now();
-      if (document.body.classList.contains("ktree-open")) return;
+      if ((document.body.classList.contains("ktree-open") || document.body.classList.contains("oracle-open"))) return;
       mouse.x = e.clientX;
       mouse.y = e.clientY;
       const w = screenToWorld(mouse.x, mouse.y);
@@ -1989,7 +2000,7 @@ const SkillTree = (() => {
     };
 
     const onPointerUp = (e) => {
-      if (document.body.classList.contains("ktree-open")) return;
+      if ((document.body.classList.contains("ktree-open") || document.body.classList.contains("oracle-open"))) return;
       if (!mouse.drag && mouse.down && !blocksTreeInput(e)) {
         const w = screenToWorld(e.clientX, e.clientY);
         const node = findNodeAt(w.x, w.y);
@@ -2047,7 +2058,7 @@ const SkillTree = (() => {
     }, { passive: true });
 
     window.addEventListener("touchmove", (e) => {
-      if (document.body.classList.contains("ktree-open")) return;
+      if ((document.body.classList.contains("ktree-open") || document.body.classList.contains("oracle-open"))) return;
       if (isWallpaperTouch) return;
       if (e.touches.length === 2 && touchDist > 0) {
         const d = Math.hypot(
@@ -2114,11 +2125,11 @@ const SkillTree = (() => {
        open (not just skip draws — cancel RAF so the main thread stays
        free for the explorable tree). Resume on "Retornar ao Mundo". */
     const ktreeObs = new MutationObserver(() => {
-      if (document.body.classList.contains("ktree-open")) pauseForKtree();
+      if ((document.body.classList.contains("ktree-open") || document.body.classList.contains("oracle-open"))) pauseForKtree();
       else resumeFromKtree();
     });
     ktreeObs.observe(document.body, { attributes: true, attributeFilter: ["class"] });
-    if (document.body.classList.contains("ktree-open")) pauseForKtree();
+    if ((document.body.classList.contains("ktree-open") || document.body.classList.contains("oracle-open"))) pauseForKtree();
     else {
       // Seed the dormant state BEFORE the first paint so the very first
       // frame the visitor sees is the sleeping cosmos — never a flash of

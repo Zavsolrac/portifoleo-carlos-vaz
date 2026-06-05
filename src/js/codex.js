@@ -4,8 +4,9 @@
  * Click on the central portrait (Núcleo Arcano) ignites a 3-second
  * summoning ritual: the Tengwar ring brightens, runes accelerate, the
  * skill tree dims, and streams of particles converge from the screen
- * edges into the photo's centre. After the ritual, a luxurious medieval
- * codex spread unfurls from the photo's position, presenting Carlos'
+ * edges into the photo's centre. After the ritual, Merlin's Council
+ * (Conselho de Merlin) offers a brief pearl of wisdom. Then a luxurious
+ * medieval codex spread unfurls from the photo's position, presenting Carlos'
  * legendary character record.
  *
  * On close, the codex collapses and dissolves into particles that fly
@@ -19,7 +20,7 @@ const Codex = (() => {
   let codexEl, veilEl, energyCanvas, ctx, closeBtn, portraitEl, bookEl;
   let raf = null;
   let isOpen = false;
-  let phase = "idle"; // "summon" | "open" | "closing"
+  let phase = "idle"; // "summon" | "council" | "open" | "closing"
   let phaseStart = 0;
   let lastFrame = 0;
   let particles = [];
@@ -90,6 +91,17 @@ const Codex = (() => {
       if (!isOpen && phase === "idle") summon();
     });
 
+    document.querySelectorAll("[data-codex-open]").forEach((el) => {
+      el.addEventListener("click", (e) => {
+        e.preventDefault();
+        if (isOpen || phase !== "idle") return;
+        window.scrollTo({ top: 0, behavior: "smooth" });
+        setTimeout(() => {
+          if (!isOpen && phase === "idle") summon();
+        }, 420);
+      });
+    });
+
     closeBtn?.addEventListener("click", close);
     veilEl?.addEventListener("click", close);
     document.addEventListener("keydown", (e) => {
@@ -149,7 +161,15 @@ const Codex = (() => {
 
     setTimeout(() => {
       if (phase !== "summon") return;
-      reveal();
+      if (window.MerlinCouncil?.play) {
+        phase = "council";
+        window.MerlinCouncil.play({ origin: getPortraitCenter() })
+          .then(() => {
+            if (phase === "council") reveal();
+          });
+      } else {
+        reveal();
+      }
     }, SUMMON_DURATION);
   }
 

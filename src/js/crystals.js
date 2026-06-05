@@ -9,6 +9,11 @@ const Crystals = {
   projects: [],
   active: null,
 
+  /* Uniform size multiplier applied to every floating crystal group
+     (body + halo + orbit). Tune this single value to make the crystals
+     smaller/larger without disturbing the rarity hierarchy. */
+  FLOAT_SCALE: 0.62,
+
   /* ------------------------------------------------------------------ *
    *  RARITY SYSTEM
    * ------------------------------------------------------------------ */
@@ -297,6 +302,18 @@ const Crystals = {
     sg.total = sg.implode + sg.hold + sg.expand;
     this._singularity = sg;
 
+    /* Mobile: the wallpaper loop static-stops once settled, so the
+       position lerp inside animateCrystal() would never run and the
+       gather/expand simply wouldn't happen. Keep the loop alive for the
+       whole sequence (+ a small buffer), then it re-settles on its own. */
+    if (this._mobileWallpaper && this._three) {
+      this._three._settleUntil = Math.max(
+        this._three._settleUntil || 0,
+        performance.now() + sg.total + 500
+      );
+      this._three._resumeWallpaper?.();
+    }
+
     /* Trigger the CSS-side flash (Big Bang halo + section glow). */
     this.section.classList.add("memories--big-bang");
 
@@ -369,7 +386,7 @@ const Crystals = {
 
     const onMove = (e) => {
       if (document.querySelector(".crystal-vault.is-open")) return;
-      if (document.body.classList.contains("ktree-open")) return;
+      if ((document.body.classList.contains("ktree-open") || document.body.classList.contains("oracle-open"))) return;
       const w = window.innerWidth || 1;
       const h = window.innerHeight || 1;
       tx = (e.clientX / w - 0.5) * 2;
@@ -795,6 +812,7 @@ const Crystals = {
       // its last frame, so the backdrop stays visible at zero ongoing GPU
       // cost. Re-armed briefly on resize / ktree-close.
       _settleUntil: performance.now() + 3000,
+      _loopActive: false,
     };
 
     const scene = new THREE.Scene();
@@ -908,7 +926,7 @@ const Crystals = {
     this._pointer = new THREE.Vector2();
 
     const onWindowPointerMove = (e) => {
-      if (document.body.classList.contains("ktree-open")) return;
+      if ((document.body.classList.contains("ktree-open") || document.body.classList.contains("oracle-open"))) return;
       // Mobile wallpaper: no hover/raycast. Tracking the pointer here kept
       // `_crystalPointerActive` true during finger-scroll, which defeated
       // the scroll-freeze and idle throttle → WebGL re-rendered (up to
@@ -935,7 +953,7 @@ const Crystals = {
     };
 
     const onWindowClick = (e) => {
-      if (document.body.classList.contains("ktree-open")) return;
+      if ((document.body.classList.contains("ktree-open") || document.body.classList.contains("oracle-open"))) return;
       if (!this._hovered) return;
       if (!this.isInCrystalField(e.clientX, e.clientY) || this.isOverMemoriesUI(e.target)) return;
       const proj = this._hovered.userData.project;
@@ -955,7 +973,10 @@ const Crystals = {
       renderer.setSize(w, h, false);
       // Mobile: a fresh size needs one more render burst, then re-settle.
       if (this._mobileWallpaper && this._three) {
-        this._three._settleUntil = performance.now() + 1200;
+        this._three._settleUntil = Math.max(
+          this._three._settleUntil || 0,
+          performance.now() + 1200
+        );
         /* Repaint the GL buffer in the SAME task as the resize so the
            just-reallocated (blank) buffer is never shown for a frame —
            avoids the wallpaper blinking on URL-bar resize. */
@@ -967,7 +988,10 @@ const Crystals = {
     window.addEventListener("resize", resize);
     window.addEventListener("cv-scroll-end", () => {
       if (!this._mobileWallpaper || !this._three) return;
-      this._three._settleUntil = performance.now() + 900;
+      this._three._settleUntil = Math.max(
+        this._three._settleUntil || 0,
+        performance.now() + 900
+      );
       this._three._resumeWallpaper?.();
     }, { passive: true });
 
@@ -978,27 +1002,34 @@ const Crystals = {
     this._three = t;
 
     const animate = () => {
+      t._loopActive = true;
       /* Do not keep an idle RAF while paused — frees the GPU/CPU for
          the Knowledge Tree overlay. Restart via _resumeWallpaper(). */
-      if (!t.running) return;
+      if (!t.running) { t._loopActive = false; return; }
 
       const vaultOpen = !!document.querySelector(".crystal-vault.is-open");
-      const ktreeOpen = document.body.classList.contains("ktree-open");
-      if (vaultOpen || ktreeOpen) return;
+      const ktreeOpen = (document.body.classList.contains("ktree-open") || document.body.classList.contains("oracle-open"));
+      if (vaultOpen || ktreeOpen) { t._loopActive = false; return; }
 
       t._frame = (t._frame || 0) + 1;
       const crystalIdle = !this._hovered && !this._crystalPointerActive &&
+        !this._singularity &&
         performance.now() - (this._lastCrystalInteract || 0) > 2000;
       if (crystalIdle && (t._frame & 1) === 1) {
         requestAnimationFrame(animate);
         return;
       }
 
-      // Freeze the WebGL render while the page is being scrolled (unless
-      // the pointer is over the crystal field). The fixed canvas then
-      // composites from its cached texture, removing the per-frame draw
-      // that competed with scroll compositing.
-      if (window.__cvScrolling && !this._hovered && !this._crystalPointerActive) {
+      // Freeze the WebGL render while the page is being scrolled — MOBILE
+      // ONLY. On mobile the per-frame draw competed with scroll compositing
+      // and the fixed canvas composites from its cached texture instead.
+      // On desktop there is GPU headroom, and freezing made the floating
+      // crystals visibly "stick" while scrolling through the memories
+      // section, so the field keeps drifting smoothly there. We also NEVER
+      // freeze while a singularity (gather/expand) is in flight, or its
+      // position lerp would stutter.
+      if (this._mobileWallpaper && window.__cvScrolling && !this._singularity &&
+          !this._hovered && !this._crystalPointerActive) {
         requestAnimationFrame(animate);
         return;
       }
@@ -1063,8 +1094,13 @@ const Crystals = {
       this.updateCaptionPositions(t);
 
       // Mobile: once settled, stop the loop entirely (static backdrop).
+      // NEVER stop while a singularity is animating — the gather/expand
+      // lerp lives in animateCrystal() and needs the loop running, or it
+      // would freeze the crystals mid-implosion.
       if (this._mobileWallpaper && performance.now() > t._settleUntil &&
+          !this._singularity &&
           !document.querySelector(".crystal-vault.is-open")) {
+        t._loopActive = false;
         return;
       }
 
@@ -1072,8 +1108,10 @@ const Crystals = {
     };
     t._resumeWallpaper = () => {
       if (!t.running) return;
+      if (t._loopActive) return;   // guard against concurrent loops
       if (document.querySelector(".crystal-vault.is-open")) return;
-      if (document.body.classList.contains("ktree-open")) return;
+      if ((document.body.classList.contains("ktree-open") || document.body.classList.contains("oracle-open"))) return;
+      t._loopActive = true;
       requestAnimationFrame(animate);
     };
     const startWallpaperLoop = () => { animate(); };
@@ -1100,7 +1138,7 @@ const Crystals = {
     }
     if (!this._ktreeWallpaperObs) {
       this._ktreeWallpaperObs = new MutationObserver(() => {
-        if (!document.body.classList.contains("ktree-open")) t._resumeWallpaper?.();
+        if (!(document.body.classList.contains("ktree-open") || document.body.classList.contains("oracle-open"))) t._resumeWallpaper?.();
       });
       this._ktreeWallpaperObs.observe(document.body, { attributes: true, attributeFilter: ["class"] });
     }
@@ -1581,6 +1619,9 @@ const Crystals = {
     const h = this.hash(project.name);
     const group = new THREE.Group();
     group.position.set(pos.x, pos.y, pos.z);
+    /* Seed the group scale at the reduced base so it doesn't "pop" down
+       from 1.0 via the hover lerp on the first animated frames. */
+    group.scale.setScalar(tier.scale * this.FLOAT_SCALE);
     group.userData.project = project;
     /* Home position used by the gentle 3D drift (see animation loop). */
     group.userData.baseX = pos.x;
@@ -1594,7 +1635,13 @@ const Crystals = {
     group.userData.driftSpeedZ = 0.18 + ((h >> 11) % 40) * 0.005;   // ~0.18–0.38
     group.userData.driftPhaseX = ((h >> 14) % 628) / 100;
     group.userData.driftPhaseZ = ((h >> 17) % 628) / 100;
-    group.userData.baseScale = tier.scale;
+    /* Global float-size multiplier. The crystal body, its halo sprite and
+       the orbiting particles all live inside `group`, so scaling the group
+       shrinks the whole artifact uniformly while preserving every internal
+       proportion, the rarity hierarchy and the hover / singularity logic
+       (both read baseScale). Reduced so the floating crystals no longer
+       crowd the surrounding UI now that the body mesh renders correctly. */
+    group.userData.baseScale = tier.scale * this.FLOAT_SCALE;
 
     const color = new THREE.Color(project.colors.mid);
     const emissive = new THREE.Color(project.colors.light);
@@ -1770,6 +1817,7 @@ const Crystals = {
           #include <common>
           varying vec3 vWorldPos;
           varying vec3 vViewDir;
+          varying vec3 vWorldNrm;
           `
         )
         .replace(
@@ -1778,6 +1826,13 @@ const Crystals = {
           #include <project_vertex>
           vWorldPos = (modelMatrix * vec4(transformed, 1.0)).xyz;
           vViewDir  = normalize(cameraPosition - vWorldPos);
+          /* Carry our own world-space normal instead of relying on
+             three.js's built-in vNormal varying, which is not guaranteed
+             to be declared at the emissivemap_fragment injection point on
+             stricter GLSL compilers (ANGLE) — that mismatch made the
+             fragment shader fail to compile and the crystals fall back to
+             a flat/black material on some drivers. */
+          vWorldNrm = normalize(mat3(modelMatrix) * normal);
           `
         );
 
@@ -1794,6 +1849,7 @@ const Crystals = {
           uniform float uHover;
           varying vec3 vWorldPos;
           varying vec3 vViewDir;
+          varying vec3 vWorldNrm;
 
           float hash3(vec3 p) {
             return fract(sin(dot(p, vec3(12.9898, 78.233, 45.164))) * 43758.5453);
@@ -1835,20 +1891,24 @@ const Crystals = {
 
           // Fractal volumetric noise — gives the gem an irregular,
           // crystalline interior instead of a flat colour.
-          float n = fbm(vWorldPos * 1.4 + vec3(uSeed * 9.0, uTime * 0.06, 0.0));
+          // NOTE: named cvN (not n) so it can never collide with a
+          // variable declared by three.js's transmission / IBL volume
+          // refraction chunk (getIBLVolumeRefraction), which on stricter
+          // GLSL compilers caused an "'n' : redefinition" compile failure.
+          float cvN = fbm(vWorldPos * 1.4 + vec3(uSeed * 9.0, uTime * 0.06, 0.0));
 
           // Moving caustic streaks (light scattering on faces)
           float caustic =
-              pow(abs(sin(vWorldPos.y * 7.0 + uTime * 0.55 + n * 4.0)), 8.0) * 0.55
-            + pow(abs(sin(vWorldPos.x * 5.0 - uTime * 0.42 + n * 3.0)), 10.0) * 0.45
-            + pow(abs(sin(vWorldPos.z * 6.0 + uTime * 0.33 + n * 2.5)), 9.0)  * 0.30;
+              pow(abs(sin(vWorldPos.y * 7.0 + uTime * 0.55 + cvN * 4.0)), 8.0) * 0.55
+            + pow(abs(sin(vWorldPos.x * 5.0 - uTime * 0.42 + cvN * 3.0)), 10.0) * 0.45
+            + pow(abs(sin(vWorldPos.z * 6.0 + uTime * 0.33 + cvN * 2.5)), 9.0)  * 0.30;
 
           // Fresnel rim — edges glow with the gem's emissive colour
           // so the silhouette dissolves into light instead of a hard line.
-          float fresnel = pow(1.0 - clamp(dot(normalize(vNormal), vViewDir), 0.0, 1.0), 2.6);
+          float fresnel = pow(1.0 - clamp(dot(normalize(vWorldNrm), vViewDir), 0.0, 1.0), 2.6);
 
           // Internal sparkle pinpoints (rare bright noise peaks)
-          float spark = smoothstep(0.78, 0.96, n);
+          float spark = smoothstep(0.78, 0.96, cvN);
 
           // Mix it all into emissive output. Hover now reads as a clear
           // "discovery" — the crystal flares: rim light and inner caustics
@@ -1858,7 +1918,7 @@ const Crystals = {
           totalEmissiveRadiance += emissive * spark * (0.6 + uHover * 0.5);
 
           // Modulate diffuse by noise (interior imperfections darken/lighten)
-          diffuseColor.rgb *= mix(0.82, 1.20, n);
+          diffuseColor.rgb *= mix(0.82, 1.20, cvN);
           // Hover lifts overall brightness for stronger contrast against
           // the resting field.
           diffuseColor.rgb *= (1.0 + uHover * 0.3);

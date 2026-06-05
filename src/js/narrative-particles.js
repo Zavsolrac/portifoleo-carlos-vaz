@@ -137,7 +137,7 @@ window.NarrativeParticles = (() => {
     });
 
     const ktreeObs = new MutationObserver(() => {
-      if (!document.body.classList.contains("ktree-open") && rafId === null && !hidden) {
+      if (!(document.body.classList.contains("ktree-open") || document.body.classList.contains("oracle-open")) && rafId === null && !hidden) {
         rafId = requestAnimationFrame(loop);
       }
     });
@@ -155,6 +155,9 @@ window.NarrativeParticles = (() => {
      ambient nebula drift across the hero — the canvas stays alive
      in the background without targeting the headline. */
   function modeForAct(act) {
+    /* Mobile: pulse-out keeps the particle loop awake and pushes hundreds
+       of points every frame while scrolling through #knowledge — skip it. */
+    if (isTouchWallpaper() && act === "2") return "idle";
     switch (act) {
       case "1": return "idle";
       case "2": return "pulse-out";
@@ -245,10 +248,19 @@ window.NarrativeParticles = (() => {
     const isTouchWallpaper = window.matchMedia("(hover: none) and (pointer: coarse)").matches ||
       window.matchMedia("(max-width: 767px)").matches;
     dpr     = Math.min(isTouchWallpaper ? 1 : 2, window.devicePixelRatio || 1);
-    width   = window.innerWidth;
-    height  = window.innerHeight;
-    canvas.style.width  = width + "px";
-    canvas.style.height = height + "px";
+    if (isTouchWallpaper) {
+      /* CSS pins #narrative-particles to 100vw × 100lvh, a height that
+         does NOT change when the mobile URL bar shows/hides. Read that
+         CSS-driven size so the field never reflows on the first scroll
+         (the reflow was part of the background "repositioning"). */
+      width  = canvas.clientWidth  || window.innerWidth;
+      height = canvas.clientHeight || window.innerHeight;
+    } else {
+      width  = window.innerWidth;
+      height = window.innerHeight;
+      canvas.style.width  = width + "px";
+      canvas.style.height = height + "px";
+    }
     canvas.width  = Math.round(width  * dpr);
     canvas.height = Math.round(height * dpr);
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
@@ -439,7 +451,7 @@ window.NarrativeParticles = (() => {
   /* ── render loop ─────────────────────────────────────────────── */
   function loop(now) {
     if (hidden) { rafId = null; return; }
-    if (document.body.classList.contains("ktree-open")) { rafId = null; return; }
+    if ((document.body.classList.contains("ktree-open") || document.body.classList.contains("oracle-open"))) { rafId = null; return; }
 
     const __touchWall = isTouchWallpaper();
 
@@ -506,7 +518,7 @@ window.NarrativeParticles = (() => {
   /* Synchronous one-off repaint (after a resize cleared the canvas). */
   function renderOnce() {
     if (hidden || isReducedMotion || !P) return;
-    if (document.body.classList.contains("ktree-open")) return;
+    if ((document.body.classList.contains("ktree-open") || document.body.classList.contains("oracle-open"))) return;
     paint(performance.now());
   }
 

@@ -17,11 +17,27 @@ document.addEventListener("DOMContentLoaded", () => {
      <html> (which Narrative.init sets), so it MUST start AFTER
      Narrative so the initial mode lands on the correct act. */
   if (window.NarrativeParticles) NarrativeParticles.init();
-  Crystals.init();
-  Portal.init();
+  /* Crystals + Portal are the two heaviest background WebGL scenes
+     (context creation + shader compile + first render). They are
+     visually suspended behind the Arcane Welcome overlay anyway, and
+     neither listens for the awaken event, so building them on the very
+     first frame only competes with the welcome entrance and can cause a
+     brief hitch right as the title appears. Defer them two frames so the
+     welcome materializes on a clean frame; they're still ready many
+     seconds before the background is ever revealed. */
+  const startBackgroundScenes = () => {
+    Crystals.init();
+    Portal.init();
+  };
+  if (typeof requestAnimationFrame === "function") {
+    requestAnimationFrame(() => requestAnimationFrame(startBackgroundScenes));
+  } else {
+    startBackgroundScenes();
+  }
   Merlin.init();
   Codex.init();
   if (window.Convergence) Convergence.init();
+  if (window.OracleD30) OracleD30.init();
   if (window.Enhancements) Enhancements.init();
   initAudio();
   initAmbience();
@@ -298,6 +314,8 @@ function initTheme() {
 
 function initSmoothAnchors() {
   document.querySelectorAll('a[href^="#"]').forEach((link) => {
+    /* Contract CTAs open the D-30 oracle ritual — not smooth-scroll. */
+    if (link.classList.contains("contract__cta")) return;
     link.addEventListener("click", (e) => {
       const id = link.getAttribute("href");
       if (!id || id === "#") return;

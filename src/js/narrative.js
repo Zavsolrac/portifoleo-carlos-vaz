@@ -71,6 +71,7 @@ window.Narrative = (() => {
   let lastProgress = -1;
   let lastAct = null;
   let intersection = new Map(); // section element → current ratio
+  let isMobileNarrative = false;
 
   function init() {
     root = document.documentElement;
@@ -90,13 +91,23 @@ window.Narrative = (() => {
     root.style.setProperty("--tree-wall-dim",      "0");
     setAct("1");
 
+    isMobileNarrative = window.matchMedia("(hover: none) and (pointer: coarse)").matches ||
+      window.matchMedia("(max-width: 767px)").matches;
+
     setupActObserver();
     setupEnterObserver();
 
-    measureScroll();
-    window.addEventListener("scroll", requestScrollUpdate, { passive: true });
-    window.addEventListener("resize", requestScrollUpdate, { passive: true });
-    window.addEventListener("pageshow", requestScrollUpdate);
+    if (isMobileNarrative) {
+      /* Mobile: scroll-linked blur/translate on .craft and filter on
+         .tree-wall tank FPS and read as the wallpaper "sliding down".
+         Snap vars when the act changes instead of updating every frame. */
+      applyMobileScrollVars(lastAct || "1");
+    } else {
+      measureScroll();
+      window.addEventListener("scroll", requestScrollUpdate, { passive: true });
+      window.addEventListener("resize", requestScrollUpdate, { passive: true });
+      window.addEventListener("pageshow", requestScrollUpdate);
+    }
   }
 
   /* ── ACT SWITCHING ────────────────────────────────────────────
@@ -228,6 +239,22 @@ window.Narrative = (() => {
 
   function setAct(act) {
     root.dataset.narrativeAct = act;
+    if (isMobileNarrative) applyMobileScrollVars(act);
+  }
+
+  /** Mobile-only: discrete CSS vars — no per-scroll filter/blur churn. */
+  function applyMobileScrollVars(act) {
+    if (act === "1") {
+      root.style.setProperty("--narrative-progress", "0");
+      root.style.setProperty("--craft-reveal", "0");
+      root.style.setProperty("--tree-wall-dim", "0");
+      return;
+    }
+    root.style.setProperty("--craft-reveal", "1");
+    root.style.setProperty("--narrative-progress", act === "2" ? "0.5" : "1");
+    /* Mild static dim past act II — no animated filter sweep while scrolling. */
+    const dim = act === "2" ? "0.28" : act === "3" ? "0.38" : "0.45";
+    root.style.setProperty("--tree-wall-dim", dim);
   }
 
   /* ── SCROLL VARIABLES ────────────────────────────────────────

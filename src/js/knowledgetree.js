@@ -636,9 +636,12 @@ const KnowledgeTree = (() => {
   }
 
   function drawAtmosphere() {
-    /* Opaque base so panning the camera never reveals transparent
-       canvas holes (or the main page) at the viewport edges. */
-    ctx.fillStyle = "#050a0c";
+    /* Translucent base: the .ktree__backdrop (RPG-library photo, fixed
+       to the full viewport) sits behind this canvas, so we let it show
+       through as ambience instead of painting an opaque fill. The wash
+       still darkens enough to keep the tree + crystals the focus, and
+       covers the whole viewport so panning never reveals page holes. */
+    ctx.fillStyle = "rgba(5, 10, 12, 0.46)";
     ctx.fillRect(0, 0, W, H);
     // base astral wash
     const cx = W * 0.46, cy = H * 0.44;
