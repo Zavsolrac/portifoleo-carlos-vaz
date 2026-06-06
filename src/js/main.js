@@ -43,7 +43,38 @@ document.addEventListener("DOMContentLoaded", () => {
   initAmbience();
   initTheme();
   initSmoothAnchors();
+  initMobileTouchHygiene();
 });
+
+function initMobileTouchHygiene() {
+  const isMobile =
+    window.matchMedia("(hover: none) and (pointer: coarse)").matches ||
+    window.matchMedia("(max-width: 767px)").matches;
+  if (!isMobile) return;
+
+  const proseSelector =
+    ".memories__lede, .memories__eyebrow, .section-head__lede, .pillar__desc, .footer";
+
+  document.addEventListener("selectstart", (e) => {
+    if (e.target instanceof Element && e.target.closest(proseSelector)) return;
+    e.preventDefault();
+  });
+
+  window.addEventListener(
+    "pointerup",
+    () => {
+      requestAnimationFrame(() => {
+        const sel = document.getSelection();
+        if (!sel || sel.isCollapsed) return;
+        const node = sel.anchorNode;
+        const el = node instanceof Element ? node : node?.parentElement;
+        if (el?.closest(proseSelector)) return;
+        sel.removeAllRanges();
+      });
+    },
+    { passive: true }
+  );
+}
 
 /* ------------------------------------------------------------------
  *  AMBIENT SOUNDTRACK · controller (no autoplay)

@@ -1931,6 +1931,10 @@ const SkillTree = (() => {
       mouse.dx = e.clientX;
       mouse.dy = e.clientY;
       scheduleRender(); // wake the on-demand loop (mobile static stop)
+      if (isWallpaperTouch) {
+        const sel = document.getSelection();
+        if (sel && !sel.isCollapsed) sel.removeAllRanges();
+      }
     };
 
     const onPointerMove = (e) => {

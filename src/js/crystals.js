@@ -1049,28 +1049,34 @@ const Crystals = {
 
       // (Nucleus pulse removed — Arcane Core sphere was a visual anomaly)
 
-      // Nebula slow drift — different speeds per layer for parallax depth
-      nebula.rotation.y = elapsed * 0.015;
-      nebula.rotation.x = Math.sin(elapsed * 0.08) * 0.05;
-      if (nebulaBack)  nebulaBack.rotation.y  = elapsed *  0.008;
-      if (nebulaFront) nebulaFront.rotation.y = elapsed * -0.022;
+      const sgLite = this._singularity && this._mobileWallpaper;
 
-      // Pulse connection tubes (subtle breath)
-      if (t.tubes) {
-        t.tubes.forEach((tube) => {
-          const op = 0.12 + Math.sin(elapsed * 0.8 + tube.userData.aZ * 0.4) * 0.06;
-          tube.material.opacity = op;
-        });
+      if (!sgLite) {
+        // Nebula slow drift — different speeds per layer for parallax depth
+        nebula.rotation.y = elapsed * 0.015;
+        nebula.rotation.x = Math.sin(elapsed * 0.08) * 0.05;
+        if (nebulaBack)  nebulaBack.rotation.y  = elapsed *  0.008;
+        if (nebulaFront) nebulaFront.rotation.y = elapsed * -0.022;
+
+        // Pulse connection tubes (subtle breath)
+        if (t.tubes) {
+          t.tubes.forEach((tube) => {
+            const op = 0.12 + Math.sin(elapsed * 0.8 + tube.userData.aZ * 0.4) * 0.06;
+            tube.material.opacity = op;
+          });
+        }
       }
 
       // Update each crystal
       t.crystals.forEach((group) => {
         this.animateCrystal(group, elapsed, dt);
-        // Update shader uniforms (time + hover)
-        const sh = group.userData.material?.userData?.shader;
-        if (sh) {
-          sh.uniforms.uTime.value = elapsed;
-          sh.uniforms.uHover.value = group.userData.hoverEase || 0;
+        if (!sgLite) {
+          // Update shader uniforms (time + hover)
+          const sh = group.userData.material?.userData?.shader;
+          if (sh) {
+            sh.uniforms.uTime.value = elapsed;
+            sh.uniforms.uHover.value = group.userData.hoverEase || 0;
+          }
         }
         // Back-to-front sort for correct transparency
         group.renderOrder = -group.position.z * 10;
@@ -1091,7 +1097,7 @@ const Crystals = {
       }
 
       renderer.render(scene, camera);
-      this.updateCaptionPositions(t);
+      if (!sgLite) this.updateCaptionPositions(t);
 
       // Mobile: once settled, stop the loop entirely (static backdrop).
       // NEVER stop while a singularity is animating — the gather/expand
@@ -2217,6 +2223,10 @@ const Crystals = {
       group.position.z =
         ud.baseZ + Math.cos(elapsed * ud.driftSpeedZ + ud.driftPhaseZ) * ud.driftAmpZ;
     }
+
+    /* Mobile singularity: position + spin only — skip per-crystal
+       material/orbit/halo work that tanks FPS during the gather. */
+    if (sg && this._mobileWallpaper) return;
 
     // --- Depth-of-field fake: distant crystals dim & shrink slightly ---
     // Camera sits around z=22 looking toward origin. Crystals can be

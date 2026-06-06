@@ -14874,6 +14874,68 @@ html[data-theme="light"] .ambience__volume-label { color: #8a5a1f; }
   .contract__book {
     box-shadow: 0 6px 18px rgba(0, 0, 0, 0.4) !important;
   }
+
+  /* — Ghost selection / tap highlight on touch — */
+  html {
+    -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
+  }
+  body {
+    user-select: none;
+    -webkit-user-select: none;
+  }
+  a,
+  button,
+  canvas,
+  .hero__portrait,
+  .hero__cta,
+  .craft__node,
+  .pillar,
+  .contract__book,
+  .contract__cta,
+  .tree-hud,
+  .tree-hud *,
+  .stat,
+  .nav,
+  .nav * {
+    -webkit-tap-highlight-color: transparent !important;
+    -webkit-touch-callout: none;
+    touch-action: manipulation;
+  }
+  .memories__lede,
+  .memories__eyebrow,
+  .section-head__lede,
+  .pillar__desc,
+  .footer,
+  .footer * {
+    user-select: text;
+    -webkit-user-select: text;
+  }
+
+  /* — Act III singularity: drop expensive CSS compositing on mobile — */
+  #memories[data-narrative-entered="true"] .memories__wave,
+  #memories[data-narrative-entered="true"] .memories__head::before,
+  #memories[data-narrative-entered="true"] .memories__head::after {
+    animation: none !important;
+  }
+  .memories--big-bang::after {
+    mix-blend-mode: normal !important;
+    animation: act3-bigbang-flash-lite 3.2s cubic-bezier(.22, 1, .36, 1) forwards !important;
+  }
+  .memories--big-bang .memories__head::after {
+    animation: act3-bigbang-shock-lite 3.2s cubic-bezier(.22, 1, .36, 1) forwards !important;
+    box-shadow: 0 0 24px rgba(255, 231, 160, 0.35) !important;
+  }
+}
+@keyframes act3-bigbang-flash-lite {
+  0%, 34% { opacity: 0; transform: translate(-50%, -50%) scale(0); }
+  42%     { opacity: 1; transform: translate(-50%, -50%) scale(0.55); }
+  100%    { opacity: 0; transform: translate(-50%, -50%) scale(6.5); }
+}
+@keyframes act3-bigbang-shock-lite {
+  0%, 34% { opacity: 0; transform: translate(-50%, -50%) scale(0.05); }
+  42%     { opacity: 1; transform: translate(-50%, -50%) scale(0.4); }
+  100%    { opacity: 0; transform: translate(-50%, -50%) scale(2.8); }
 }
 @keyframes cv-welcome-line-in-m {
   from { opacity: 0; transform: translateY(10px); }
