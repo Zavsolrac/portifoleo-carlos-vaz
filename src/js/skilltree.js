@@ -1326,18 +1326,16 @@ const SkillTree = (() => {
 
   function isWelcomeShowing() {
     const el = document.getElementById("arcane-welcome");
-    return !!(el && (el.classList.contains("is-active") ||
-      el.classList.contains("is-leaving")));
+    if (!el || el.classList.contains("is-done")) return false;
+    return el.classList.contains("is-active") || el.classList.contains("is-leaving");
   }
 
   function scheduleRender() {
-    if (renderRaf != null || ktreePaused ||
-        (isWallpaperTouch && welcomePaused)) return;
+    if (renderRaf != null || ktreePaused || welcomePaused) return;
     renderRaf = requestAnimationFrame(render);
   }
 
   function pauseForWelcome() {
-    if (!isWallpaperTouch) return;
     welcomePaused = true;
     if (renderRaf != null) {
       cancelAnimationFrame(renderRaf);
@@ -1352,7 +1350,6 @@ const SkillTree = (() => {
   }
 
   function watchWelcomePause() {
-    if (!isWallpaperTouch) return;
     const el = document.getElementById("arcane-welcome");
     if (!el) return;
     if (isWelcomeShowing()) pauseForWelcome();
@@ -1362,7 +1359,7 @@ const SkillTree = (() => {
     });
     mo.observe(el, { attributes: true, attributeFilter: ["class"] });
     window.addEventListener("cv-welcome-awaken", () => {
-      if (!isWelcomeShowing()) resumeFromWelcome();
+      resumeFromWelcome();
     }, { once: true });
   }
 
@@ -1574,9 +1571,8 @@ const SkillTree = (() => {
     if (inRender) return;
     inRender = true;
     renderRaf = null;
-    if (isWallpaperTouch && isWelcomeShowing()) {
+    if (welcomePaused) {
       inRender = false;
-      welcomePaused = true;
       return;
     }
     if ((document.body.classList.contains("ktree-open") || document.body.classList.contains("oracle-open"))) {

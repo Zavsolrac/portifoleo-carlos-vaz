@@ -25,14 +25,31 @@ document.addEventListener("DOMContentLoaded", () => {
      brief hitch right as the title appears. Defer them two frames so the
      welcome materializes on a clean frame; they're still ready many
      seconds before the background is ever revealed. */
-  const startBackgroundScenes = () => {
-    Crystals.init();
+  let scenesBooted = false;
+  const bootPortal = () => {
+    if (bootPortal.done) return;
+    bootPortal.done = true;
     Portal.init();
   };
-  if (typeof requestAnimationFrame === "function") {
-    requestAnimationFrame(() => requestAnimationFrame(startBackgroundScenes));
+  const startBackgroundScenes = () => {
+    if (scenesBooted) return;
+    scenesBooted = true;
+    Crystals.init();
+    window.setTimeout(bootPortal, 700);
+  };
+  const welcomeEl = document.getElementById("arcane-welcome");
+  const welcomeMobile =
+    window.matchMedia("(hover: none) and (pointer: coarse)").matches ||
+    window.matchMedia("(max-width: 767px)").matches;
+  if (!welcomeEl || welcomeMobile) {
+    if (typeof requestAnimationFrame === "function") {
+      requestAnimationFrame(() => requestAnimationFrame(startBackgroundScenes));
+    } else {
+      startBackgroundScenes();
+    }
   } else {
-    startBackgroundScenes();
+    window.addEventListener("cv-welcome-awaken", startBackgroundScenes, { once: true });
+    window.setTimeout(startBackgroundScenes, 2400);
   }
   Merlin.init();
   Codex.init();

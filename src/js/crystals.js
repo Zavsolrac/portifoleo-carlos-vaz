@@ -906,19 +906,29 @@ const Crystals = {
     const nebulaFront = buildNebulaLayer(Math.round(40 * baseN),  [4, 9],    [0.06, 0.14], [0.5, 0.65], 0.25);
     const nebula = nebulaMid;
 
-    // Build crystals
     const positions = this.computePositions(this.projects.length);
-    this.projects.forEach((p, i) => {
-      const pos = positions[i];
-      const crystal = this.buildCrystal(p, pos, t.envMap, scene);
-      t.crystals.push(crystal);
-      const caption = this.createCaption(p, crystal);
-      t.captions.push(caption);
-      this.overlay?.appendChild(caption.el);
-    });
-
-    // Curved 3D tubes connecting nearest crystals (organic constellation)
-    t.tubes = this.buildConnections(scene, t.crystals) || [];
+    const buildCrystalsGradually = (done) => {
+      let built = 0;
+      const step = () => {
+        const budget = performance.now() + 12;
+        while (built < this.projects.length && performance.now() < budget) {
+          const i = built++;
+          const project = this.projects[i];
+          const crystal = this.buildCrystal(project, positions[i], t.envMap, scene);
+          t.crystals.push(crystal);
+          const caption = this.createCaption(project, crystal);
+          t.captions.push(caption);
+          this.overlay?.appendChild(caption.el);
+        }
+        if (built < this.projects.length) {
+          requestAnimationFrame(step);
+          return;
+        }
+        t.tubes = this.buildConnections(scene, t.crystals) || [];
+        requestAnimationFrame(done);
+      };
+      requestAnimationFrame(step);
+    };
 
     // Raycaster — window-level so the canvas can stay pointer-events:none
     // and the skill tree remains interactive in empty areas.
@@ -1121,27 +1131,27 @@ const Crystals = {
       requestAnimationFrame(animate);
     };
     const startWallpaperLoop = () => { animate(); };
-    if (this._mobileWallpaper) {
-      const welcomeEl = document.getElementById("arcane-welcome");
-      const welcomeBusy = welcomeEl &&
-        (welcomeEl.classList.contains("is-active") ||
-          welcomeEl.classList.contains("is-leaving"));
-      if (welcomeBusy) {
-        const go = () => startWallpaperLoop();
-        const mo = new MutationObserver(() => {
-          if (!welcomeEl.classList.contains("is-active") &&
-              !welcomeEl.classList.contains("is-leaving")) {
-            mo.disconnect();
-            go();
-          }
-        });
-        mo.observe(welcomeEl, { attributes: true, attributeFilter: ["class"] });
-      } else {
-        startWallpaperLoop();
+    const launchWhenReady = () => {
+      if (this._mobileWallpaper) {
+        const welcomeEl = document.getElementById("arcane-welcome");
+        const welcomeBusy = welcomeEl &&
+          (welcomeEl.classList.contains("is-active") ||
+            welcomeEl.classList.contains("is-leaving"));
+        if (welcomeBusy) {
+          const mo = new MutationObserver(() => {
+            if (!welcomeEl.classList.contains("is-active") &&
+                !welcomeEl.classList.contains("is-leaving")) {
+              mo.disconnect();
+              startWallpaperLoop();
+            }
+          });
+          mo.observe(welcomeEl, { attributes: true, attributeFilter: ["class"] });
+          return;
+        }
       }
-    } else {
       startWallpaperLoop();
-    }
+    };
+    buildCrystalsGradually(launchWhenReady);
     if (!this._ktreeWallpaperObs) {
       this._ktreeWallpaperObs = new MutationObserver(() => {
         if (!(document.body.classList.contains("ktree-open") || document.body.classList.contains("oracle-open"))) t._resumeWallpaper?.();
@@ -1674,6 +1684,7 @@ const Crystals = {
       depthWrite: false,
       flatShading: true,
     });
+    mat.customProgramCacheKey = () => "cv-crystal-physical";
 
     // Inject custom shader: fractal noise, caustics, fresnel rim
     this.injectCrystalShader(mat, h, tier.halo);
@@ -1716,6 +1727,7 @@ const Crystals = {
       depthWrite: false,
       flatShading: true,
     });
+    innerMat.customProgramCacheKey = () => "cv-crystal-inner";
     const innerMesh = new THREE.Mesh(innerGeo, innerMat);
     innerMesh.renderOrder = (mesh.renderOrder || 0) + 2; // draw within the orb
     group.add(innerMesh);
@@ -1783,16 +1795,14 @@ const Crystals = {
     group.add(orbitGroup);
     group.userData.orbitGroup = orbitGroup;
 
-    // Point light per crystal (colored glow)
-    const glowLight = new THREE.PointLight(
-      new THREE.Color(project.colors.mid),
-      0.3 + tier.halo * 0.15,
-      3 + tier.scale
-    );
-    group.add(glowLight);
-    group.userData.glowLight = glowLight;
+    group.add(mesh);
+    group.userData.mesh = mesh;
+    group.userData.material = mat;
 
-    // Volumetric halo sprite — soft additive light puff around the gem
+    /* No per-crystal PointLight. Each light is compiled into the physical
+       shader (numPointLights), so nine of them produced a second, heavier
+       program and a multi-second hitch on the first frame. The colored
+       glow stays on the emissive material and the halo sprite. */
     this.buildVolumetricHalo(group, project, tier);
 
     scene.add(group);

@@ -58,6 +58,10 @@ const Effects = {
     function draw() {
       animId = null;
       if (document.hidden) return;
+      if (document.body.classList.contains("cv-welcome-active")) {
+        scheduleDraw();
+        return;
+      }
       if (document.body.classList.contains("ktree-open")) return;
       if (!dustVisible()) return;
       ctx.clearRect(0, 0, w, h);

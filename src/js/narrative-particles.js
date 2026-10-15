@@ -462,8 +462,8 @@ window.NarrativeParticles = (() => {
     const __welcomeBusy = __welcomeEl &&
       (__welcomeEl.classList.contains("is-active") ||
         __welcomeEl.classList.contains("is-leaving"));
-    if (__welcomeBusy && __touchWall) {
-      rafId = null;
+    if (__welcomeBusy) {
+      rafId = requestAnimationFrame(loop);
       return;
     }
 

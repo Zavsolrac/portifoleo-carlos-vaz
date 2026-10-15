@@ -11351,7 +11351,6 @@ html[data-theme="light"] {
      Default to 0 so chars work even if data-line is absent. */
   --line-delay: 0s;
   --leave-delay: 0s;
-  will-change: contents;
 }
 .welcome__line + .welcome__line { margin-top: 0.55rem; }
 
@@ -11460,56 +11459,16 @@ html[data-theme="light"] {
 .welcome__char {
   display: inline-block;
   padding: 0 0.04em;
-  background:
-    linear-gradient(
-      105deg,
-      #1A0303 0%,
-      #4D0A07 6%,
-      #8C1908 14%,
-      #C8341A 24%,
-      #F06A1F 36%,
-      #FFB05A 47%,
-      #FFE49A 52%,
-      #FFB05A 57%,
-      #F06A1F 68%,
-      #C8341A 78%,
-      #8C1908 86%,
-      #4D0A07 94%,
-      #1A0303 100%
-    );
-  background-size: 320% 100%;
-  background-position: 0% 50%;
-  background-clip: text;
-  -webkit-background-clip: text;
-  color: transparent;
-  -webkit-text-fill-color: transparent;
-  /* Persistent heat aura — survives across emergence keyframes
-     and continues into the idle phase so each letter glows
-     faintly even after the materialization finishes. */
+  color: #FFB05A;
+  -webkit-text-fill-color: #FFB05A;
   text-shadow:
-    0 0 6px  rgba(255, 170, 70, 0.50),
-    0 0 14px rgba(255, 110, 35, 0.40),
-    0 0 28px rgba(180, 40, 12, 0.30),
+    0 0 8px rgba(255, 140, 50, 0.45),
     0 1px 1px rgba(40, 8, 4, 0.55);
-  /* Initial state for the emergence: dark and unformed.
-     Background still renders but the letter is blurred so
-     the lava texture only sharpens as the glyph crystallises. */
   opacity: 0;
-  transform: translateY(14px) scale(0.78);
-  filter: blur(10px) brightness(1.4) saturate(1.4);
-  /* TWO LAYERED ANIMATIONS:
-       1. welcome-char-emerge  · single 0.85s materialization
-       2. welcome-char-lava    · 8s infinite background-position
-          sweep, starts shortly AFTER the emergence completes
-          (offset by +0.4s on top of the cascade) so the lava
-          starts flowing once the letter is sharp. */
-  animation:
-    welcome-char-emerge 0.85s cubic-bezier(.22, 1, .36, 1) forwards,
-    welcome-char-lava 8s linear infinite;
-  animation-delay:
-    calc(var(--line-delay, 0s) + var(--ci, 0) * 0.024s),
-    calc(var(--line-delay, 0s) + var(--ci, 0) * 0.024s + 0.4s);
-  will-change: opacity, transform, filter, background-position;
+  transform: translateY(12px);
+  animation: welcome-char-rise 0.7s cubic-bezier(.22, 1, .36, 1) forwards;
+  animation-delay: calc(var(--line-delay, 0s) + var(--ci, 0) * 0.024s);
+  will-change: opacity, transform;
 }
 .welcome__char--space {
   /* Preserve word spacing without animating an empty pill.
@@ -11681,33 +11640,11 @@ html[data-theme="light"] {
 /* DISSOLUTION · the lava chars rise upward and bloom outward as
    the cooling rock evaporates — the shadows brighten toward
    orange at the midpoint and fade through transparent embers. */
+@keyframes welcome-char-rise {
+  to { opacity: 1; transform: translateY(0); }
+}
 @keyframes welcome-char-out {
-  0% {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-    filter: blur(0) brightness(1) saturate(1.25);
-    text-shadow:
-      0 0 6px  rgba(255, 170, 70, 0.50),
-      0 0 14px rgba(255, 110, 35, 0.40),
-      0 0 28px rgba(180, 40, 12, 0.30);
-  }
-  55% {
-    opacity: 0.55;
-    transform: translateY(-4px) scale(1.08);
-    filter: blur(3px) brightness(1.3) saturate(1.45);
-    text-shadow:
-      0 0 28px rgba(255, 175, 75, 0.95),
-      0 0 50px rgba(255, 100, 30, 0.65),
-      0 0 12px rgba(255, 220, 150, 0.85);
-  }
-  100% {
-    opacity: 0;
-    transform: translateY(-12px) scale(1.18);
-    filter: blur(8px) brightness(1.4) saturate(1.5);
-    text-shadow:
-      0 0 40px rgba(255, 180, 80, 0),
-      0 0 80px rgba(255, 100, 30, 0);
-  }
+  to { opacity: 0; transform: translateY(-10px); }
 }
 @keyframes welcome-char-out-space {
   to { opacity: 0; }
